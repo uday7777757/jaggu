@@ -1,13 +1,380 @@
 \chapter{System Implementation}
 
-\section{Modules Description}
+\section{Technology Stack}
 
-Lorem ipsum\cite{9016866} dolor sit amet, consectetur adipiscing elit. Etiam consectetur libero dui, sit amet rutrum lectus mollis ac. Phasellus mattis augue quis auctor ullamcorper. Sed congue rutrum turpis, sit amet tincidunt erat laoreet ac. Morbi in feugiat erat, sit amet placerat lorem. Quisque cursus gravida nulla, nec pulvinar justo rutrum eget. Aenean et dolor vitae enim congue maximus. Praesent consequat finibus imperdiet. Sed ipsum erat, efficitur vitae urna a, convallis ornare ipsum. Quisque fringilla risus enim, ut elementum dui consectetur eu.
+\subsection{Programming Language and Environment}
 
-\section{Technology Used}
+The system is implemented in \textbf{Python 3.10} using a \texttt{conda} virtual environment with dependency pinning via \texttt{requirements.txt}. Python's rich ecosystem of scientific computing and machine learning libraries, combined with its deployment flexibility, makes it the standard choice for ML system development \cite{pedregosa2011sklearn}.
 
-Vivamus sed enim quam. In facilisis consequat eros, id convallis diam congue et. Vivamus sed neque rutrum, gravida urna non, lobortis leo. Curabitur sagittis turpis sit amet dolor blandit lobortis. Fusce ac sem eget libero semper ultrices. Aliquam erat volutpat. Quisque tincidunt mi sapien, eu varius libero lacinia quis. Nullam dictum quam sed scelerisque aliquet. Mauris laoreet est nec dolor pellentesque dignissim. Praesent ac sapien erat. Mauris ut felis sit amet velit convallis cursus quis a tellus. Curabitur efficitur ultricies dui, eget vestibulum arcu venenatis ac. Nulla fermentum dolor a venenatis posuere. Vivamus eu luctus erat.\\
-\section{Algorithms used}
-Open the word file. Click on the equation written in MathType. Go to Mathtype Tab at the top. You will find a option ToggleTex. Click and copy the codes here.
+\subsection{Libraries and Frameworks}
 
-\section{Coding}
+\begin{table}[H]
+    \centering
+    \caption{Technology Stack Summary}
+    \begin{tabular}{|l|l|p{6.5cm}|}
+        \hline
+        \textbf{Library/Tool} & \textbf{Version} & \textbf{Purpose} \\
+        \hline
+        Python & 3.10 & Core programming language \\
+        \hline
+        pandas & 2.0.3 & Data manipulation and EDA \\
+        \hline
+        NumPy & 1.25.2 & Numerical array operations \\
+        \hline
+        scikit-learn & 1.3.0 & ML algorithms, pipelines, metrics \\
+        \hline
+        XGBoost & 1.7.6 & Gradient boosting classifier \\
+        \hline
+        imbalanced-learn & 0.11.0 & SMOTE and resampling strategies \\
+        \hline
+        SHAP & 0.42.1 & Model interpretability \\
+        \hline
+        Matplotlib & 3.7.2 & Data visualisation \\
+        \hline
+        Seaborn & 0.12.2 & Statistical visualisation \\
+        \hline
+        Flask & 2.3.2 & REST API microservice \\
+        \hline
+        Docker & 24.0 & Containerisation \\
+        \hline
+        PostgreSQL & 15.3 & Persistent data storage \\
+        \hline
+        Jupyter Notebook & 7.0 & Interactive development \\
+        \hline
+        scikit-optimize & 0.9.0 & Bayesian hyperparameter search \\
+        \hline
+    \end{tabular}
+    \label{tab:techstack}
+\end{table}
+
+\section{Data Loading and Initial Exploration}
+
+The dataset is loaded and inspected as follows:
+
+\begin{lstlisting}[language=Python, caption={Data Loading and Basic EDA}, label={lst:dataload}]
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load dataset
+df = pd.read_csv('data/bank_churn.csv')
+print(f"Shape: {df.shape}")          # (10000, 14)
+print(df.dtypes)
+print(df.isnull().sum())             # Confirm no missing values
+print(df['Exited'].value_counts())   # 0: 7963, 1: 2037
+
+# Churn rate by geography
+churn_by_geo = df.groupby('Geography')['Exited'].mean()
+print(churn_by_geo)
+# France: 0.162, Germany: 0.324, Spain: 0.167
+
+# Age distribution for churners vs non-churners
+df.groupby('Exited')['Age'].describe()
+\end{lstlisting}
+
+\section{Feature Engineering Implementation}
+
+\begin{lstlisting}[language=Python, caption={Feature Engineering Pipeline}, label={lst:feateng}]
+def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Derive discriminative features from raw columns."""
+    df = df.copy()
+    # Drop non-predictive identifiers
+    df.drop(columns=['RowNumber', 'CustomerId', 'Surname'],
+            errors='ignore', inplace=True)
+
+    # Derived ratio features
+    df['BalanceSalaryRatio'] = df['Balance'] / (df['EstimatedSalary'] + 1)
+    df['TenureByAge'] = df['Tenure'] / df['Age']
+    df['CreditScoreGivenAge'] = df['CreditScore'] / df['Age']
+    df['ProductsPerAge'] = df['NumOfProducts'] / df['Age']
+    df['BalancePerProduct'] = df['Balance'] / df['NumOfProducts']
+
+    # Binary interaction flags
+    df['HasBalance'] = (df['Balance'] > 0).astype(int)
+    df['InactiveWithBalance'] = (
+        (df['IsActiveMember'] == 0) & (df['Balance'] > 0)
+    ).astype(int)
+    df['ActiveMultiProduct'] = (
+        (df['IsActiveMember'] == 1) & (df['NumOfProducts'] > 1)
+    ).astype(int)
+
+    # Age group ordinal encoding
+    df['AgeGroup'] = pd.cut(
+        df['Age'],
+        bins=[17, 30, 45, 60, 100],
+        labels=[0, 1, 2, 3]
+    ).astype(int)
+
+    # Categorical encoding
+    df = pd.get_dummies(df, columns=['Geography'], drop_first=True)
+    df['Gender_Male'] = (df['Gender'] == 'Male').astype(int)
+    df.drop(columns=['Gender'], inplace=True)
+
+    # Germany-Female interaction (high-risk segment)
+    if 'Geography_Germany' in df.columns:
+        df['GermanyFemale'] = (
+            df['Geography_Germany'].astype(int) * (1 - df['Gender_Male'])
+        )
+    return df
+\end{lstlisting}
+
+\section{Preprocessing Pipeline}
+
+\begin{lstlisting}[language=Python, caption={scikit-learn Preprocessing Pipeline}, label={lst:pipeline}]
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.compose import ColumnTransformer
+
+CONTINUOUS_FEATURES = [
+    'CreditScore', 'Age', 'Tenure', 'Balance',
+    'EstimatedSalary', 'BalanceSalaryRatio',
+    'TenureByAge', 'CreditScoreGivenAge',
+    'ProductsPerAge', 'BalancePerProduct'
+]
+
+def build_preprocessing_pipeline():
+    scaler = ColumnTransformer(
+        transformers=[
+            ('scale', StandardScaler(), CONTINUOUS_FEATURES)
+        ],
+        remainder='passthrough'
+    )
+    return scaler
+\end{lstlisting}
+
+\section{Class Imbalance Handling}
+
+\begin{lstlisting}[language=Python, caption={SMOTE Resampling}, label={lst:smote}]
+from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import train_test_split
+
+# Stratified split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+print(f"Training churn rate: {y_train.mean():.3f}")  # 0.203
+
+# Apply SMOTE on training set only
+smote = SMOTE(random_state=42, k_neighbors=5)
+X_train_res, y_train_res = smote.fit_resample(X_train, y_train)
+print(f"After SMOTE - Training churn rate: {y_train_res.mean():.3f}")  # 0.500
+print(f"Training set size after SMOTE: {len(X_train_res)}")            # 12740
+\end{lstlisting}
+
+\section{Model Training}
+
+\subsection{Algorithm Implementations}
+
+\begin{lstlisting}[language=Python, caption={Algorithm Definitions}, label={lst:models}]
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
+from xgboost import XGBClassifier
+
+MODELS = {
+    'Logistic Regression': LogisticRegression(
+        max_iter=1000, random_state=42
+    ),
+    'Decision Tree': DecisionTreeClassifier(
+        random_state=42
+    ),
+    'Random Forest': RandomForestClassifier(
+        n_estimators=200, random_state=42, n_jobs=-1
+    ),
+    'SVM': SVC(
+        probability=True, random_state=42
+    ),
+    'ANN': MLPClassifier(
+        hidden_layer_sizes=(64, 32),
+        max_iter=500, random_state=42
+    ),
+    'XGBoost': XGBClassifier(
+        use_label_encoder=False,
+        eval_metric='logloss',
+        random_state=42,
+        n_jobs=-1
+    )
+}
+\end{lstlisting}
+
+\subsection{Cross-Validation Training}
+
+\begin{lstlisting}[language=Python, caption={5-Fold Stratified Cross-Validation}, label={lst:cv}]
+from sklearn.model_selection import StratifiedKFold, cross_validate
+
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+SCORING = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc']
+
+results = {}
+for name, model in MODELS.items():
+    scores = cross_validate(
+        model, X_train_res, y_train_res,
+        cv=cv, scoring=SCORING, n_jobs=-1
+    )
+    results[name] = {
+        metric: scores[f'test_{metric}'].mean()
+        for metric in SCORING
+    }
+    print(f"{name}: AUC-ROC = {results[name]['roc_auc']:.4f}")
+\end{lstlisting}
+
+\section{Hyperparameter Optimisation}
+
+\subsection{Bayesian Search for XGBoost}
+
+\begin{lstlisting}[language=Python, caption={Bayesian Hyperparameter Optimisation for XGBoost}, label={lst:bayesian}]
+from skopt import BayesSearchCV
+from skopt.space import Real, Integer
+
+XGBOOST_SEARCH_SPACE = {
+    'n_estimators': Integer(100, 600),
+    'max_depth': Integer(3, 10),
+    'learning_rate': Real(0.01, 0.3, prior='log-uniform'),
+    'subsample': Real(0.6, 1.0),
+    'colsample_bytree': Real(0.6, 1.0),
+    'min_child_weight': Integer(1, 10),
+    'gamma': Real(0.0, 5.0),
+    'reg_alpha': Real(0.0, 1.0),
+    'reg_lambda': Real(1.0, 10.0)
+}
+
+opt = BayesSearchCV(
+    XGBClassifier(use_label_encoder=False,
+                  eval_metric='logloss',
+                  random_state=42),
+    XGBOOST_SEARCH_SPACE,
+    n_iter=50,
+    cv=StratifiedKFold(n_splits=5, shuffle=True, random_state=42),
+    scoring='roc_auc',
+    random_state=42,
+    n_jobs=-1
+)
+opt.fit(X_train_res, y_train_res)
+best_xgb = opt.best_estimator_
+print("Best params:", opt.best_params_)
+print("Best CV AUC-ROC:", opt.best_score_)
+\end{lstlisting}
+
+\subsection{Optimal Hyperparameters Found}
+
+\begin{table}[H]
+    \centering
+    \caption{Optimal XGBoost Hyperparameters}
+    \begin{tabular}{|l|l|l|}
+        \hline
+        \textbf{Hyperparameter} & \textbf{Search Range} & \textbf{Optimal Value} \\
+        \hline
+        \texttt{n\_estimators} & 100--600 & 420 \\
+        \hline
+        \texttt{max\_depth} & 3--10 & 6 \\
+        \hline
+        \texttt{learning\_rate} & 0.01--0.30 & 0.072 \\
+        \hline
+        \texttt{subsample} & 0.6--1.0 & 0.83 \\
+        \hline
+        \texttt{colsample\_bytree} & 0.6--1.0 & 0.78 \\
+        \hline
+        \texttt{min\_child\_weight} & 1--10 & 3 \\
+        \hline
+        \texttt{gamma} & 0.0--5.0 & 0.24 \\
+        \hline
+        \texttt{reg\_alpha} & 0.0--1.0 & 0.12 \\
+        \hline
+        \texttt{reg\_lambda} & 1.0--10.0 & 2.8 \\
+        \hline
+    \end{tabular}
+    \label{tab:hyperparams}
+\end{table}
+
+\section{SHAP Interpretability}
+
+\begin{lstlisting}[language=Python, caption={SHAP Feature Importance Computation}, label={lst:shap}]
+import shap
+
+# Compute SHAP values using TreeSHAP (exact, efficient for tree models)
+explainer = shap.TreeExplainer(best_xgb)
+shap_values = explainer.shap_values(X_test)
+
+# Global feature importance (mean absolute SHAP value)
+shap.summary_plot(shap_values, X_test,
+                  feature_names=feature_names, show=False)
+plt.tight_layout()
+plt.savefig('reports/shap_summary.png', dpi=150)
+
+# Individual prediction explanation
+shap.force_plot(explainer.expected_value,
+                shap_values[0],
+                X_test.iloc[0],
+                feature_names=feature_names)
+\end{lstlisting}
+
+\section{REST API Implementation}
+
+\begin{lstlisting}[language=Python, caption={Flask REST API Endpoint}, label={lst:api}]
+from flask import Flask, request, jsonify
+import joblib
+import shap
+import pandas as pd
+
+app = Flask(__name__)
+
+# Load serialised pipeline
+pipeline = joblib.load('models/xgb_pipeline.pkl')
+explainer = shap.TreeExplainer(pipeline.named_steps['model'])
+
+@app.route('/predict', methods=['POST'])
+def predict():
+    data = request.get_json(force=True)
+    df = pd.DataFrame([data])
+    # Feature engineering (same as training)
+    df_feat = engineer_features(df)
+    # Predict
+    prob = pipeline.predict_proba(df_feat)[0][1]
+    label = int(prob >= 0.42)   # optimised threshold
+    # SHAP explanation
+    shap_vals = explainer.shap_values(
+        pipeline[:-1].transform(df_feat)
+    ).tolist()
+    return jsonify({
+        'churn_probability': round(float(prob), 4),
+        'churn_prediction': label,
+        'shap_attributions': dict(
+            zip(df_feat.columns.tolist(), shap_vals[0])
+        )
+    })
+
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok'})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+\end{lstlisting}
+
+\section{Docker Containerisation}
+
+The following Dockerfile packages the Flask application for deployment:
+
+\begin{lstlisting}[language=,caption={Dockerfile},label={lst:dockerfile}]
+FROM python:3.10-slim
+
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+EXPOSE 5000
+CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:5000", "api:app"]
+\end{lstlisting}
+
+The container is built and run using:
+
+\begin{lstlisting}[language=bash, caption={Docker Build and Run Commands}, label={lst:docker}]
+docker build -t churn-predictor:latest .
+docker run -d -p 5000:5000 \
+    -v $(pwd)/models:/app/models \
+    --name churn-api churn-predictor:latest
+\end{lstlisting}

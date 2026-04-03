@@ -1,72 +1,252 @@
 \chapter{System Design}
+
 \section{System Architecture}
-\begin{figure}[H] % 'H' means force placement here
+
+The proposed churn prediction system follows a layered microservice architecture comprising five principal layers: Data Ingestion, Preprocessing \& Feature Engineering, Model Training \& Selection, Model Serving, and Client Integration. Figure~\ref{fig:architecture} presents the overall system architecture.
+
+\begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{images/unnamed.png} 
-    \caption{System Architecture Diagram.}
-    \label{fig:my_label} % For referencing in text
+    \begin{tikzpicture}[node distance=1.2cm, auto,
+        layer/.style={draw, fill=blue!15, rectangle, rounded corners,
+                      minimum width=12cm, minimum height=0.9cm, text centered},
+        arrow/.style={->, thick}]
+        \node[layer, fill=gray!20] (client) {Client Layer: CRM / Marketing Automation / Dashboard};
+        \node[layer, fill=blue!20, below of=client] (api) {API Layer: Flask REST Microservice (Docker Container)};
+        \node[layer, fill=green!20, below of=api] (model) {Model Layer: XGBoost Pipeline + SHAP Explainer};
+        \node[layer, fill=yellow!20, below of=model] (feat) {Feature Engineering Layer: scikit-learn Pipeline};
+        \node[layer, fill=orange!20, below of=feat] (data) {Data Layer: PostgreSQL / CSV / Streaming Ingestion};
+        \draw[arrow] (client) -- (api);
+        \draw[arrow] (api) -- (model);
+        \draw[arrow] (model) -- (feat);
+        \draw[arrow] (feat) -- (data);
+    \end{tikzpicture}
+    \caption{Overall System Architecture}
+    \label{fig:architecture}
 \end{figure}
+
+The architecture is designed for modularity: each layer is independently deployable and replaceable. The Flask API exposes a \texttt{/predict} endpoint that accepts a JSON payload containing customer feature values and returns a churn probability, a binary prediction, and SHAP-based feature attributions.
+
 \section{Data Flow Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.jpg} 
-    \caption{Data Flow Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+
+\subsection{Level 0 DFD (Context Diagram)}
+
+The Level 0 DFD shows the system as a single process interacting with three external entities: the CRM data source, the data scientist (trainer), and the business user (consumer of predictions). The following Mermaid diagram code describes the context-level data flows (Listing~\ref{lst:dfd0}).
+
+\begin{lstlisting}[language=,caption={Level 0 DFD -- Mermaid Diagram Code},label={lst:dfd0}]
+flowchart LR
+    CRM["CRM / Data Source"] -->|Customer Records| SYS["Churn Prediction System"]
+    DS["Data Scientist"] -->|Model Training Request| SYS
+    SYS -->|Churn Score + Explanation| BU["Business User / Retention Team"]
+    SYS -->|Retrained Model Artefact| MR["Model Registry"]
+\end{lstlisting}
+
+\subsection{Level 1 DFD}
+
+The Level 1 DFD decomposes the system into four sub-processes: Data Ingestion, Preprocessing \& Feature Engineering, Model Inference, and Explanation Generation (Listing~\ref{lst:dfd1}).
+
+\begin{lstlisting}[language=,caption={Level 1 DFD -- Mermaid Diagram Code},label={lst:dfd1}]
+flowchart TD
+    CRM["CRM / Data Source"] --> P1["P1: Data Ingestion & Validation"]
+    P1 -->|Validated Records| DS1[("Raw Data Store")]
+    DS1 --> P2["P2: Preprocessing & Feature Engineering"]
+    P2 -->|Feature Matrix| DS2[("Feature Store")]
+    DS2 --> P3["P3: Model Inference (XGBoost Pipeline)"]
+    P3 -->|Probability Score| DS3[("Prediction Store")]
+    DS3 --> P4["P4: SHAP Explanation Generation"]
+    P4 -->|Score + Attributions| BU["Business User"]
+    ML["Model Registry"] --> P3
+\end{lstlisting}
+
 \section{UML Diagrams}
-\subsection{Class Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.jpg} 
-    \caption{Class Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Object Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Object Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Collaboration Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Collaboration Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+
 \subsection{Use Case Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Use Case Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+
+The use case diagram identifies the actors and their interactions with the system (Listing~\ref{lst:usecase}).
+
+\begin{lstlisting}[language=,caption={Use Case Diagram -- Mermaid Diagram Code},label={lst:usecase}]
+flowchart LR
+    DS(["Data Scientist"])
+    BU(["Business Analyst"])
+    SYS["<<system>> Churn Prediction System"]
+
+    DS -->|"Train Model"| SYS
+    DS -->|"Evaluate Model"| SYS
+    DS -->|"Monitor Performance"| SYS
+    BU -->|"Request Churn Score"| SYS
+    BU -->|"View Feature Importance"| SYS
+    BU -->|"Download Batch Predictions"| SYS
+\end{lstlisting}
+
+\subsection{Class Diagram}
+
+The class diagram presents the principal classes and their relationships in the system implementation (Listing~\ref{lst:classdiag}).
+
+\begin{lstlisting}[language=,caption={Class Diagram -- Mermaid Diagram Code},label={lst:classdiag}]
+classDiagram
+    class ChurnPredictor {
+        -pipeline: Pipeline
+        -explainer: TreeExplainer
+        +load_model(path: str)
+        +predict(X: DataFrame) float
+        +explain(X: DataFrame) dict
+    }
+    class DataPreprocessor {
+        -scaler: StandardScaler
+        -encoders: dict
+        +fit_transform(df: DataFrame) DataFrame
+        +transform(df: DataFrame) DataFrame
+    }
+    class FeatureEngineer {
+        +create_features(df: DataFrame) DataFrame
+        +get_feature_names() list
+    }
+    class ModelTrainer {
+        -models: dict
+        -best_model: estimator
+        +train(X_train, y_train)
+        +evaluate(X_test, y_test) dict
+        +save(path: str)
+    }
+    class APIServer {
+        -predictor: ChurnPredictor
+        +predict_endpoint() Response
+        +health_endpoint() Response
+    }
+    ChurnPredictor --> DataPreprocessor
+    ChurnPredictor --> FeatureEngineer
+    ModelTrainer --> DataPreprocessor
+    ModelTrainer --> FeatureEngineer
+    APIServer --> ChurnPredictor
+\end{lstlisting}
+
 \subsection{Sequence Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Sequence Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+
+The sequence diagram shows the message flow for a single prediction request via the REST API (Listing~\ref{lst:seqdiag}).
+
+\begin{lstlisting}[language=,caption={Sequence Diagram -- Mermaid Diagram Code},label={lst:seqdiag}]
+sequenceDiagram
+    participant C as CRM Client
+    participant A as Flask API
+    participant F as FeatureEngineer
+    participant P as ChurnPredictor
+    participant M as XGBoost Model
+    participant S as SHAP Explainer
+
+    C->>A: POST /predict (customer JSON)
+    A->>A: Validate JSON schema
+    A->>F: create_features(raw_data)
+    F-->>A: feature_matrix
+    A->>P: predict(feature_matrix)
+    P->>M: predict_proba(feature_matrix)
+    M-->>P: churn_probability
+    P->>S: explain(feature_matrix)
+    S-->>P: shap_values
+    P-->>A: {score, prediction, shap_values}
+    A-->>C: JSON response (score, label, attributions)
+\end{lstlisting}
+
 \subsection{Activity Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Activity Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+
+The activity diagram documents the model training workflow (Listing~\ref{lst:actdiag}).
+
+\begin{lstlisting}[language=,caption={Activity Diagram -- Model Training Workflow -- Mermaid Diagram Code},label={lst:actdiag}]
+flowchart TD
+    A([Start]) --> B[Load raw CSV dataset]
+    B --> C[Drop identifier columns]
+    C --> D[Encode categorical features]
+    D --> E[Engineer derived features]
+    E --> F[Stratified train/test split 80/20]
+    F --> G[Apply SMOTE to training set]
+    G --> H[Standard scale continuous features]
+    H --> I{For each algorithm}
+    I --> J[Train with 5-fold cross-validation]
+    J --> K[Bayesian hyperparameter search]
+    K --> L[Evaluate on validation folds]
+    L --> M{More algorithms?}
+    M -->|Yes| I
+    M -->|No| N[Select best model by AUC-ROC]
+    N --> O[Final evaluation on held-out test set]
+    O --> P[Compute SHAP values]
+    P --> Q[Serialise pipeline to disk]
+    Q --> R([End])
+\end{lstlisting}
+
 \subsection{Component Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Component Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+
+The component diagram illustrates the major software components and their interactions (Listing~\ref{lst:compdiag}).
+
+\begin{lstlisting}[language=,caption={Component Diagram -- Mermaid Diagram Code},label={lst:compdiag}]
+flowchart LR
+    subgraph Training["Training Component"]
+        DC[Data Collector]
+        PP[Preprocessor]
+        FE[Feature Engineer]
+        MT[Model Trainer]
+        ME[Model Evaluator]
+    end
+    subgraph Serving["Serving Component"]
+        API[Flask REST API]
+        PR[Predictor]
+        EX[SHAP Explainer]
+    end
+    subgraph Storage["Storage Component"]
+        FS[(Feature Store)]
+        MR[(Model Registry)]
+        PS[(Prediction Store)]
+    end
+    DC --> PP --> FE --> MT --> ME
+    ME --> MR
+    FE --> FS
+    MR --> PR
+    FS --> PR
+    PR --> EX
+    API --> PR
+    PR --> PS
+\end{lstlisting}
+
 \subsection{Deployment Diagram}
-\begin{figure}[H] % 'H' means force placement here
+
+The deployment diagram shows the physical and logical deployment of all system components (Listing~\ref{lst:deploydiag}).
+
+\begin{lstlisting}[language=,caption={Deployment Architecture Diagram -- Mermaid Diagram Code},label={lst:deploydiag}]
+flowchart TD
+    subgraph Host["Production Host / VM"]
+        subgraph DockerHost["Docker Engine"]
+            subgraph AppContainer["App Container: churn-predictor:latest"]
+                FLASK[Flask Server :5000]
+                MODEL[XGBoost Pipeline]
+                SHAP[SHAP Explainer]
+            end
+            subgraph DBContainer["DB Container: postgres:15"]
+                PGDB[(PostgreSQL DB)]
+            end
+        end
+        NGINX[NGINX Reverse Proxy :443]
+    end
+    CLIENT[CRM Client] -->|HTTPS| NGINX
+    NGINX -->|HTTP| FLASK
+    FLASK --> MODEL
+    FLASK --> SHAP
+    FLASK --> PGDB
+\end{lstlisting}
+
+\section{Database Design}
+
+The system uses a PostgreSQL database with three primary tables:
+
+\begin{table}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Deployment Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+    \caption{Database Schema Summary}
+    \begin{tabular}{|l|l|p{6cm}|}
+        \hline
+        \textbf{Table} & \textbf{Primary Key} & \textbf{Description} \\
+        \hline
+        \texttt{customers} & \texttt{customer\_id} & Raw customer feature records \\
+        \hline
+        \texttt{predictions} & \texttt{prediction\_id} & Model predictions with timestamp, score, label, and model version \\
+        \hline
+        \texttt{model\_registry} & \texttt{model\_id} & Serialised pipeline artefacts with performance metrics and version tags \\
+        \hline
+    \end{tabular}
+    \label{tab:db_schema}
+\end{table}

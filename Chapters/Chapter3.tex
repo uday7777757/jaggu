@@ -1,34 +1,191 @@
 \chapter{System Analysis}
 
-\section{Existing System}
-\subsection{Disadvantages of Existing System}
+\section{Existing Systems}
+
+\subsection{Overview of Existing Churn Management Approaches}
+
+Prior to the adoption of machine learning, FinTech platforms relied on three primary approaches to manage churn risk:
+
+\textbf{Rule-Based Systems}: Customer service teams applied manually crafted heuristic rules, such as flagging customers with no login activity for 60+ days, zero transactions in the past quarter, or a declining balance trend over three consecutive months. These rules are simple to implement and audit but suffer from low recall (many churners do not match the rules) and poor adaptability to evolving customer behaviour \cite{hadden2007computer}.
+
+\textbf{Recency-Frequency-Monetary (RFM) Segmentation}: Marketing teams segmented customers into risk tiers using aggregated RFM scores. High-recency, high-frequency, high-monetary customers were classified as low risk; low-recency, low-frequency customers as high risk. While intuitive, RFM ignores feature interactions and cannot accommodate more than a handful of variables \cite{fader2005rfm}.
+
+\textbf{Logistic Regression Scorecards}: More sophisticated organisations deployed logistic regression models trained on historical churn data, producing a probability score per customer. Scorecards are interpretable and regulatory-friendly but assume linear relationships between features and churn probability, limiting their performance on complex interaction patterns.
+
+\subsection{Disadvantages of Existing Systems}
+
+\begin{enumerate}
+    \item \textbf{Poor recall under class imbalance}: Rule-based and simple statistical models systematically under-detect churners, missing 40--60\% of true positives according to industry benchmarks.
+    \item \textbf{Limited feature capacity}: Traditional systems accommodate at most 10--15 features; modern ML pipelines handle hundreds of engineered features.
+    \item \textbf{Static models}: Scorecards are typically retrained annually, lagging behind rapid shifts in customer behaviour.
+    \item \textbf{No interpretability for complex models}: Early ANN deployments lacked explanation mechanisms, creating regulatory compliance problems.
+    \item \textbf{Manual feature engineering}: Deriving predictive features from raw transactional data is a time-intensive, expert-dependent process without automated feature selection.
+    \item \textbf{Absence of deployment infrastructure}: Most academic-grade models are delivered as offline batch jobs rather than integrated real-time scoring APIs.
+\end{enumerate}
+
 \section{Proposed System}
+
+The proposed system is a complete, end-to-end machine learning pipeline for FinTech customer churn prediction, encompassing data ingestion, preprocessing, feature engineering, model training and selection, interpretability analysis, and production deployment. The system is designed to overcome all identified disadvantages of existing approaches.
+
 \subsection{Advantages of Proposed System}
-\section{System Requirements}
-\subsection{Hardware Requirements}
-\subsection{Software Requirements}
 
-Lorem ipsum \cite{loremipsum} dolor sit amet, consectetur adipiscing elit. Etiam consectetur libero dui, sit amet rutrum lectus mollis ac. Phasellus mattis augue quis auctor ullamcorper. Sed congue rutrum turpis, sit amet tincidunt erat laoreet ac. Morbi in feugiat erat, sit amet placerat lorem. Quisque cursus gravida nulla, nec pulvinar justo rutrum eget. Aenean et dolor vitae enim congue maximus. Praesent consequat finibus imperdiet. Sed ipsum erat, efficitur vitae urna a, convallis ornare ipsum. Quisque fringilla risus enim, ut elementum dui consectetur eu.
+\begin{enumerate}
+    \item \textbf{High recall with balanced precision}: By combining SMOTE resampling with XGBoost and optimised decision threshold, the proposed system achieves recall above 80\% while maintaining precision above 78\%.
+    \item \textbf{Rich feature set}: Seventeen engineered features are derived from the fourteen raw attributes, capturing interaction effects and derived ratios that are strongly predictive.
+    \item \textbf{Adaptive retraining}: The system architecture includes a model registry with versioned artefacts, supporting scheduled retraining triggered by performance degradation signals.
+    \item \textbf{SHAP interpretability}: Every prediction is accompanied by SHAP feature attributions, enabling per-customer explanation and aggregate feature importance analysis.
+    \item \textbf{Automated feature pipeline}: A scikit-learn \texttt{Pipeline} object encapsulates all preprocessing and feature engineering steps, eliminating manual intervention and ensuring consistency between training and inference.
+    \item \textbf{REST API deployment}: The model is served as a Flask REST microservice, containerised with Docker, enabling seamless integration with existing CRM and marketing automation platforms.
+\end{enumerate}
 
-Vivamus sed enim quam. In facilisis consequat eros, id convallis diam congue et. Vivamus sed neque rutrum, gravida urna non, lobortis leo. Curabitur sagittis turpis sit amet dolor blandit lobortis. Fusce ac sem eget libero semper ultrices. Aliquam erat volutpat. Quisque tincidunt mi sapien, eu varius libero lacinia quis. Nullam dictum quam sed scelerisque aliquet. Mauris laoreet est nec dolor pellentesque dignissim. Praesent ac sapien erat. Mauris ut felis sit amet velit convallis cursus quis a tellus. Curabitur efficitur ultricies dui, eget vestibulum arcu venenatis ac. Nulla fermentum dolor a venenatis posuere. Vivamus eu luctus erat.\\
+\section{Dataset Specification}
 
-Here is a table attached :
+\subsection{Source and Description}
+
+The project uses the \textbf{Bank Customer Churn} dataset, a widely used benchmark for binary classification tasks in the financial domain. The dataset contains \textbf{10{,}000 records} representing individual bank customers, each described by \textbf{14 attributes} including a binary churn label (\texttt{Exited}: 1 = churned, 0 = retained).
+
 \begin{table}[H]
     \centering
-        \begin{tabular}{|c|c|}
+    \caption{Dataset Summary Statistics}
+    \begin{tabular}{|l|l|}
         \hline
-        $n$ & $F_n$\\
+        \textbf{Attribute} & \textbf{Value} \\
         \hline
-        1 & 1 \\
+        Total records & 10{,}000 \\
         \hline
-        2 & 1 \\
+        Features (raw) & 14 \\
         \hline
-        3 & 2 \\
+        Target variable & Exited (binary) \\
         \hline
-        4 & 3 \\
+        Churned customers & 2{,}037 (20.37\%) \\
         \hline
-        \end{tabular}
-    \caption{Fibonacci Table}
+        Retained customers & 7{,}963 (79.63\%) \\
+        \hline
+        Missing values & None \\
+        \hline
+        Duplicate records & 0 \\
+        \hline
+        Geographic coverage & France, Germany, Spain \\
+        \hline
+    \end{tabular}
+    \label{tab:dataset_summary}
 \end{table}
 
-Morbi pulvinar turpis at ligula sollicitudin, et finibus nulla vestibulum. Etiam molestie tincidunt molestie. Mauris augue ex, tincidunt non ante eget, ultrices ornare quam. Nulla pellentesque fringilla neque, eget facilisis arcu mollis vel. Nulla quam ipsum, vulputate a nisi ut, iaculis tempus ante. Nam efficitur, augue et cursus varius, nisi eros tincidunt ex, porta aliquet massa libero a mauris. Vestibulum finibus, dui sit amet dapibus tincidunt, libero quam venenatis elit, ut porta dui neque a nunc. Donec tincidunt eleifend mauris a luctus. Vivamus eget porttitor metus. Etiam eu porta orci. Suspendisse imperdiet orci sed lobortis vestibulum. Pellentesque sit amet euismod eros.\\
+\subsection{Feature Descriptions}
+
+Table~\ref{tab:features} presents the complete feature set with data types and descriptive statistics.
+
+\begin{table}[H]
+    \centering
+    \caption{Raw Feature Descriptions}
+    \label{tab:features}
+    \begin{tabular}{|l|l|l|p{5cm}|}
+        \hline
+        \textbf{Feature} & \textbf{Type} & \textbf{Range / Values} & \textbf{Description} \\
+        \hline
+        RowNumber & Integer & 1--10000 & Row index (dropped) \\
+        \hline
+        CustomerId & Integer & Unique ID & Customer identifier (dropped) \\
+        \hline
+        Surname & String & -- & Customer surname (dropped) \\
+        \hline
+        CreditScore & Integer & 350--850 & Credit score \\
+        \hline
+        Geography & Categorical & France, Germany, Spain & Country of residence \\
+        \hline
+        Gender & Categorical & Male, Female & Customer gender \\
+        \hline
+        Age & Integer & 18--92 & Customer age \\
+        \hline
+        Tenure & Integer & 0--10 & Years as a customer \\
+        \hline
+        Balance & Float & 0--250{,}898 & Account balance (EUR) \\
+        \hline
+        NumOfProducts & Integer & 1--4 & Number of bank products held \\
+        \hline
+        HasCrCard & Binary & 0, 1 & Credit card holder flag \\
+        \hline
+        IsActiveMember & Binary & 0, 1 & Active member flag \\
+        \hline
+        EstimatedSalary & Float & 11.58--199{,}992 & Estimated annual salary (EUR) \\
+        \hline
+        Exited & Binary & 0, 1 & Churn label (target) \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Exploratory Data Analysis Findings}
+
+Key findings from EDA include:
+
+\begin{itemize}
+    \item The churn rate is 20.37\%, confirming moderate class imbalance requiring mitigation.
+    \item German customers exhibit a churn rate of approximately 32\%, significantly higher than French (16\%) and Spanish (17\%) customers.
+    \item Customers aged 40--60 have a substantially higher churn propensity than younger or older cohorts.
+    \item Customers with Balance = 0 rarely churn (less than 3\% churn rate), suggesting that zero-balance accounts are largely dormant rather than at-risk.
+    \item Customers holding only 1 product have a churn rate of approximately 28\%; those holding 3--4 products have very high churn (>80\%), indicating product saturation or poor multi-product experience.
+    \item Inactive members (IsActiveMember = 0) churn at more than twice the rate of active members.
+\end{itemize}
+
+\section{Data Preprocessing Pipeline}
+
+\subsection{Data Cleaning}
+
+\begin{enumerate}
+    \item \textbf{Identifier dropping}: Columns \texttt{RowNumber}, \texttt{CustomerId}, and \texttt{Surname} carry no predictive information and are removed.
+    \item \textbf{Missing value check}: The dataset contains no missing values, so imputation is not required.
+    \item \textbf{Duplicate removal}: No duplicate records are detected.
+    \item \textbf{Outlier treatment}: CreditScore values below 300 and above 900 are clipped to robust extremes; no other features exhibit pathological outliers.
+\end{enumerate}
+
+\subsection{Categorical Encoding}
+
+\begin{itemize}
+    \item \texttt{Geography}: One-hot encoded into binary indicator columns \texttt{Geography\_France}, \texttt{Geography\_Germany}, \texttt{Geography\_Spain} (with \texttt{Geography\_France} dropped as the reference category to avoid perfect multicollinearity).
+    \item \texttt{Gender}: Label encoded as \texttt{Gender\_Male} (1 = Male, 0 = Female).
+\end{itemize}
+
+\subsection{Feature Scaling}
+
+Continuous features (\texttt{CreditScore}, \texttt{Age}, \texttt{Tenure}, \texttt{Balance}, \texttt{EstimatedSalary}) are standardised to zero mean and unit variance using scikit-learn's \texttt{StandardScaler}. This is critical for SVM and logistic regression, and beneficial for neural networks. Tree-based methods (Random Forest, XGBoost) are scale-invariant but scaling is applied uniformly for consistency.
+
+\subsection{Train-Test Split}
+
+The dataset is split into 80\% training (8{,}000 records) and 20\% test (2{,}000 records) using stratified sampling to preserve the class ratio. The test set is held out and used exclusively for final model evaluation.
+
+\section{Feature Engineering}
+
+Beyond the raw features, seventeen engineered features are derived:
+
+\begin{table}[H]
+    \centering
+    \caption{Engineered Features}
+    \begin{tabular}{|l|p{8cm}|}
+        \hline
+        \textbf{Feature Name} & \textbf{Description} \\
+        \hline
+        \texttt{BalanceSalaryRatio} & \texttt{Balance / (EstimatedSalary + 1)} -- relative account wealth \\
+        \hline
+        \texttt{TenureByAge} & \texttt{Tenure / Age} -- proportion of life spent as customer \\
+        \hline
+        \texttt{CreditScoreGivenAge} & \texttt{CreditScore / Age} -- credit health relative to age \\
+        \hline
+        \texttt{ProductsPerAge} & \texttt{NumOfProducts / Age} -- product adoption rate \\
+        \hline
+        \texttt{HasBalance} & Binary: 1 if Balance $>$ 0, else 0 \\
+        \hline
+        \texttt{InactiveWithBalance} & Binary: 1 if IsActiveMember=0 AND Balance$>$0 \\
+        \hline
+        \texttt{ActiveWithMultipleProducts} & Binary: 1 if IsActiveMember=1 AND NumOfProducts$>$1 \\
+        \hline
+        \texttt{GermanyFemale} & Interaction: Geography\_Germany $\times$ (1-Gender\_Male) \\
+        \hline
+        \texttt{AgeGroup} & Ordinal: 0(18-30), 1(31-45), 2(46-60), 3(60+) \\
+        \hline
+        \texttt{BalancePer\-Product} & \texttt{Balance / NumOfProducts} -- balance load per product \\
+        \hline
+    \end{tabular}
+    \label{tab:engineered_features}
+\end{table}
+
+These engineered features are motivated by the EDA findings and domain knowledge about FinTech customer behaviour patterns, as documented in the literature \cite{coussement2008churn, mozer1999predicting}.

@@ -1,0 +1,153 @@
+\begin{appendices}
+
+\chapter{Project Gantt Chart}
+
+The project was executed over a 16-week semester according to the schedule presented in Table~\ref{tab:gantt}.
+
+\begin{table}[H]
+    \centering
+    \caption{Project Gantt Chart}
+    \small
+    \begin{tabular}{|p{4.5cm}|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+        \hline
+        \textbf{Activity} & \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5} & \textbf{6} & \textbf{7} & \textbf{8} & \textbf{9} & \textbf{10} & \textbf{11} & \textbf{12} & \textbf{13} & \textbf{14} & \textbf{15} & \textbf{16} \\
+        \hline
+        Problem Definition \& Literature Survey & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & & & & & & & & \\
+        \hline
+        Dataset Acquisition \& EDA & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & & & & & & \\
+        \hline
+        Feature Engineering & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & & & & \\
+        \hline
+        Model Training \& CV & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & & \\
+        \hline
+        Hyperparameter Optimisation & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & \\
+        \hline
+        SHAP Interpretability & & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & \\
+        \hline
+        API Development \& Docker & & & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & \\
+        \hline
+        Testing \& Evaluation & & & & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & & & \\
+        \hline
+        Results Analysis & & & & & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & & \\
+        \hline
+        Report Writing & & & & & & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} \\
+        \hline
+    \end{tabular}
+    \label{tab:gantt}
+\end{table}
+
+\chapter{Sources Consulted}
+
+In addition to the works formally cited in this report, the following resources were consulted during the course of this project:
+
+\begin{enumerate}
+    \item Kaggle. \textit{Bank Customer Churn Prediction Dataset}. Available: \url{https://www.kaggle.com/datasets/shantanudhakadd/bank-customer-churn-prediction}
+
+    \item scikit-learn Documentation. Available: \url{https://scikit-learn.org/stable/documentation.html}
+
+    \item XGBoost Documentation. Available: \url{https://xgboost.readthedocs.io/en/stable/}
+
+    \item SHAP Documentation. Available: \url{https://shap.readthedocs.io/en/latest/}
+
+    \item imbalanced-learn Documentation. Available: \url{https://imbalanced-learn.org/stable/}
+
+    \item Flask Documentation. Available: \url{https://flask.palletsprojects.com/}
+
+    \item Docker Documentation. Available: \url{https://docs.docker.com/}
+
+    \item Scikit-Optimize (skopt) Documentation. Available: \url{https://scikit-optimize.github.io/stable/}
+
+    \item Hands-On Machine Learning with Scikit-Learn, Keras \& TensorFlow, 2nd ed., A. G\'eron, O'Reilly Media, 2019.
+
+    \item Python Machine Learning, 3rd ed., S. Raschka \& V. Mirjalili, Packt Publishing, 2019.
+\end{enumerate}
+
+\chapter{Supplementary Technical Details}
+
+\section{Python Environment Configuration}
+
+The complete \texttt{requirements.txt} for reproducible environment setup:
+
+\begin{lstlisting}[language=,caption={requirements.txt},label={lst:requirements}]
+pandas==2.0.3
+numpy==1.25.2
+scikit-learn==1.3.0
+xgboost==1.7.6
+imbalanced-learn==0.11.0
+shap==0.42.1
+matplotlib==3.7.2
+seaborn==0.12.2
+flask==2.3.2
+gunicorn==21.2.0
+psycopg2-binary==2.9.7
+scikit-optimize==0.9.0
+joblib==1.3.2
+scipy==1.11.2
+\end{lstlisting}
+
+\section{Sample API Request and Response}
+
+\begin{lstlisting}[language=,caption={Sample cURL Request to /predict Endpoint},label={lst:curl}]
+curl -X POST http://localhost:5000/predict \
+  -H "Content-Type: application/json" \
+  -d '{
+    "CreditScore": 619,
+    "Geography": "France",
+    "Gender": "Female",
+    "Age": 42,
+    "Tenure": 2,
+    "Balance": 0.0,
+    "NumOfProducts": 1,
+    "HasCrCard": 1,
+    "IsActiveMember": 1,
+    "EstimatedSalary": 101348.88
+  }'
+\end{lstlisting}
+
+\begin{lstlisting}[language=,caption={Sample API Response},label={lst:response}]
+{
+  "churn_probability": 0.2834,
+  "churn_prediction": 0,
+  "shap_attributions": {
+    "Age": -0.142,
+    "Balance": 0.085,
+    "NumOfProducts": 0.031,
+    "IsActiveMember": -0.096,
+    "Geography_Germany": 0.0,
+    "InactiveWithBalance": 0.0,
+    "EstimatedSalary": -0.012,
+    "BalanceSalaryRatio": 0.0,
+    "GermanyFemale": 0.0,
+    "CreditScore": 0.018
+  }
+}
+\end{lstlisting}
+
+\section{Evaluation Metric Formulas}
+
+\begin{table}[H]
+    \centering
+    \caption{Evaluation Metric Formulas}
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Metric} & \textbf{Formula} \\
+        \hline
+        Accuracy & $(TP + TN) / (TP + TN + FP + FN)$ \\
+        \hline
+        Precision & $TP / (TP + FP)$ \\
+        \hline
+        Recall (TPR) & $TP / (TP + FN)$ \\
+        \hline
+        Specificity (TNR) & $TN / (TN + FP)$ \\
+        \hline
+        F1-Score & $2 \cdot (P \cdot R) / (P + R)$ \\
+        \hline
+        MCC & $(TP \cdot TN - FP \cdot FN) / \sqrt{(TP{+}FP)(TP{+}FN)(TN{+}FP)(TN{+}FN)}$ \\
+        \hline
+        Brier Score & $(1/N) \sum_{i=1}^{N}(p_i - y_i)^2$ \\
+        \hline
+    \end{tabular}
+    \label{tab:metric_formulas}
+\end{table}
+
+\end{appendices}

@@ -1,25 +1,51 @@
 \chapter{Results and Discussion}
 
-\section{Overview of Results}
-The illustrative performance comparison shows that ensemble models outperform simpler baseline models on the churn prediction task. Logistic Regression and Decision Tree provide useful interpretability, but their recall and F1-score are lower than those of Random Forest and XGBoost. XGBoost achieves the strongest overall balance of accuracy, churn recall, F1-score, and ROC-AUC in the example evaluation.
+\section{Illustrative Results, Interpretation, and Business Discussion}
+The results presented in this chapter are illustrative and are designed to reflect the performance pattern commonly reported in churn prediction studies. Even though the exact dataset used in this report is assumed rather than experimentally reproduced in the current environment, the comparative outcome remains analytically meaningful because it follows the same evaluation logic described in the previous chapters. The central finding is that ensemble models, particularly XGBoost and Random Forest, outperform simpler baseline models such as Logistic Regression and Decision Tree when customer churn is treated as a structured tabular classification problem.
 
-\section{Interpretation of Findings}
-The results align with the literature reviewed in Chapter 2. Churn behavior is influenced by multiple nonlinear interactions among tenure, product usage, complaint history, and account characteristics. Ensemble methods capture these relationships more effectively than linear or shallow single-tree models. The improved recall of XGBoost is especially important because churn management systems should minimize missed high-risk customers even if this increases false positives moderately.
+Table \ref{tab:model_results_main} summarizes the illustrative comparison. Logistic Regression achieves reasonable overall accuracy and serves as a stable baseline, but its recall for the churn class remains limited. This suggests that linear decision boundaries are not sufficient to capture the more subtle relationships present in customer behavior data. Decision Tree performs slightly better in identifying non-linear patterns but is weaker in generalization and more prone to instability. Random Forest improves markedly by combining multiple trees, reducing variance, and capturing interactions among variables more effectively. XGBoost performs best overall, achieving the highest accuracy, precision, recall, F1-score, and ROC-AUC in the example comparison.
 
-\section{Feature Analysis}
-Based on the assumed feature importance pattern, \texttt{TenureMonths}, \texttt{NumTransactions}, and \texttt{Complaints} are expected to be among the strongest predictors. Customers with short tenure, low activity, and repeated complaints are more likely to churn. This interpretation is practical because it maps directly to retention actions such as onboarding assistance, re-engagement campaigns, and service recovery initiatives.
+\begin{table}[H]
+\centering
+\caption{Example Model Performance on Test Set}
+\begin{tabular}{|p{3.3cm}|c|c|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{ROC-AUC} \\ \hline
+Logistic Regression & 0.80 & 0.62 & 0.40 & 0.49 & 0.82 \\ \hline
+Decision Tree & 0.78 & 0.58 & 0.44 & 0.50 & 0.79 \\ \hline
+Random Forest & 0.85 & 0.72 & 0.55 & 0.63 & 0.87 \\ \hline
+XGBoost & 0.88 & 0.79 & 0.61 & 0.68 & 0.89 \\ \hline
+\end{tabular}
+\label{tab:model_results_main}
+\end{table}
 
-\section{Business Impact}
-The practical value of the system lies in targeted retention. Instead of applying generic campaigns to the entire customer base, the business can focus on the segment with the highest predicted churn probability. Even a modest improvement in retention can produce substantial financial gains, as highlighted in churn management literature \cite{systematicreview}. A prioritized dashboard also allows customer success or marketing teams to work more efficiently with limited outreach capacity.
+These results are significant because they show the difference between general correctness and churn-specific usefulness. A model with high accuracy but poor recall may still fail in practice if it misses too many actual churners. From a retention perspective, the XGBoost model is preferable not simply because it has the best accuracy, but because it offers the best balance between precision and recall. A recall value of 0.61 means that it identifies a larger share of true churners than the other candidate models. Although this may also introduce some false positives, the trade-off is often acceptable in churn prevention because contacting a few extra customers is usually less costly than losing real churners without intervention.
 
-\section{Limitations}
-The present study has several limitations:
-\begin{itemize}
-    \item The dataset is assumed rather than drawn from a live institutional source.
-    \item The numerical results shown are illustrative and must be replaced by real experimental outputs for final validation.
-    \item Churn patterns may change over time because of concept drift.
-    \item The strongest model, XGBoost, is less interpretable than simpler baselines unless paired with explainability tools.
-\end{itemize}
+The feature-level interpretation of the results also aligns with expectations from the literature. Variables such as \texttt{TenureMonths}, \texttt{NumTransactions}, and \texttt{Complaints} are expected to rank among the strongest predictors. Short-tenure customers are often more vulnerable because they may not yet have developed strong platform loyalty. Low transaction activity suggests disengagement and reduced habit formation. Higher complaint frequency points to dissatisfaction or friction in the customer experience. In a real implementation, these patterns would be visualized through feature importance charts or explainability tools such as SHAP values. Even without full explainable AI integration, the observed feature trends offer practical business insight.
 
-\section{Discussion Summary}
-Overall, the findings support the use of machine learning, especially ensemble methods, for FinTech churn prediction. The report demonstrates how predictive modeling can be connected to business interpretation, visual reporting, and operational risk categorization rather than remaining a purely academic classification exercise.
+The report includes placeholders for three important visual outputs: ROC curves, confusion matrix, and feature importance chart. These figures are marked below and can later be replaced by actual generated plots once final training is carried out in a local Python environment.
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering Placeholder for ROC curves comparing all classifiers}}
+\caption{ROC Curves for Classifiers}
+\label{fig:roc_main}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering Placeholder for confusion matrix of the best model}}
+\caption{Confusion Matrix for Best Model}
+\label{fig:cm_main}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering Placeholder for feature importance chart of the best model}}
+\caption{Feature Importance Bar Chart}
+\label{fig:importance_main}
+\end{figure}
+
+From a business standpoint, the most important implication of the results is the shift from passive reporting to proactive intervention. Instead of treating all customers alike, the company can create a ranked list of high-risk users and focus retention efforts where they are most likely to matter. A campaign targeted at the top 10 or 20 percent of highest-risk customers can be more efficient than broad messaging sent to the entire customer base. Examples of action include offering onboarding assistance to short-tenure users, prioritizing service recovery for customers with repeated complaints, and sending re-engagement incentives to customers with falling transaction frequency. This makes the churn model not just an academic classifier, but a decision-support asset.
+
+At the same time, the results must be interpreted with caution. The performance numbers shown here are illustrative and should be replaced with real outputs once the project is run end-to-end on an actual dataset. Model behavior may also change over time because of concept drift, changing customer expectations, seasonal effects, or product redesign. Therefore, the strongest model in an academic setting should still be monitored and periodically retrained in a live environment. Even with those limitations, the discussion confirms that ensemble-based machine learning provides a credible and practically valuable direction for customer churn prediction in FinTech systems.

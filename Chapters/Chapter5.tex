@@ -1,55 +1,15 @@
 \chapter{System Implementation}
 
-\section{Technologies and Tools}
-The system is implemented conceptually using Python and its machine learning ecosystem. The major tools are:
-\begin{itemize}
-    \item \textbf{Python}: main programming language for preprocessing and modeling.
-    \item \textbf{pandas and NumPy}: data loading and numerical processing.
-    \item \textbf{scikit-learn}: preprocessing, model training, evaluation, and cross-validation.
-    \item \textbf{XGBoost}: gradient boosting based classification for high-performance tabular learning.
-    \item \textbf{matplotlib and seaborn}: visualization of evaluation outputs.
-    \item \textbf{Flask or Django}: dashboard or API layer for model exposure.
-    \item \textbf{PostgreSQL or MongoDB}: storage of customer data and prediction results.
-\end{itemize}
+\section{Implementation Methodology, Algorithms, and Technology Stack}
+The implementation of the proposed churn prediction system is based on a standard machine learning workflow adapted for structured customer data. Although the present report emphasizes documentation rather than source code, the methodology is described in a form that can be directly translated into practice using Python and widely used data science libraries. The implementation begins with data collection and loading. Customer records may be stored in CSV files, relational databases, or internal application logs. These records are first imported into a tabular data structure such as a pandas DataFrame, where inspection and preprocessing can be performed efficiently. Typical early checks include identifying null values, verifying data types, detecting duplicates, and examining class distribution in the target variable.
 
-\section{Data Loading and Preprocessing}
-Customer data is assumed to be imported either from CSV files or an operational database into a pandas DataFrame. A preprocessing pipeline is then applied. Numeric columns are imputed and scaled where necessary, while categorical columns are encoded using one-hot encoding. The dataset is split into training and testing sets, for example in an 80:20 ratio, before model development. Cross-validation is used during tuning to reduce overfitting risk.
+Once the data is loaded, preprocessing becomes the most important implementation stage. In any realistic churn dataset, a number of columns will require preparation before training can begin. Customer identifiers such as \texttt{CustomerID} are removed because they do not contribute predictive value and may encourage spurious pattern learning. Numeric attributes are examined for missing values and unusual distributions. Depending on the variable, mean or median imputation may be used, while severe outliers may be clipped or winsorized to reduce instability. Categorical fields such as region, gender, plan type, and active status are transformed through one-hot encoding so that machine learning algorithms can interpret them properly. Numerical features may also be standardized, especially when models like Logistic Regression are included in the comparison set.
 
-\section{Feature Engineering}
-Feature engineering improves model quality by translating raw fields into behavior-oriented indicators. Examples include:
-\begin{itemize}
-    \item \texttt{AvgTransPerMonth = NumTransactions / TenureMonths}
-    \item complaint rate computed relative to customer tenure
-    \item tenure segmentation into new, regular, and loyal customer buckets
-    \item interaction features connecting activity and service quality measures
-\end{itemize}
-Feature importance from preliminary tree-based models can be used to remove weak predictors and simplify the final feature set.
+Feature engineering extends the implementation beyond basic cleaning. In churn prediction, raw columns rarely capture customer behavior completely. It is often more informative to derive variables such as transaction rate, complaint frequency, balance-to-tenure relationships, or onboarding period indicators. For example, a customer with ten transactions over two months may be significantly more engaged than a customer with the same transaction count over two years. Likewise, two complaints in the first month after joining may be more alarming than two complaints over several years. Feature engineering therefore converts operational data into business-behavior indicators that improve the model’s ability to detect attrition risk.
 
-\section{Algorithms Used}
-The following classification algorithms are used in the implementation:
-\begin{itemize}
-    \item \textbf{Logistic Regression}: simple, fast, and interpretable baseline.
-    \item \textbf{Decision Tree}: easy to interpret and useful for rule extraction.
-    \item \textbf{Random Forest}: more stable and robust than a single decision tree.
-    \item \textbf{XGBoost}: powerful boosting algorithm suited to structured churn data.
-\end{itemize}
+Model development in this project includes four algorithms: Logistic Regression, Decision Tree, Random Forest, and XGBoost. Logistic Regression is implemented as a baseline because it is simple, efficient, and interpretable. Decision Trees are useful because they model non-linearity and yield rules that can be visualized. Random Forest improves stability and reduces the overfitting tendency of a single tree by averaging many trees trained on sampled data. XGBoost is selected because it has demonstrated strong performance in many tabular classification tasks and is widely used in churn prediction studies \cite{imani2024,bhattacharjee2026}. Each model is trained on the prepared training set and evaluated first under default settings before hyperparameter tuning.
 
-\begin{table}[H]
-\centering
-\caption{Algorithm Comparison}
-\begin{tabular}{|p{3cm}|p{4.8cm}|p{4.8cm}|}
-\hline
-\textbf{Algorithm} & \textbf{Strengths} & \textbf{Weaknesses} \\ \hline
-Logistic Regression & Interpretable, fast, strong baseline & Limited for nonlinear relationships \\ \hline
-Decision Tree & Easy to visualize and explain & Prone to overfitting \\ \hline
-Random Forest & Good generalization, handles nonlinear patterns & Less interpretable than a single tree \\ \hline
-XGBoost & High predictive performance, handles tabular data well & More complex and less transparent \\ \hline
-\end{tabular}
-\label{tab:algorithm_comparison}
-\end{table}
-
-\section{Model Tuning and Cross-Validation}
-Hyperparameter tuning is performed using grid search or randomized search with five-fold cross-validation. The tuned parameters vary by model and include regularization settings for Logistic Regression and depth, estimators, and learning rate for tree-based methods.
+Hyperparameter tuning is implemented through cross-validated search. For Logistic Regression, the strength of regularization is an important factor. For Decision Tree and Random Forest, parameters such as maximum depth, minimum samples required for a split, and number of estimators influence both accuracy and generalization. For XGBoost, the number of trees, tree depth, and learning rate are especially significant. Table \ref{tab:hyperparameters_impl} summarizes the representative search space considered in the report.
 
 \begin{table}[H]
 \centering
@@ -57,13 +17,14 @@ Hyperparameter tuning is performed using grid search or randomized search with f
 \begin{tabular}{|p{3cm}|p{8.5cm}|}
 \hline
 \textbf{Model} & \textbf{Hyperparameters Considered} \\ \hline
-Logistic Regression & \texttt{C = \{0.01, 0.1, 1, 10\}}, penalty type \\ \hline
+Logistic Regression & \texttt{C = \{0.01, 0.1, 1, 10\}}, regularization setting \\ \hline
 Decision Tree & \texttt{max\_depth = \{3,5,7,10\}}, \texttt{min\_samples\_split = \{2,5,10\}} \\ \hline
 Random Forest & \texttt{n\_estimators = \{100,200,300\}}, \texttt{max\_depth = \{5,10,None\}} \\ \hline
 XGBoost & \texttt{n\_estimators = \{50,100,200\}}, \texttt{max\_depth = \{3,5,7\}}, \texttt{learning\_rate = \{0.01,0.1\}} \\ \hline
 \end{tabular}
-\label{tab:hyperparameters}
+\label{tab:hyperparameters_impl}
 \end{table}
 
-\section{Software Architecture}
-After training, the selected model is serialized using a model persistence tool such as \texttt{joblib} or \texttt{pickle}. At deployment time, a web API loads the model and serves prediction requests. The dashboard consumes the prediction output and displays churn risk categories along with supporting indicators such as important features or business notes.
+Because churn datasets are usually imbalanced, implementation also includes either SMOTE-based oversampling or class weighting. This step is important because a model trained on heavily skewed data may learn to favor the majority non-churn class excessively. The training pipeline therefore separates the training and testing sets before any resampling is applied so that the test set remains an honest measure of performance. A typical workflow is to use an 80:20 split, perform oversampling only on the training portion, and then evaluate the trained models on the untouched test portion.
+
+The technology stack for the project is intentionally practical and accessible. Python provides the main development environment. pandas and NumPy support data transformation and numerical computation. scikit-learn provides implementations of preprocessing pipelines, classical machine learning models, train-test splitting, cross-validation, and evaluation functions. XGBoost supplies the boosted ensemble classifier. matplotlib and seaborn can be used to create the confusion matrix, ROC curve, and feature importance charts. For deployment-oriented demonstration, a simple Flask-based API and dashboard can be added to expose predictions and display customer risk categories. This stack is appropriate for a final-year academic project because it is powerful enough for serious experimentation while remaining understandable and reproducible.

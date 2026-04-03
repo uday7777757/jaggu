@@ -1,16 +1,15 @@
-\chapter{System Testing \& Evaluation}
+\chapter{System Testing and Evaluation}
 
-\section{Testing Approach}
-Testing is carried out at multiple levels to validate both the analytical pipeline and the system workflow:
-\begin{itemize}
-    \item \textbf{Unit testing}: validates isolated functions such as missing-value treatment, encoding, and prediction output formatting.
-    \item \textbf{Integration testing}: verifies complete execution from data input to risk report generation.
-    \item \textbf{Model evaluation}: measures predictive performance on unseen test data.
-    \item \textbf{Usability testing}: ensures dashboard outputs are understandable for business users.
-\end{itemize}
+\section{Testing Strategy, Evaluation Metrics, and Validation Approach}
+The testing and evaluation stage of a machine learning project is crucial because the quality of the final system cannot be judged by model training alone. A churn prediction solution may appear to work well during development but still fail to support reliable business decisions if testing is shallow, metrics are chosen poorly, or evaluation ignores the imbalance in the target class. In this project, testing is treated as a multi-level process that validates both the analytical correctness of the pipeline and the usefulness of the system outputs. The overall testing strategy includes unit-level checking of preprocessing operations, integration-level validation of the end-to-end workflow, and model-level evaluation on unseen data.
 
-\section{Evaluation Metrics}
-Because churn data is typically imbalanced, model selection cannot rely on accuracy alone. This project therefore uses multiple metrics, with special emphasis on the churn class \cite{systematicreview,bhattacharjee2026}.
+At the unit-testing level, individual operations in the machine learning pipeline should be verified separately. This includes checking whether missing-value imputation handles nulls correctly, whether categorical encoding produces the expected feature set, whether scaling is applied only to intended numerical fields, and whether the prediction function returns outputs in the required format. Such validation may seem technical, but it is essential because small mistakes in preprocessing can cause major downstream errors. For example, applying one-hot encoding inconsistently between training and testing data can produce shape mismatches or silently reduce model quality. Similarly, leakage of test information into preprocessing steps can lead to inflated performance estimates.
+
+Integration testing focuses on the full workflow from data input to decision output. In the context of this project, an end-to-end test would verify that a customer dataset can be loaded, cleaned, transformed, scored by the trained model, and represented in a dashboard-friendly format without failure. Integration testing is especially useful when the system includes multiple components such as a stored trained model, a preprocessing pipeline, a scoring function, and a simple interface for displaying results. Even if each component works individually, their interaction may still fail unless tested together.
+
+The most significant evaluation work, however, occurs at the model level. Since the project deals with customer churn prediction, it is not sufficient to report overall accuracy and declare success. In an imbalanced dataset, accuracy can be misleading because the majority non-churn class dominates the score. Suppose only 20 percent of the customers churn. A model that predicts every customer as retained could still achieve 80 percent accuracy while failing to identify any churner at all. This is why the literature recommends a broader evaluation framework including precision, recall, F1-score, ROC-AUC, and confusion matrix analysis \cite{systematicreview,imani2024,bhattacharjee2026}. Recall is especially important in churn analysis because it measures how many actual churners are correctly identified. Missing true churners can have direct financial cost, since those customers will not receive intervention in time.
+
+The metrics used in this project are summarized in Table \ref{tab:evaluation_metrics_main}. Accuracy captures overall correctness, precision measures how reliable positive churn predictions are, recall measures how many true churners are detected, F1-score balances precision and recall, and ROC-AUC captures ranking quality across classification thresholds. Together, these metrics provide a more realistic understanding of model behavior.
 
 \begin{table}[H]
 \centering
@@ -22,63 +21,27 @@ Accuracy & $(TP + TN) / (TP + TN + FP + FN)$ \\ \hline
 Precision & $TP / (TP + FP)$ \\ \hline
 Recall & $TP / (TP + FN)$ \\ \hline
 F1-Score & $2 \times \frac{Precision \times Recall}{Precision + Recall}$ \\ \hline
-ROC-AUC & Area under the ROC curve \\ \hline
+ROC-AUC & Area under the receiver operating characteristic curve \\ \hline
 \end{tabular}
-\label{tab:evaluation_metrics}
+\label{tab:evaluation_metrics_main}
 \end{table}
 
-\section{Example Test Results}
-Table \ref{tab:model_results} presents an illustrative comparison of model performance based on the pattern commonly reported in churn prediction studies \cite{imani2024,bhattacharjee2026}. These values serve as example results and should be replaced with actual measured values if a final dataset and implementation are available.
+To support fair comparison, the dataset is split into training and testing portions before modeling. Cross-validation on the training set is used during hyperparameter tuning so that the system does not overfit to a single split. The test set remains unseen until final model comparison. If oversampling methods such as SMOTE are used, they are applied only to the training data. This prevents target leakage and ensures that final evaluation reflects realistic deployment conditions. The confusion matrix provides an especially useful diagnostic view because it shows the trade-off between false positives and false negatives. In churn management, a moderate number of false positives may be acceptable if it helps capture more real churners, but this balance depends on business cost assumptions.
 
-\begin{table}[H]
-\centering
-\caption{Example Model Performance on Test Set}
-\begin{tabular}{|p{3.3cm}|c|c|c|c|c|}
-\hline
-\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{ROC-AUC} \\ \hline
-Logistic Regression & 0.80 & 0.62 & 0.40 & 0.49 & 0.82 \\ \hline
-Decision Tree & 0.78 & 0.58 & 0.44 & 0.50 & 0.79 \\ \hline
-Random Forest & 0.85 & 0.72 & 0.55 & 0.63 & 0.87 \\ \hline
-XGBoost & 0.88 & 0.79 & 0.61 & 0.68 & 0.89 \\ \hline
-\end{tabular}
-\label{tab:model_results}
-\end{table}
+Table \ref{tab:test_cases_main} presents representative functional test cases for the system. These cases confirm that the pipeline operates correctly from a software perspective, while the quantitative metrics confirm that it performs meaningfully from a predictive perspective.
 
-\section{Placeholder Figures}
-The following figures mark the locations where experimental graphics can be inserted after model execution.
-
-\begin{figure}[H]
-\centering
-\fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering Placeholder for ROC curves comparing all classifiers}}
-\caption{ROC Curves for Classifiers}
-\label{fig:roc_placeholder}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering Placeholder for confusion matrix of the best performing model}}
-\caption{Confusion Matrix for Best Model}
-\label{fig:cm_placeholder}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering Placeholder for feature importance chart of the best performing model}}
-\caption{Feature Importance Bar Chart}
-\label{fig:importance_placeholder}
-\end{figure}
-
-\section{Test Cases}
 \begin{table}[H]
 \centering
 \caption{Illustrative Test Cases}
-\begin{tabular}{|c|p{3.8cm}|p{4.6cm}|c|}
+\begin{tabular}{|c|p{3.7cm}|p{4.7cm}|c|}
 \hline
 \textbf{S.No} & \textbf{Test Case} & \textbf{Expected Output} & \textbf{Result} \\ \hline
-1 & Upload valid customer dataset & Records loaded and validated successfully & Pass \\ \hline
-2 & Run preprocessing pipeline & Clean encoded feature matrix generated & Pass \\ \hline
-3 & Score unseen customer batch & Risk probabilities and labels returned & Pass \\ \hline
-4 & Open dashboard summary & At-risk customers and metrics displayed & Pass \\ \hline
+1 & Load a valid customer dataset & Dataset imported without missing schema fields & Pass \\ \hline
+2 & Run preprocessing pipeline & Encoded and cleaned feature matrix generated & Pass \\ \hline
+3 & Score unseen customer records & Churn probabilities and risk labels returned & Pass \\ \hline
+4 & Open dashboard output & Risk table and summary indicators displayed & Pass \\ \hline
 \end{tabular}
-\label{tab:test_cases}
+\label{tab:test_cases_main}
 \end{table}
+
+Overall, the testing strategy used in this project is designed to ensure that the proposed system is not only technically executable but also analytically trustworthy. By combining pipeline validation, end-to-end testing, multi-metric model evaluation, and confusion-matrix-based interpretation, the project creates a balanced framework for selecting a churn model that is appropriate for practical decision support.

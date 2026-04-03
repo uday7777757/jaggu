@@ -1,83 +1,38 @@
 \chapter{System Analysis}
 
-\section{Existing System}
-Many existing customer retention workflows in FinTech organizations are based on descriptive dashboards, periodic reports, or manually defined business rules. Common examples include flagging users with no transactions for a fixed number of days or generating monthly inactivity summaries. These approaches are useful for monitoring but do not provide predictive risk estimation.
+\section{Analysis of Existing Practice, Proposed Solution, and Requirements}
+Before proposing a machine learning solution, it is important to understand how churn is usually approached in many organizations and why those methods are insufficient in a competitive FinTech environment. Existing churn monitoring approaches are often descriptive rather than predictive. Business teams typically use reports showing monthly active users, transaction counts, dormant accounts, failed payments, complaint totals, and customer support summaries. While such reports are useful for observing trends, they do not estimate future behavior at the individual customer level. In practice, a manager may know that activity is falling overall, but may still be unable to answer a more important operational question: which specific customers are most likely to leave in the near future and why.
 
-\subsection{Disadvantages of Existing System}
-\begin{itemize}
-    \item No customer-level predictive scoring is available.
-    \item Rule-based methods are reactive and may miss hidden nonlinear patterns.
-    \item Business rules require constant manual updating.
-    \item Explanations are often shallow and not tied to statistically learned patterns.
-    \item It is difficult to prioritize outreach efficiently without risk stratification.
-\end{itemize}
+Another limitation of current practice is excessive reliance on manually created rules. For example, a business may classify customers as risky if they have not logged in for 30 days, have made fewer than three transactions in a month, or have submitted two complaints in one quarter. These rules are easy to understand, but they are not adaptive and they often fail to capture interactions among variables. A customer with medium transaction activity and rapidly increasing complaints may be more likely to churn than a customer with low transaction activity but long tenure and high balance, yet simple rules may treat them identically. As customer behavior becomes more digital and multidimensional, rule-based segmentation becomes too coarse for accurate risk prediction.
 
-\section{Proposed System}
-The proposed system is a machine learning based churn prediction framework that ingests customer data, preprocesses it, engineers features, trains predictive models, and produces a churn risk category for each customer. The system is intended to support retention teams through dashboard-based decision support.
+The proposed system addresses these issues by introducing a structured machine learning pipeline for customer churn prediction. The system begins with data ingestion from customer records, transaction logs, service interaction data, and related sources. Once loaded, the data is cleaned and transformed through preprocessing operations such as missing-value treatment, outlier control, encoding of categorical features, and scaling of numerical variables where necessary. This step is essential because machine learning models are sensitive to data quality, and raw operational data frequently contains inconsistencies. After preprocessing, feature engineering is performed to derive behavior-oriented indicators such as transaction intensity, complaint rate, and tenure categories. These engineered features help the model learn meaningful patterns that may not be obvious from the raw fields alone.
 
-\subsection{Advantages of Proposed System}
-\begin{itemize}
-    \item Predictive scoring identifies at-risk customers before churn occurs.
-    \item Multiple models can be compared and tuned systematically.
-    \item Risk can be categorized as High, Medium, or Low for operational use.
-    \item Key features influencing churn can be highlighted to improve interpretability.
-    \item The framework is extensible to future real-time or API-based deployment.
-\end{itemize}
+The next component of the proposed system is model training and selection. Instead of assuming a single best algorithm in advance, the system compares multiple models including Logistic Regression, Decision Tree, Random Forest, and XGBoost. This comparative strategy follows best practices from churn prediction research because no single model dominates in all datasets \cite{systematicreview,imani2024}. Logistic Regression provides a baseline and a degree of interpretability. Decision Trees expose decision paths clearly. Random Forest improves generalization by aggregating multiple trees. XGBoost offers strong predictive power through gradient boosting and is particularly effective on structured tabular data. Hyperparameter tuning through grid search or randomized search is used to improve each model’s performance.
 
-\section{Dataset Specification}
-The dataset used in this report is assumed to be an anonymized FinTech customer dataset with approximately 10{,}000 records. The source is unspecified and is treated as a project assumption. The schema is inspired by public churn datasets and prior FinTech churn studies \cite{malhotra2017}.
+An important analytical requirement in this project is class imbalance handling. In most churn datasets, non-churners are much more numerous than churners. If this imbalance is ignored, the resulting model may appear accurate while failing to detect the very customers the business wants to retain. The system therefore includes support for methods such as SMOTE and class-weighted learning. Evaluation is based on accuracy, precision, recall, F1-score, ROC-AUC, and confusion matrix analysis, with particular emphasis on recall and F1-score for the churn class. These metrics help ensure that the selected model is useful for decision-making rather than merely impressive on paper.
+
+The assumed dataset schema for this project is shown in Table \ref{tab:dataset_attributes_analysis}. It represents a realistic collection of attributes that a FinTech company may store in customer systems and operational databases.
 
 \begin{table}[H]
 \centering
 \caption{Dataset Attributes}
-\begin{tabular}{|p{3.2cm}|p{2.3cm}|p{6.2cm}|}
+\begin{tabular}{|p{3.1cm}|p{2.2cm}|p{6.4cm}|}
 \hline
 \textbf{Attribute} & \textbf{Type} & \textbf{Description} \\ \hline
-CustomerID & String & Unique customer identifier removed before modeling \\ \hline
-Age & Numeric & Customer age in years \\ \hline
-Gender & Categorical & Gender category \\ \hline
-Region & Categorical & Geographic region or service zone \\ \hline
-AccountBalance & Numeric & Current account balance \\ \hline
-CreditScore & Numeric & Credit score or equivalent rating \\ \hline
-NumTransactions & Numeric & Number of transactions in the recent period \\ \hline
-TenureMonths & Numeric & Account age in months \\ \hline
-Complaints & Numeric & Number of recorded complaints \\ \hline
-ActiveStatus & Categorical & Active or inactive account status \\ \hline
-Subscription & Categorical & Plan type such as Basic or Gold \\ \hline
-Churn & Binary & Target label where 1 indicates churn \\ \hline
+CustomerID & String & Unique customer identifier removed before model training \\ \hline
+Age & Numeric & Age of the customer in years \\ \hline
+Gender & Categorical & Customer gender category \\ \hline
+Region & Categorical & Geographical service region \\ \hline
+AccountBalance & Numeric & Current account or wallet balance \\ \hline
+CreditScore & Numeric & Credit score or internal risk score \\ \hline
+NumTransactions & Numeric & Number of recent transactions \\ \hline
+TenureMonths & Numeric & Number of months since joining the platform \\ \hline
+Complaints & Numeric & Count of service complaints recorded \\ \hline
+ActiveStatus & Categorical & Whether the customer is active or inactive \\ \hline
+Subscription & Categorical & Plan category such as basic or premium \\ \hline
+Churn & Binary & Target label where 1 represents churn \\ \hline
 \end{tabular}
-\label{tab:dataset_attributes}
+\label{tab:dataset_attributes_analysis}
 \end{table}
 
-\section{Data Preprocessing}
-The preprocessing pipeline includes the following steps:
-\begin{itemize}
-    \item removal of non-predictive identifiers such as \texttt{CustomerID};
-    \item treatment of missing values using mean, median, or placeholder categories;
-    \item outlier control for features such as account balance;
-    \item one-hot encoding of categorical variables;
-    \item scaling of numerical features when required by the model;
-    \item imbalance handling using SMOTE or class weighting.
-\end{itemize}
-
-\section{Feature Engineering}
-To improve predictive quality, the proposed system creates additional derived variables such as average transactions per month, complaint rate, and tenure buckets. Interaction-oriented features may also be considered when they improve validation performance. Feature importance rankings from tree-based models guide selection of the most informative predictors.
-
-\section{System Requirements}
-\subsection{Hardware Requirements}
-\begin{itemize}
-    \item Processor: Intel i5 or equivalent and above
-    \item RAM: 8 GB minimum, 16 GB preferred
-    \item Storage: 20 GB free disk space
-    \item Internet connectivity for scholarly and package access
-\end{itemize}
-
-\subsection{Software Requirements}
-\begin{itemize}
-    \item Operating System: Windows, Linux, or macOS
-    \item Programming Language: Python
-    \item Libraries: pandas, NumPy, scikit-learn, XGBoost, matplotlib, seaborn
-    \item Notebook or IDE: Jupyter Notebook, VS Code, or PyCharm
-    \item Web Framework: Flask or Django for dashboard integration
-    \item Database: PostgreSQL, MySQL, or MongoDB
-\end{itemize}
+The hardware and software requirements of the system are modest, which makes the project suitable for academic implementation. A machine with at least 8 GB RAM, adequate storage, and a modern processor is sufficient for experimentation on the assumed dataset size. On the software side, Python provides the development foundation, while libraries such as pandas, NumPy, scikit-learn, matplotlib, seaborn, and XGBoost support the data science pipeline. A lightweight web framework such as Flask can be used to create a simple dashboard for viewing risk categories. Overall, the system analysis shows that the proposed solution is technically feasible, methodologically sound, and clearly superior to static, rule-based customer retention monitoring.

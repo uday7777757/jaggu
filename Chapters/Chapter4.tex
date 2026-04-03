@@ -1,16 +1,22 @@
 \chapter{System Design}
 
-\section{System Architecture}
-The proposed architecture separates the system into data, processing, service, and presentation layers. This improves modularity and makes the solution easier to maintain and extend.
+\section{Architecture, Data Flow, UML Design, and Deployment View}
+The design of the proposed churn prediction system is intended to support not only model training, but also practical use by business teams. For that reason, the system is organized as a layered pipeline with clear movement of data from raw source systems to end-user decision support. At the highest level, the architecture can be divided into four connected layers: the data layer, the processing layer, the service layer, and the presentation layer. The data layer represents source systems such as customer relationship management databases, transactional databases, and complaint or interaction logs. These systems contain heterogeneous customer information that must be extracted and consolidated before predictive modeling becomes possible.
+
+The processing layer performs the most analytically important work. Once data is ingested, it enters the preprocessing module, where missing values are handled, inconsistent entries are corrected, outliers are reviewed, categorical variables are encoded, and numeric features are scaled where required. This layer also includes feature engineering, because raw operational fields often need to be converted into more useful predictive indicators. For example, the raw number of transactions alone may not be sufficiently informative unless interpreted relative to customer tenure. Similarly, complaints become more meaningful when viewed as a rate rather than a total count. After these transformations, the prepared dataset is passed into model training and tuning components. Here, multiple models are fitted and compared using cross-validation, and the best-performing model is selected for deployment.
+
+Once a final model is chosen, it becomes part of the service layer. In a practical implementation, this layer would expose the model through an inference service or API. New customer records or scheduled customer batches could then be scored without retraining the model every time. The service layer may also include a notification or rules component that converts churn probabilities into business actions such as retention alerts, at-risk customer lists, or campaign triggers. The presentation layer sits above the service layer and translates model outputs into a dashboard that can be used by managers, analysts, or customer success teams. Instead of showing only binary churn predictions, the presentation layer is designed to display risk categories, customer-level details, and the most influential features behind the decision. This improves usability and encourages adoption by non-technical stakeholders.
+
+Figure \ref{fig:system_architecture} presents the main system architecture used in the project, while Listing \ref{lst:architecture_main} provides editable Mermaid code for future modification.
 
 \begin{figure}[H]
 \centering
-\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering System architecture diagram placeholder. Editable Mermaid source is provided below.}}
+\includegraphics[width=0.82\textwidth]{images/system-architecture.png}
 \caption{System Architecture}
 \label{fig:system_architecture}
 \end{figure}
 
-\begin{lstlisting}[language={},caption={System Architecture in Mermaid},label={lst:architecture}]
+\begin{lstlisting}[language={},caption={System Architecture in Mermaid},label={lst:architecture_main}]
 flowchart LR
     subgraph Data_Layer
       CRM_DB["CRM/Account Database"]
@@ -36,30 +42,29 @@ flowchart LR
     Alerts --> WebApp
 \end{lstlisting}
 
-\section{Data Flow Diagram}
-\subsection{Level 0 Context Diagram}
+From a data movement perspective, the same design can be understood through data flow diagrams. At the context level, the entire application behaves as a single churn prediction process that receives customer information and produces risk reports. At a more detailed level, this process can be decomposed into data collection, cleaning, feature engineering, model scoring, and reporting. These DFDs are useful because they show that the system is not merely a model but a connected decision-support pipeline. They also help clarify the boundary between data preparation and business output. The report includes a visual flow representation in Figure \ref{fig:dfd_context_main} and retains editable Mermaid forms for later refinement.
+
 \begin{figure}[H]
 \centering
-\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering Context-level DFD placeholder. Editable Mermaid source is provided below.}}
+\includegraphics[width=0.52\textwidth]{images/dfd-context.png}
 \caption{Data Flow Diagram -- Context Level}
-\label{fig:dfd_context}
+\label{fig:dfd_context_main}
 \end{figure}
 
-\begin{lstlisting}[language={},caption={DFD Level 0 in Mermaid},label={lst:dfd0}]
+\begin{lstlisting}[language={},caption={DFD Level 0 in Mermaid},label={lst:dfd0_main}]
 flowchart TB
     Customer[Customer Data Input] -->|Feed Data| ChurnSystem[/"Churn Prediction System"/]
     ChurnSystem -->|Risk Scores| Business[Business Dashboard/Report]
 \end{lstlisting}
 
-\subsection{Level 1 Detailed Diagram}
 \begin{figure}[H]
 \centering
-\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering Detailed DFD placeholder. Editable Mermaid source is provided below.}}
+\includegraphics[width=0.52\textwidth]{images/dfd-detailed.png}
 \caption{Data Flow Diagram -- Detailed}
-\label{fig:dfd_detailed}
+\label{fig:dfd_detail_main}
 \end{figure}
 
-\begin{lstlisting}[language={},caption={DFD Level 1 in Mermaid},label={lst:dfd1}]
+\begin{lstlisting}[language={},caption={DFD Level 1 in Mermaid},label={lst:dfd1_main}]
 flowchart TB
     A[Customer Transaction Logs] --> B["1. Data Collection"]
     B --> C["2. Data Cleaning"]
@@ -69,116 +74,46 @@ flowchart TB
     F --> G[Business Dashboard / Notifications]
 \end{lstlisting}
 
-\section{UML Diagrams}
-\subsection{Class Diagram}
+UML diagrams complement the architecture and DFD views by showing internal structure and interactions. The class diagram identifies conceptual objects such as Customer, Account, Transaction, ChurnModel, and Dashboard. The sequence diagram describes the operational flow when data is submitted for scoring and results are returned to the user interface. The activity diagram captures the iterative nature of model development, where unsatisfactory evaluation can lead back to feature engineering and retraining. The deployment diagram illustrates how the system could be hosted on a cloud server with an application layer, database, and model service. These representations help convert a machine learning experiment into a complete software engineering artifact, which is a key requirement for an academic major project.
+
+\subsection{UML Class Diagram}
+The class diagram in Figure \ref{fig:uml_class_main} models the main software entities of the proposed system and their relationships. It shows how the dashboard fetches predictions from the churn model, how the model uses customer information, and how account and transaction entities are associated with each customer.
+
 \begin{figure}[H]
 \centering
-\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering UML class diagram placeholder. Editable Mermaid source is provided below.}}
+\includegraphics[height=0.78\textheight]{images/uml-class.png}
 \caption{UML Class Diagram of the Churn Prediction System}
-\label{fig:uml_class}
+\label{fig:uml_class_main}
 \end{figure}
 
-\begin{lstlisting}[language={},caption={UML Class Diagram in Mermaid},label={lst:class}]
-classDiagram
-    class Customer {
-        +string customerID
-        +int age
-        +double balance
-        +bool churnLabel
-        +getRiskFactors()
-    }
-    class Account {
-        +int accountID
-        +double balance
-        +string status
-    }
-    class Transaction {
-        +int transID
-        +double amount
-        +date date
-    }
-    class ChurnModel {
-        +trainModel(data)
-        +predict(churnData)
-        +hyperparams
-    }
-    class Dashboard {
-        +displayRiskTable()
-        +showFeatureImportance()
-    }
-    Customer "1" -- "1" Account : has
-    Account "1" -- "*" Transaction : records
-    ChurnModel ..> Customer : uses
-    Dashboard --> ChurnModel : requests prediction
-\end{lstlisting}
+\subsection{UML Sequence Diagram}
+The sequence diagram in Figure \ref{fig:uml_sequence_main} explains the runtime interaction between the user, web application, prediction model, and dashboard interface. It highlights the journey from data upload to the display of churn risk levels.
 
-\subsection{Sequence Diagram}
 \begin{figure}[H]
 \centering
-\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering UML sequence diagram placeholder. Editable Mermaid source is provided below.}}
+\includegraphics[width=0.92\textwidth]{images/uml-sequence.png}
 \caption{UML Sequence Diagram}
-\label{fig:uml_sequence}
+\label{fig:uml_sequence_main}
 \end{figure}
 
-\begin{lstlisting}[language={},caption={UML Sequence Diagram in Mermaid},label={lst:sequence}]
-sequenceDiagram
-    participant U as User
-    participant W as WebApp
-    participant M as MLService
-    participant D as Dashboard
+\subsection{UML Activity Diagram}
+The activity diagram in Figure \ref{fig:uml_activity_main} describes the workflow of model development from data collection to deployment and monitoring. It also captures the iterative decision point where the model may be improved and retrained if performance is not satisfactory.
 
-    U->>W: Upload customer data (CSV)
-    W->>M: Send data for scoring
-    M-->>W: Return churn probabilities
-    W->>D: Update dashboard with risk levels
-    D-->>U: Display High/Med/Low risk list
-\end{lstlisting}
-
-\subsection{Activity Diagram}
 \begin{figure}[H]
 \centering
-\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering UML activity diagram placeholder. Editable Mermaid source is provided below.}}
+\includegraphics[height=0.8\textheight]{images/activity-diagram.png}
 \caption{UML Activity Diagram}
-\label{fig:uml_activity}
+\label{fig:uml_activity_main}
 \end{figure}
-
-\begin{lstlisting}[language={},caption={UML Activity Diagram in Mermaid},label={lst:activity}]
-flowchart TD
-    Start --> Collect[Collect and Store Data]
-    Collect --> Clean[Clean & Preprocess Data]
-    Clean --> FeatureEng[Feature Engineering]
-    FeatureEng --> Train[Train ML Models]
-    Train --> Eval[Evaluate Performance]
-    Eval --> Split{Satisfactory?}
-    Split -- No --> FeatureEng
-    Split -- Yes --> Deploy[Deploy Best Model]
-    Deploy --> Monitor[Monitor & Update Model]
-    Monitor --> End[End]
-\end{lstlisting}
 
 \subsection{Deployment Diagram}
+The deployment view in Figure \ref{fig:uml_deployment_main} shows how the solution can be hosted in a cloud setting. The user accesses the web server through a browser, the web layer communicates with the machine learning model service, and both application components interact with the database as needed.
+
 \begin{figure}[H]
 \centering
-\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering Deployment diagram placeholder. Editable Mermaid source is provided below.}}
+\includegraphics[width=0.95\textwidth]{images/cloud-deployment.png}
 \caption{UML Deployment Diagram}
-\label{fig:uml_deployment}
+\label{fig:uml_deployment_main}
 \end{figure}
 
-\begin{lstlisting}[language={},caption={Deployment Diagram in Mermaid},label={lst:deployment}]
-flowchart LR
-    subgraph User_Side
-      Browser["User Browser"]
-    end
-    subgraph Cloud
-      WebSrv["Web Server (EC2)"]
-      DB["Database (RDS)"]
-      MLSrv["ML Service"]
-    end
-    Browser --> WebSrv
-    WebSrv --> DB
-    WebSrv --> MLSrv
-    MLSrv --> DB
-\end{lstlisting}
-
-\section{Design Summary}
-The design supports modular implementation, staged model development, and future production integration. The use of explicit data flow and UML representations also helps communicate the system clearly to technical and academic reviewers.
+Together, the architecture, DFD, UML, and deployment views demonstrate that the proposed system is modular, extensible, and suitable for future production-oriented enhancement.

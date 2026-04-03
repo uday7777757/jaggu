@@ -1,72 +1,307 @@
 \chapter{System Design}
-\section{System Architecture}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/unnamed.png} 
-    \caption{System Architecture Diagram.}
-    \label{fig:my_label} % For referencing in text
+
+\section{System Architecture Overview}
+
+The customer churn prediction platform is organised into four distinct architectural layers, each with clearly delineated responsibilities that promote separation of concerns, maintainability, and horizontal scalability. This layered design follows well-established software engineering principles and ensures that modifications to one layer do not propagate unexpected side effects to adjacent layers \cite{malhotra2017}.
+
+The \textbf{Data Layer} forms the foundation of the entire system. It is implemented using a PostgreSQL relational database that stores raw customer records, historical transaction logs, complaint histories, and model-generated churn scores. Data ingestion is handled through nightly batch ETL (Extract, Transform, Load) jobs that connect to upstream CRM systems and transaction processing APIs. These jobs extract new customer activity records, validate them against a predefined schema, and load them into staging tables before promoting verified records to the main production tables. This asynchronous ingestion pattern ensures that the live database remains fully available for read queries during the loading process, preventing any service disruption.
+
+The \textbf{Processing Layer} sits immediately above the Data Layer and houses the core machine learning pipeline. Implemented entirely in Python~3.8, this layer leverages pandas for efficient data manipulation, scikit-learn for preprocessing transformations and model evaluation utilities, and XGBoost for the primary gradient-boosted decision tree classifier. The pipeline executes a well-defined sequence of steps---missing value imputation, categorical encoding, feature normalisation, feature engineering, and model inference---all of which can be triggered in nightly batch mode or on demand through API calls \cite{chen2016xgboost}.
+
+The \textbf{Service Layer} exposes the machine learning functionality as a collection of RESTful HTTP endpoints using the Flask micro-framework. Fitted model artefacts and the preprocessing pipeline are serialised to disk using joblib and loaded into application memory at startup. A Redis in-memory cache stores recent prediction results, reducing redundant model inference and improving response latency for repeated customer lookups. Input validation, structured error handling, and API versioning are all managed within this layer.
+
+The \textbf{Presentation Layer} provides the user-facing web dashboard built using HTML5, CSS3, and the Bootstrap~5 framework. Business analysts access this interface to view a ranked list of customers ordered by churn probability, inspect interactive feature importance visualisations, and export scheduled CSV reports. The dashboard communicates with the Service Layer exclusively through the defined REST API, ensuring a clean decoupling between the front-end rendering logic and the back-end inference engine \cite{imani2023}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  layer/.style={rectangle, draw=black, thick,
+    minimum width=10cm, minimum height=1.2cm,
+    text width=9.5cm, align=center}
+]
+  \node[layer, fill=orange!20] (P) at (0,0)
+    {\textbf{Presentation Layer}\\[2pt]Web Dashboard (HTML/CSS/Bootstrap~5)};
+  \node[layer, fill=green!20] (S) at (0,-2.0)
+    {\textbf{Service Layer}\\[2pt]Flask REST API $\cdot$ Redis Cache};
+  \node[layer, fill=blue!20] (Proc) at (0,-4.0)
+    {\textbf{Processing Layer}\\[2pt]Python $\cdot$ scikit-learn $\cdot$ XGBoost $\cdot$ SMOTE};
+  \node[layer, fill=gray!20] (D) at (0,-6.0)
+    {\textbf{Data Layer}\\[2pt]PostgreSQL $\cdot$ Nightly ETL Jobs};
+  \draw[<->, thick, >=latex] (P) -- (S);
+  \draw[<->, thick, >=latex] (S) -- (Proc);
+  \draw[<->, thick, >=latex] (Proc) -- (D);
+\end{tikzpicture}
+\caption{Four-Layer System Architecture}
+\label{fig:architecture}
 \end{figure}
-\section{Data Flow Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.jpg} 
-    \caption{Data Flow Diagram}
-    \label{fig:my_label} % For referencing in text
+
+\section{Data Flow Diagrams}
+
+\subsection{Level 0 DFD -- Context Diagram}
+
+The Level~0 Data Flow Diagram, commonly referred to as the Context Diagram, provides the highest-level abstraction of the churn prediction system by identifying the system boundary and its interactions with external entities. At this level, the internal complexity of the system is deliberately hidden in order to focus on the system's relationship with the outside world.
+
+Two external entities interact with the Churn Prediction System. The first is the \textbf{Business Analyst}, who is the primary human user of the system. The Business Analyst is responsible for uploading or triggering the ingestion of raw customer data and for consuming the churn risk reports and ranked customer lists produced by the system. The second external entity is the \textbf{Database Administrator}, who receives and manages the churn score outputs, maintains the historical prediction database, sets data retention policies, and oversees ETL job scheduling. The system receives a stream of customer records from the Business Analyst and returns structured churn risk reports summarising predicted probabilities, risk rankings, and feature importance breakdowns. This bidirectional relationship defines the complete input-output specification of the system at the context level \cite{imani2023}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  entity/.style={ellipse, draw=black, thick, fill=green!15,
+    minimum width=2.8cm, minimum height=1.4cm, align=center, font=\small},
+  system/.style={rectangle, draw=black, thick, fill=blue!15,
+    minimum width=4.2cm, minimum height=2.4cm, align=center}
+]
+  \node[entity] (BA) at (-5.5,0) {Business\\Analyst};
+  \node[system] (SYS) at (0,0) {\textbf{Churn Prediction}\\[4pt]\textbf{System}};
+  \node[entity] (DBA) at (5.5,0) {Database\\Admin};
+  \draw[->, thick, >=latex] (BA) -- node[above, font=\small]{Customer Data} (SYS);
+  \draw[->, thick, >=latex] (SYS) -- node[above, font=\small]{Churn Risk Report} (DBA);
+\end{tikzpicture}
+\caption{Level 0 DFD -- Context Diagram}
+\label{fig:dfd0}
 \end{figure}
+
+\subsection{Level 1 DFD}
+
+The Level~1 DFD decomposes the monolithic Churn Prediction System into its five primary constituent processes, exposing the internal data flows and data stores that mediate between them. Each process represents a logically cohesive unit of computation, and the data stores represent persistent repositories that enable processes to exchange information asynchronously.
+
+\textbf{Process~1 (Data Collection)} retrieves raw customer demographic and transactional records from CRM systems and the transaction processing database, writing them to Data Store~D1 (Raw Customer Data), a staging area in the PostgreSQL database.
+
+\textbf{Process~2 (Data Cleaning and Preprocessing)} reads records from D1, applies median imputation for missing numeric values, modal imputation for missing categorical values, one-hot encodes the \textit{Gender} attribute, and applies StandardScaler normalisation. Cleaned records are annotated with a processed flag and persisted back to D1.
+
+\textbf{Process~3 (Feature Engineering)} reads preprocessed records from D1 and computes four derived features: \textit{AvgTransPerMonth}, \textit{TenureBucket}, \textit{HighComplaintRate}, and \textit{BalanceToSalaryRatio}. The enriched feature matrix is written to Data Store~D2 (Processed Feature Matrix).
+
+\textbf{Process~4 (Model Scoring)} reads the feature matrix from D2, loads the serialised XGBoost classifier from the model registry, and executes inference to produce a churn probability score for each customer. Scores are written to Data Store~D3 (Churn Scores) \cite{chen2016xgboost}.
+
+\textbf{Process~5 (Reporting and Alerting)} reads from D3, generates a ranked risk list, updates the web dashboard, and dispatches automated email alerts to the retention team for any customer whose churn probability exceeds the configured threshold.
+
+\begin{table}[H]
+\centering
+\caption{Level 1 DFD -- Process Summary}
+\label{tab:dfd1}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|p{3cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Process} & \textbf{Input} & \textbf{Output} & \textbf{Data Store Used} \\
+\hline
+P1: Data Collection & CRM / Transaction DB & Raw customer records & D1 Raw Customer Data \\
+\hline
+P2: Data Cleaning & Raw records (D1) & Validated, imputed data & D1 Raw Customer Data \\
+\hline
+P3: Feature Engineering & Preprocessed data (D1) & Enriched feature matrix & D2 Processed Feature Matrix \\
+\hline
+P4: Model Scoring & Feature matrix (D2) & Churn probability scores & D3 Churn Scores \\
+\hline
+P5: Reporting \& Alerting & Churn scores (D3) & Risk list, email alerts & D3 Churn Scores \\
+\hline
+\end{tabular}
+\end{table}
+
 \section{UML Diagrams}
-\subsection{Class Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.jpg} 
-    \caption{Class Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Object Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Object Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Collaboration Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Collaboration Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Use Case Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Use Case Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Sequence Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Sequence Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Activity Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Activity Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Component Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Component Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Deployment Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Deployment Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+
+\subsection{Class Diagram Description}
+
+The system is modelled using five primary classes that encapsulate the core entities and behaviours of the churn prediction platform.
+
+The \textbf{Customer} class represents an individual customer account. Its attributes include a unique integer \textit{customerID}, an integer \textit{age}, a string \textit{gender}, an integer \textit{tenureMonths}, a float \textit{accountBalance}, an integer \textit{numProducts}, a boolean \textit{hasCreditCard}, and a boolean \textit{isActiveMember}. Key methods are \textit{getProfile()}, which returns a serialised attribute dictionary suitable for API responses, and \textit{calculateLTV()}, which estimates customer lifetime value from balance and tenure.
+
+The \textbf{Transaction} class records individual financial events. Attributes include \textit{transactionID}, \textit{customerID} (foreign key), \textit{amount} (float), \textit{date} (datetime), and \textit{transactionType} (string). The method \textit{getSummary()} returns aggregate statistics across all transactions for the associated customer.
+
+The \textbf{ChurnPredictor} class encapsulates the trained model and exposes prediction functionality. Its attributes are the fitted \textit{model} (XGBClassifier), the fitted \textit{scaler} (StandardScaler), and a numeric \textit{threshold} for binary classification. Methods are \textit{predict(features)}, returning a binary churn label; \textit{predictProba(features)}, returning the continuous churn probability; and \textit{getFeatureImportance()}, returning a ranked dictionary of feature names and gain-based importance scores.
+
+The \textbf{DataPipeline} class orchestrates all preprocessing and feature engineering operations. Attributes are an \textit{imputer} (SimpleImputer), an \textit{encoder} (OneHotEncoder), and a \textit{smote} (SMOTE) instance. Methods follow the scikit-learn transformer convention: \textit{fit(X, y)}, \textit{transform(X)}, and \textit{fitTransform(X, y)}.
+
+The \textbf{Dashboard} class represents the web presentation component. Its attributes are \textit{reportDate} (datetime of the last scoring run) and \textit{highRiskCustomers} (a list of at-risk Customer objects). Key methods are \textit{displayRiskList()}, \textit{exportReport()}, and \textit{sendAlerts()}.
+
+\begin{table}[H]
+\centering
+\caption{UML Class Diagram -- Class Descriptions}
+\label{tab:class_diagram}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{2.8cm}|p{5.5cm}|p{4cm}|}
+\hline
+\textbf{Class} & \textbf{Attributes} & \textbf{Key Methods} \\
+\hline
+Customer & customerID: int, age: int, gender: str, tenureMonths: int, accountBalance: float, numProducts: int, hasCreditCard: bool, isActiveMember: bool & getProfile(), calculateLTV() \\
+\hline
+Transaction & transactionID: int, customerID: int, amount: float, date: datetime, transactionType: str & getSummary() \\
+\hline
+ChurnPredictor & model: XGBClassifier, scaler: StandardScaler, threshold: float & predict(), predictProba(), getFeatureImportance() \\
+\hline
+DataPipeline & imputer: SimpleImputer, encoder: OneHotEncoder, smote: SMOTE & fit(), transform(), fitTransform() \\
+\hline
+Dashboard & reportDate: datetime, highRiskCustomers: list & displayRiskList(), exportReport(), sendAlerts() \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Sequence Diagram Description}
+
+The sequence diagram illustrates the chronological flow of interactions between system components when a business analyst uploads a customer data file and requests batch churn scoring. The ten-step interaction sequence unfolds as follows.
+
+\begin{enumerate}
+    \item The Business Analyst accesses the web Dashboard and uploads a CSV file of current customer records through the file upload interface.
+    \item The Dashboard issues a multipart \texttt{POST /upload} HTTP request to the Flask REST API, attaching the CSV as the request body.
+    \item The Flask API invokes \texttt{DataPipeline.fitTransform()}, passing the parsed DataFrame, which applies imputation, encoding, scaling, and feature engineering in a single chained transformation.
+    \item The DataPipeline returns the processed NumPy feature matrix to the Flask API.
+    \item The Flask API invokes \texttt{ChurnPredictor.predictProba()}, forwarding the feature matrix to the loaded XGBoost model.
+    \item The XGBoost model executes inference across all rows of the feature matrix and returns a one-dimensional array of churn probabilities.
+    \item The Flask API sorts all customer records by their churn probability in descending order, producing a ranked risk list.
+    \item The Flask API serialises the ranked list to a JSON array and returns it to the Dashboard in the HTTP response body with status code 200.
+    \item The Dashboard deserialises the JSON response and renders the risk list in a paginated, colour-coded table---red for probability~$>$~0.7, amber for 0.4--0.7, and green for below~0.4.
+    \item The Business Analyst reviews the ranked risk list, identifies priority customers for outreach, and either exports the high-risk segment to CSV for CRM upload or initiates individual retention actions directly from the dashboard.
+\end{enumerate}
+
+\subsection{Activity Diagram Description}
+
+The activity diagram captures the complete end-to-end workflow of the churn prediction pipeline, including decision points that govern execution flow based on data quality checks and model output conditions.
+
+The workflow \textbf{starts} when the nightly scheduled batch job is triggered at 02:00 hours. The first activity is \textbf{Load CSV Data}, in which the ETL job reads the latest customer data export from the designated S3 bucket. The next activity, \textbf{Validate Schema}, checks that all required columns are present, that data types match the schema specification, and that the record count exceeds a minimum threshold of 1,000 records. If schema validation \textbf{fails}, the pipeline transitions to a \textbf{Log Error} activity that writes a structured error message to the application log and triggers a CloudWatch alarm, followed by an \textbf{End} state. If validation \textbf{succeeds}, the workflow proceeds to \textbf{Run Preprocessing}, executing imputation, encoding, and scaling. The \textbf{Feature Engineering} activity then computes the four derived features. The \textbf{Load Model} activity retrieves the active serialised XGBoost classifier from the model registry table in PostgreSQL. \textbf{Generate Predictions} executes inference over the complete feature matrix in a single vectorised call. For each customer, the decision \textbf{Probability~$>$~Threshold?} is evaluated: if yes, the customer is \textbf{Flagged as High Risk}; if no, the customer is \textbf{Flagged as Low Risk}. The workflow then proceeds to \textbf{Persist Results to DB}, \textbf{Update Dashboard}, and \textbf{Send Email Alerts to Retention Team} for all high-risk customers, before reaching the \textbf{End} state.
+
+\subsection{Deployment Diagram Description}
+
+The deployment architecture distributes system components across cloud infrastructure nodes hosted on Amazon Web Services (AWS), designed for high availability, security, and cost-effectiveness at the scale of 10,000 customers with weekly batch scoring and occasional on-demand API calls.
+
+The primary compute resource is an \textbf{EC2 Instance} (instance type t3.medium, 2~vCPUs, 4~GB RAM) running the Flask REST API. This instance hosts the Python application runtime, the loaded XGBoost model artefacts (approximately 45~MB on disk), the preprocessing pipeline object, and the Redis process for response caching. An \textbf{Amazon RDS PostgreSQL Instance} (db.t3.small) stores the \texttt{customers}, \texttt{churn\_predictions}, and \texttt{model\_registry} tables with automated seven-day backup retention enabled. An \textbf{Amazon S3 Bucket} stores raw CSV data exports and functions as a backup repository for serialised model artefacts. An \textbf{Application Load Balancer (ALB)} sits in front of the EC2 instance, routing incoming HTTPS traffic on port~443 to the Flask API on port~5000 and enabling future horizontal scaling across multiple instances. \textbf{Amazon CloudWatch} monitors CPU utilisation, memory usage, request latency, and error rates for all components, with SNS alarms notifying the operations team on threshold breaches. Client browsers connect to the system via HTTPS through the ALB, which proxies requests to the Flask API, which in turn queries RDS for customer data and writes prediction outputs back to RDS.
+
+\section{Database Design}
+
+The relational schema consists of three primary tables that store customer attributes, model prediction outputs, and model versioning metadata respectively. The \texttt{customers} table holds all raw and derived customer attributes used as model inputs. The \texttt{churn\_predictions} table records every scoring run output alongside the originating model version, enabling historical performance auditing. The \texttt{model\_registry} table acts as a lightweight model governance mechanism, tracking which model version is currently active in production.
+
+\begin{table}[H]
+\centering
+\caption{Database Table: \texttt{customers}}
+\label{tab:db_customers}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|l|l|p{4cm}|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
+\hline
+customer\_id & SERIAL & PRIMARY KEY & Unique customer identifier \\
+\hline
+age & INTEGER & NOT NULL & Customer age in years \\
+\hline
+gender & VARCHAR(10) & NOT NULL & M or F \\
+\hline
+tenure\_months & INTEGER & NOT NULL & Duration of relationship in months \\
+\hline
+account\_balance & NUMERIC(12,2) & NOT NULL & Current account balance \\
+\hline
+num\_products & INTEGER & NOT NULL & Number of financial products held \\
+\hline
+has\_credit\_card & BOOLEAN & DEFAULT FALSE & Credit card ownership flag \\
+\hline
+is\_active\_member & BOOLEAN & DEFAULT TRUE & Active membership status \\
+\hline
+num\_transactions & INTEGER & NOT NULL & Total transaction count \\
+\hline
+estimated\_salary & NUMERIC(12,2) & NOT NULL & Estimated annual salary \\
+\hline
+complaints & INTEGER & DEFAULT 0 & Complaint count in observation window \\
+\hline
+created\_at & TIMESTAMP & DEFAULT NOW() & Record creation timestamp \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Database Table: \texttt{churn\_predictions}}
+\label{tab:db_predictions}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|l|l|p{4cm}|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
+\hline
+prediction\_id & SERIAL & PRIMARY KEY & Unique prediction record identifier \\
+\hline
+customer\_id & INTEGER & FOREIGN KEY & References customers.customer\_id \\
+\hline
+churn\_probability & NUMERIC(5,4) & NOT NULL & Model output score in range [0, 1] \\
+\hline
+prediction\_date & TIMESTAMP & NOT NULL & Timestamp of the scoring run \\
+\hline
+model\_version & VARCHAR(20) & NOT NULL & Model version string \\
+\hline
+is\_high\_risk & BOOLEAN & NOT NULL & True if probability exceeds threshold \\
+\hline
+acted\_upon & BOOLEAN & DEFAULT FALSE & Whether a retention action was taken \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Database Table: \texttt{model\_registry}}
+\label{tab:db_registry}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|l|l|p{4cm}|}
+\hline
+\textbf{Column} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\
+\hline
+model\_id & SERIAL & PRIMARY KEY & Unique model registry identifier \\
+\hline
+model\_name & VARCHAR(100) & NOT NULL & Descriptive model name \\
+\hline
+version & VARCHAR(20) & NOT NULL & Semantic version string \\
+\hline
+accuracy & NUMERIC(5,4) & NOT NULL & Test set classification accuracy \\
+\hline
+auc\_roc & NUMERIC(5,4) & NOT NULL & Test set AUC-ROC score \\
+\hline
+trained\_at & TIMESTAMP & NOT NULL & Training completion timestamp \\
+\hline
+is\_active & BOOLEAN & DEFAULT FALSE & Flag indicating the deployed model \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{API Design}
+
+The churn prediction system exposes a versioned RESTful API under the base path \texttt{/api/v1/}, following standard HTTP conventions for resource access, status code reporting, and content negotiation. All endpoints return \texttt{application/json} responses, with the exception of the batch prediction endpoint which accepts a multipart form upload. API versioning is embedded in the URL path so that future breaking changes can be introduced under \texttt{/api/v2/} without disrupting existing client integrations.
+
+The \textbf{POST /api/v1/predict} endpoint accepts a JSON object representing a single customer record, executes the complete preprocessing and feature engineering pipeline, runs XGBoost inference, and returns a JSON object containing the computed churn probability, a boolean high-risk flag, and the active model version string. Missing required fields trigger a 422 Unprocessable Entity error with a descriptive message identifying the absent fields.
+
+The \textbf{POST /api/v1/batch-predict} endpoint accepts a multipart CSV file upload, processes all records through the pipeline, and returns a JSON array of prediction objects sorted by descending churn probability. This is the primary entry point for the nightly batch scoring workflow.
+
+The \textbf{GET /api/v1/model-metrics} endpoint requires no request body and returns the current model's performance metrics---accuracy, precision, recall, F1-score, and AUC-ROC---along with the training timestamp and model version string, enabling automated monitoring dashboards to track model health over time.
+
+The \textbf{GET /api/v1/feature-importance} endpoint returns a JSON array of feature name and normalised importance score pairs for the top-N features (default N~=~10), ordered by descending importance. The value of N is configurable via the \texttt{top\_n} query parameter.
+
+The \textbf{GET /api/v1/high-risk-customers} endpoint returns a paginated JSON array of all customers whose current churn probability exceeds the active threshold, ordered by descending probability. Pagination is controlled through the \texttt{page} and \texttt{per\_page} query parameters, with a \texttt{total} count and \texttt{next\_page} link included in the response envelope.
+
+\begin{lstlisting}[caption={POST /api/v1/predict -- Request and Response Examples},
+                   label={lst:api_example}]
+# Request Body (Content-Type: application/json)
+{
+  "age": 34,
+  "gender": "M",
+  "tenure_months": 24,
+  "account_balance": 45230.50,
+  "num_products": 2,
+  "has_credit_card": true,
+  "is_active_member": true,
+  "num_transactions": 48,
+  "estimated_salary": 72000.00,
+  "complaints": 1
+}
+
+# Response (HTTP 200 OK)
+{
+  "churn_probability": 0.4217,
+  "is_high_risk": false,
+  "model_version": "xgb_v2.1.0",
+  "prediction_timestamp": "2024-03-15T10:23:45Z"
+}
+
+# GET /api/v1/model-metrics -- Response (HTTP 200 OK)
+{
+  "model_version": "xgb_v2.1.0",
+  "accuracy": 0.88,
+  "precision": 0.76,
+  "recall": 0.61,
+  "f1_score": 0.68,
+  "auc_roc": 0.89,
+  "trained_at": "2024-02-28T08:00:00Z"
+}
+\end{lstlisting}

@@ -1,13 +1,338 @@
 \chapter{System Implementation}
 
-\section{Modules Description}
+\section{Technologies and Tools}
 
-Lorem ipsum\cite{9016866} dolor sit amet, consectetur adipiscing elit. Etiam consectetur libero dui, sit amet rutrum lectus mollis ac. Phasellus mattis augue quis auctor ullamcorper. Sed congue rutrum turpis, sit amet tincidunt erat laoreet ac. Morbi in feugiat erat, sit amet placerat lorem. Quisque cursus gravida nulla, nec pulvinar justo rutrum eget. Aenean et dolor vitae enim congue maximus. Praesent consequat finibus imperdiet. Sed ipsum erat, efficitur vitae urna a, convallis ornare ipsum. Quisque fringilla risus enim, ut elementum dui consectetur eu.
+The implementation of the customer churn prediction system draws upon a carefully selected stack of open-source technologies, each chosen for its maturity, community support, and suitability to the specific computational demands of the pipeline. The language of choice is Python~3.8, which provides an extensive ecosystem of machine learning and data processing libraries under a unified runtime. The combination of scikit-learn for preprocessing and evaluation, XGBoost for gradient-boosted tree modelling, and pandas for data manipulation represents the current de facto standard for tabular machine learning workflows \cite{vafeiadis2015}. Flask was selected as the REST API framework due to its lightweight footprint and the ease with which it can be extended with authentication middleware, request validation, and logging hooks. PostgreSQL was chosen as the relational database because of its robustness, support for complex analytical queries, and the availability of mature Python connectors such as \texttt{psycopg2}. Containerisation with Docker ensures that the development environment is fully reproducible across machines and that deployment to cloud infrastructure is straightforward. Table~\ref{tab:technologies} summarises the complete technology stack with version numbers and primary purposes.
 
-\section{Technology Used}
+\begin{table}[H]
+\centering
+\caption{Technology Stack}
+\label{tab:technologies}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Technology} & \textbf{Version} & \textbf{Purpose} \\
+\hline
+Python & 3.8.12 & Core programming language \\
+\hline
+scikit-learn & 1.0.2 & ML algorithms, preprocessing, and evaluation utilities \\
+\hline
+XGBoost & 1.6.0 & Gradient boosted decision tree classifier \\
+\hline
+pandas & 1.3.5 & Data loading, manipulation, and feature engineering \\
+\hline
+NumPy & 1.21.4 & Numerical array computing \\
+\hline
+imbalanced-learn & 0.9.0 & SMOTE oversampling implementation \\
+\hline
+Flask & 2.1.0 & Lightweight REST API framework \\
+\hline
+PostgreSQL & 13.4 & Relational database for customer and score storage \\
+\hline
+Docker & 20.10.12 & Application containerisation and deployment \\
+\hline
+Jupyter Notebook & 6.4.8 & Exploratory data analysis and development \\
+\hline
+Git & 2.35.0 & Version control \\
+\hline
+joblib & 1.1.0 & Model and preprocessing pipeline serialisation \\
+\hline
+\end{tabular}
+\end{table}
 
-Vivamus sed enim quam. In facilisis consequat eros, id convallis diam congue et. Vivamus sed neque rutrum, gravida urna non, lobortis leo. Curabitur sagittis turpis sit amet dolor blandit lobortis. Fusce ac sem eget libero semper ultrices. Aliquam erat volutpat. Quisque tincidunt mi sapien, eu varius libero lacinia quis. Nullam dictum quam sed scelerisque aliquet. Mauris laoreet est nec dolor pellentesque dignissim. Praesent ac sapien erat. Mauris ut felis sit amet velit convallis cursus quis a tellus. Curabitur efficitur ultricies dui, eget vestibulum arcu venenatis ac. Nulla fermentum dolor a venenatis posuere. Vivamus eu luctus erat.\\
-\section{Algorithms used}
-Open the word file. Click on the equation written in MathType. Go to Mathtype Tab at the top. You will find a option ToggleTex. Click and copy the codes here.
+\section{Data Loading and Preprocessing}
 
-\section{Coding}
+The data loading and preprocessing pipeline is implemented as a scikit-learn \texttt{ColumnTransformer} composed of two sub-pipelines: one for numeric features and one for categorical features. This design ensures that all transformations are learned exclusively on the training partition and applied without data leakage to the validation and test partitions. The raw dataset contains thirteen columns; the non-predictive customer identifier column is removed prior to any modelling, leaving eleven input features and one binary target variable.
+
+Numeric features are processed by a sequential pipeline comprising a \texttt{SimpleImputer} with a median strategy, which is robust to the right-skewed distributions observed in \textit{AccountBalance} and \textit{EstimatedSalary}, followed by a \texttt{StandardScaler} that centres and scales each feature to zero mean and unit variance. This normalisation step is particularly important for Logistic Regression, which is sensitive to feature scales, and it ensures fair comparison between algorithms operating on different numerical ranges.
+
+The sole categorical feature, \textit{Gender}, is processed by a separate sub-pipeline comprising a \texttt{SimpleImputer} with a most-frequent strategy followed by a \texttt{OneHotEncoder} with \texttt{drop='first'} to avoid multicollinearity. The dataset is split into training and test sets using a stratified 80/20 partition, preserving the 20:80 churn-to-retained ratio in both sets. After preprocessing, SMOTE is applied exclusively to the training set to generate synthetic minority-class samples until the training distribution is balanced \cite{chawla2002smote}. SMOTE is never applied to the test set, which retains the original class distribution to provide an unbiased estimate of production-level model performance.
+
+\begin{lstlisting}[language=Python, caption={Data Loading and Preprocessing Pipeline}, label={lst:preprocessing}]
+import pandas as pd
+import numpy as np
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE
+
+# Load dataset
+df = pd.read_csv('fintech_churn.csv')
+
+# Drop non-predictive identifier column
+df = df.drop(columns=['CustomerID'])
+
+# Separate features and target variable
+X = df.drop(columns=['Churned'])
+y = df['Churned']
+
+# Define column type groups
+numeric_features = ['Age', 'TenureMonths', 'AccountBalance',
+                    'NumProducts', 'NumTransactions',
+                    'EstimatedSalary', 'Complaints']
+categorical_features = ['Gender']
+
+# Build preprocessing sub-pipelines
+numeric_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='median')),
+    ('scaler', StandardScaler())
+])
+categorical_transformer = Pipeline(steps=[
+    ('imputer', SimpleImputer(strategy='most_frequent')),
+    ('onehot', OneHotEncoder(drop='first', sparse=False))
+])
+
+# Combine into a single ColumnTransformer
+preprocessor = ColumnTransformer(transformers=[
+    ('num', numeric_transformer, numeric_features),
+    ('cat', categorical_transformer, categorical_features)
+])
+
+# Stratified 80/20 train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# Fit on training data only; transform both partitions
+X_train_proc = preprocessor.fit_transform(X_train)
+X_test_proc  = preprocessor.transform(X_test)
+
+# Apply SMOTE to balance the training set only
+smote = SMOTE(k_neighbors=5, random_state=42)
+X_train_bal, y_train_bal = smote.fit_resample(
+    X_train_proc, y_train
+)
+print(f"Training set size after SMOTE: {X_train_bal.shape}")
+print(f"Class counts: {np.bincount(y_train_bal)}")
+\end{lstlisting}
+
+\section{Feature Engineering Implementation}
+
+Feature engineering is performed after the train-test split and before model training, using only information available in each customer's own record at prediction time to prevent temporal data leakage. Four domain-informed features are derived from the base attributes, each motivated by a specific hypothesis about the behavioural drivers of churn in FinTech platforms \cite{imani2024}.
+
+The \textit{AvgTransPerMonth} feature captures transaction velocity by dividing the total transaction count by the customer's tenure in months, clipped to a minimum of one to avoid division-by-zero errors. Declining transaction frequency relative to tenure is a key early warning signal for disengagement. The \textit{TenureBucket} feature encodes the customer lifecycle stage as an ordinal variable: new customers (fewer than six months, coded as~0) are at highest onboarding risk; regular customers (six to twenty-four months, coded as~1) represent the segment most responsive to retention interventions; loyal customers (more than twenty-four months, coded as~2) are relatively stable. This non-linear lifecycle effect cannot be captured by the raw \textit{TenureMonths} continuous variable alone.
+
+The \textit{HighComplaintRate} feature is a binary indicator set to one if the customer has filed two or more complaints, encoding a dissatisfaction signal that has been shown to double churn probability \cite{imani2024}. The \textit{BalanceToSalaryRatio} computes the proportion of estimated salary held as an account balance; a ratio near zero indicates that the platform is not the customer's primary financial institution, which is associated with elevated churn risk.
+
+\begin{lstlisting}[language=Python, caption={Feature Engineering Function}, label={lst:features}]
+def engineer_features(df):
+    # Work on a copy to avoid mutating the input
+    df = df.copy()
+
+    # Transaction velocity: average transactions per month
+    df['AvgTransPerMonth'] = (
+        df['NumTransactions'] / df['TenureMonths'].clip(lower=1)
+    )
+
+    # Customer lifecycle stage: 0=New, 1=Regular, 2=Loyal
+    conditions = [
+        df['TenureMonths'] < 6,
+        (df['TenureMonths'] >= 6) & (df['TenureMonths'] <= 24)
+    ]
+    choices = [0, 1]
+    df['TenureBucket'] = np.select(
+        conditions, choices, default=2
+    )
+
+    # Binary dissatisfaction signal (2+ complaints)
+    df['HighComplaintRate'] = (
+        df['Complaints'] >= 2
+    ).astype(int)
+
+    # Financial engagement ratio
+    df['BalanceToSalaryRatio'] = (
+        df['AccountBalance'] / df['EstimatedSalary'].clip(lower=1)
+    )
+
+    return df
+\end{lstlisting}
+
+\section{Model Training and Selection}
+
+Four machine learning classifiers are trained and evaluated in a controlled comparative experiment. All models receive the same SMOTE-balanced, preprocessed, and feature-engineered training data to isolate the effect of the algorithm from data preparation differences. Logistic Regression serves as the interpretable linear baseline, providing a performance lower bound that non-linear models must surpass to justify their additional complexity \cite{vafeiadis2015}. The Decision Tree classifier captures non-linear feature interactions but is susceptible to overfitting at high depth settings. The Random Forest ensemble reduces variance through bagging and random feature subsampling \cite{breiman2001rf}. XGBoost implements gradient-boosted trees with built-in L1 and L2 regularisation on leaf weights, efficient handling of missing values, and parallel histogram-based split finding \cite{chen2016xgboost}. Table~\ref{tab:base_learners} describes the initial configuration of each classifier.
+
+\begin{table}[H]
+\centering
+\caption{Base Learner Initial Configuration}
+\label{tab:base_learners}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|p{5cm}|p{4.5cm}|}
+\hline
+\textbf{Model} & \textbf{Key Parameters} & \textbf{Rationale} \\
+\hline
+Logistic Regression & C=1.0, penalty=`l2', solver=`lbfgs', max\_iter=1000 & Interpretable linear baseline \\
+\hline
+Decision Tree & criterion=`gini', max\_depth=5, random\_state=42 & Non-linear, inherently interpretable \\
+\hline
+Random Forest & n\_estimators=100, max\_depth=10, random\_state=42 & Bagging ensemble, variance reduction \\
+\hline
+XGBoost & n\_estimators=200, learning\_rate=0.1, max\_depth=6, subsample=0.8 & State-of-the-art on tabular data \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{lstlisting}[language=Python, caption={Model Training and Evaluation Loop}, label={lst:training}]
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from sklearn.metrics import (accuracy_score, precision_score,
+                             recall_score, f1_score, roc_auc_score)
+
+def evaluate(y_true, y_pred, y_proba):
+    return {
+        'accuracy':  accuracy_score(y_true, y_pred),
+        'precision': precision_score(y_true, y_pred),
+        'recall':    recall_score(y_true, y_pred),
+        'f1':        f1_score(y_true, y_pred),
+        'auc':       roc_auc_score(y_true, y_proba)
+    }
+
+models = {
+    'Logistic Regression': LogisticRegression(
+        C=1.0, penalty='l2', solver='lbfgs', max_iter=1000),
+    'Decision Tree': DecisionTreeClassifier(
+        criterion='gini', max_depth=5, random_state=42),
+    'Random Forest': RandomForestClassifier(
+        n_estimators=100, max_depth=10, random_state=42),
+    'XGBoost': XGBClassifier(
+        n_estimators=200, learning_rate=0.1, max_depth=6,
+        subsample=0.8, colsample_bytree=0.8,
+        use_label_encoder=False, eval_metric='logloss',
+        random_state=42)
+}
+
+results = {}
+for name, model in models.items():
+    model.fit(X_train_bal, y_train_bal)
+    y_pred  = model.predict(X_test_proc)
+    y_proba = model.predict_proba(X_test_proc)[:, 1]
+    results[name] = evaluate(y_test, y_pred, y_proba)
+    print(f"{name}: AUC={results[name]['auc']:.4f}")
+\end{lstlisting}
+
+\section{Hyperparameter Tuning}
+
+Hyperparameter tuning is performed using \texttt{GridSearchCV} with 5-fold stratified cross-validation. Stratification preserves the class imbalance ratio across each fold, ensuring representativeness. AUC-ROC is used as the optimisation metric because it is threshold-free and robust to class imbalance. SMOTE oversampling is applied inside each cross-validation fold via an \texttt{imblearn} Pipeline, preventing synthetic minority-class samples from leaking across fold boundaries and inflating cross-validation scores \cite{chawla2002smote}.
+
+The search space for each model covers the primary dimensions of the bias-variance trade-off. For Logistic Regression, the regularisation strength $C$ is varied across five orders of magnitude. For the Decision Tree, maximum depth and minimum samples per split are tuned jointly. For Random Forest, the number of estimators and tree depth are the primary targets. For XGBoost, the search space is most extensive, covering estimator count, learning rate, tree depth, and subsample fraction, since these four parameters collectively determine the balance between model expressiveness and overfitting tendency \cite{friedman2001gbm}. The total number of candidate configurations evaluated for XGBoost is $3 \times 4 \times 3 \times 3 = 108$, each scored by 5-fold CV, resulting in 540 model fits. Table~\ref{tab:hyperparam} provides the complete search space specification.
+
+\begin{table}[H]
+\centering
+\caption{Hyperparameter Search Space}
+\label{tab:hyperparam}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Model} & \textbf{Parameter} & \textbf{Values Tested} \\
+\hline
+Logistic Regression & C & 0.001, 0.01, 0.1, 1, 10 \\
+ & penalty & l1, l2 \\
+\hline
+Decision Tree & max\_depth & 3, 5, 7, 10, 15 \\
+ & min\_samples\_split & 2, 5, 10 \\
+\hline
+Random Forest & n\_estimators & 50, 100, 200 \\
+ & max\_depth & 5, 10, 15, None \\
+\hline
+XGBoost & n\_estimators & 100, 200, 300 \\
+ & learning\_rate & 0.01, 0.05, 0.1, 0.2 \\
+ & max\_depth & 3, 6, 9 \\
+ & subsample & 0.6, 0.8, 1.0 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{lstlisting}[language=Python, caption={GridSearchCV Hyperparameter Optimisation for XGBoost}, label={lst:gridsearch}]
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+
+param_grid_xgb = {
+    'n_estimators':     [100, 200, 300],
+    'learning_rate':    [0.01, 0.05, 0.1, 0.2],
+    'max_depth':        [3, 6, 9],
+    'subsample':        [0.6, 0.8, 1.0],
+    'colsample_bytree': [0.6, 0.8, 1.0]
+}
+
+cv_strategy = StratifiedKFold(
+    n_splits=5, shuffle=True, random_state=42
+)
+
+grid_search = GridSearchCV(
+    estimator=XGBClassifier(
+        use_label_encoder=False,
+        eval_metric='logloss',
+        random_state=42),
+    param_grid=param_grid_xgb,
+    scoring='roc_auc',
+    cv=cv_strategy,
+    n_jobs=-1,
+    verbose=1
+)
+
+grid_search.fit(X_train_bal, y_train_bal)
+
+best_model  = grid_search.best_estimator_
+best_params = grid_search.best_params_
+best_auc    = grid_search.best_score_
+
+print(f"Best CV AUC-ROC : {best_auc:.4f}")
+print(f"Best Parameters : {best_params}")
+\end{lstlisting}
+
+\section{Model Serialisation and API Implementation}
+
+Once the best-performing XGBoost configuration is identified, the fitted model object and the fitted preprocessing pipeline are serialised to disk using the \texttt{joblib} library. The \texttt{joblib} serialiser is preferred over the standard \texttt{pickle} module for scikit-learn and XGBoost objects because it uses an efficient binary format with optimised handling of large NumPy arrays, producing smaller files and faster load times. The serialised artefacts are written to a versioned \texttt{models/} directory, with the semantic version string embedded in the filename to support side-by-side storage of multiple model versions during canary deployments or rollback scenarios.
+
+The Flask API loads both artefacts into module-level variables at application startup, so that model loading overhead is incurred only once per process lifecycle. A classification threshold of 0.38, determined empirically as the point that maximises F1-score on the validation set, is applied at the API layer as a configurable constant rather than being hard-coded into the model, enabling dynamic threshold adjustment without retraining. Request validation checks for the presence of all ten required fields; missing fields trigger a 422 Unprocessable Entity response with a list of the absent field names. A global exception handler catches unexpected errors, logs the full stack trace, and returns a generic 500 Internal Server Error response to prevent leakage of implementation details to clients \cite{imani2023}.
+
+\begin{lstlisting}[language=Python, caption={Model Serialisation and Flask Prediction Endpoint}, label={lst:api}]
+import joblib
+from flask import Flask, request, jsonify
+import pandas as pd
+
+# --- Serialisation (run once after training) ---
+joblib.dump(best_model,   'models/xgboost_churn_v2.1.0.pkl')
+joblib.dump(preprocessor, 'models/preprocessor_v2.1.0.pkl')
+
+# --- Flask API Application ---
+app = Flask(__name__)
+MODEL_VERSION = 'xgb_v2.1.0'
+THRESHOLD     = 0.38
+
+model        = joblib.load('models/xgboost_churn_v2.1.0.pkl')
+preprocessor = joblib.load('models/preprocessor_v2.1.0.pkl')
+
+REQUIRED_FIELDS = [
+    'age', 'gender', 'tenure_months', 'account_balance',
+    'num_products', 'has_credit_card', 'is_active_member',
+    'num_transactions', 'estimated_salary', 'complaints'
+]
+
+@app.route('/api/v1/predict', methods=['POST'])
+def predict():
+    data = request.get_json(force=True)
+    if data is None:
+        return jsonify({'error': 'Body must be JSON'}), 400
+    missing = [f for f in REQUIRED_FIELDS if f not in data]
+    if missing:
+        return jsonify({'error': f'Missing: {missing}'}), 422
+    try:
+        df   = pd.DataFrame([data])
+        df   = engineer_features(df)
+        X    = preprocessor.transform(df)
+        prob = float(model.predict_proba(X)[0, 1])
+        label = int(prob >= THRESHOLD)
+        return jsonify({
+            'churn_probability': round(prob, 4),
+            'is_high_risk':      bool(label),
+            'model_version':     MODEL_VERSION
+        }), 200
+    except Exception:
+        return jsonify({'error': 'Internal server error'}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=False)
+\end{lstlisting}

@@ -1,0 +1,49 @@
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Appendices}
+\chapter*{Appendices}
+
+\section*{Appendix A: Project Timeline}
+\addcontentsline{toc}{section}{Appendix A: Project Timeline}
+The project timeline is shown below as editable Mermaid code.
+
+\begin{lstlisting}[language={},caption={Project Development Timeline in Mermaid},label={lst:gantt}]
+gantt
+    dateFormat  YYYY-MM-DD
+    title Project Development Timeline
+    section Data Collection & Prep
+    Data Collection      :done,    a1, 2026-01-01, 10d
+    Data Cleaning        :done,    a2, after a1, 5d
+    Feature Engineering  :active,  a3, after a2, 2026-01-20
+    section Model Building
+    Model Selection      :done,    a4, after a3, 5d
+    Model Training       :active,  a5, after a4, 10d
+    Hyperparam Tuning    :         a6, after a5, 7d
+    section Deployment & Testing
+    Dashboard Development:         a7, after a6, 15d
+    User Acceptance Test :         a8, after a7, 7d
+\end{lstlisting}
+
+\section*{Appendix B: Sources Consulted}
+\addcontentsline{toc}{section}{Appendix B: Sources Consulted}
+\begin{itemize}
+    \item User-provided report content and structure notes.
+    \item Malhotra et al. on customer churn prediction for FinTech companies using artificial neural networks \cite{malhotra2017}.
+    \item Imani et al. comparative analysis of Random Forest and XGBoost under imbalance handling strategies \cite{imani2024}.
+    \item Imani and Arabnia systematic review on churn prediction trends and challenges \cite{systematicreview}.
+    \item Bhattacharjee et al. work on categorical encoding and standard scaling for churn prediction \cite{bhattacharjee2026}.
+    \item Interview Query article for general understanding of public churn datasets \cite{interviewquery2025}.
+    \item Amazon SageMaker example pipeline for XGBoost churn prediction workflow \cite{sagemakerxgb}.
+\end{itemize}
+
+\section*{Appendix C: Final Submission Checklist}
+\addcontentsline{toc}{section}{Appendix C: Final Submission Checklist}
+\begin{itemize}
+    \item Title page, certificate, acknowledgements, executive summary, and abstract included.
+    \item Table of contents, list of figures, and list of tables included.
+    \item Chapters 1 through 8 completed in formal report format.
+    \item System architecture, DFD, UML, and deployment representations included.
+    \item Tables for dataset attributes, algorithm comparison, hyperparameters, metrics, and results included.
+    \item References and appendices included.
+    \item Placeholder figures inserted for ROC curve, confusion matrix, and feature importance charts.
+\end{itemize}

@@ -2,11 +2,17 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{Abstract}
 \chapter*{Abstract}
-Write abstract in 500 words
 
+Customer churn prediction is an important analytical problem for FinTech platforms because customer retention is significantly less costly than new customer acquisition \cite{systematicreview,bhattacharjee2026}. This report presents a machine learning based framework for identifying customers who are likely to discontinue a FinTech service. The main objectives of the work are to build a predictive model that classifies customers by churn risk and to provide interpretable insights that can support retention decisions.
 
+The project assumes an anonymized dataset of about 10{,}000 customer records with approximately fourteen attributes representing demographics, account details, product subscription, service usage, and support interactions. Typical variables include age, region, account balance, credit score, number of transactions, tenure, complaints, and account status. The methodology begins with data preprocessing, which includes cleaning, treatment of missing values, categorical encoding, feature scaling, and outlier handling. Since churn is usually a minority class, imbalance handling methods such as SMOTE and class weighting are considered \cite{imani2024}.
+
+Feature engineering is applied to derive informative variables such as transaction frequency, complaint rate, and tenure-based segments. Multiple supervised learning models are then developed and compared, namely Logistic Regression, Decision Tree, Random Forest, and XGBoost. These algorithms are chosen to represent both interpretable baselines and high-performance ensemble techniques. Hyperparameter tuning is performed using grid search with cross-validation. Model performance is assessed through accuracy, precision, recall, F1-score, ROC-AUC, confusion matrix analysis, and ROC visualization.
+
+The illustrative findings presented in this report follow published trends in churn prediction research. Ensemble methods achieve better performance than simpler single models, with XGBoost producing the best overall results in terms of churn-class recall, F1-score, and ROC-AUC \cite{imani2024,bhattacharjee2026}. The final system maps prediction probabilities to operational categories such as High, Medium, and Low risk. These outputs can be shown in a dashboard that highlights customers needing intervention and the features most strongly associated with their risk.
+
+The report also discusses system architecture, data flow, UML design, testing strategy, evaluation, limitations, and future scope. Important limitations include class imbalance, dependence on historical data, and possible concept drift over time. Future enhancements include real-time scoring, explainable AI through SHAP or LIME, adaptive retraining, and integration with production CRM systems. Overall, the study demonstrates that machine learning can provide practical support for proactive customer retention in FinTech environments.
 
 \\
-
-\textbf{\textit{Keywords}}: ky1; ky2; ky3; ky4
+\textbf{\textit{Keywords}}: customer churn; FinTech; machine learning; XGBoost; retention analytics
 \clearpage

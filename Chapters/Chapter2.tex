@@ -1,13 +1,40 @@
 \chapter{Literature Survey}
 
 \section{Introduction}
-The purpose of the Introduction section is to provide an overview of the chapter and establish its importance in the context of the research. This section should introduce the topic of the literature survey, explain the methodology of how the literature was reviewed, and highlight the relevance of reviewing previous studies in your field. Additionally, this section may outline the structure of the chapter and indicate what key aspects of the prior research will be discussed.
+Customer churn prediction has been widely studied in telecom, banking, subscription platforms, and, more recently, FinTech ecosystems. The literature shows a shift from simple statistical baselines toward ensemble methods, imbalance-aware training strategies, and explainable AI. This chapter reviews those developments and identifies the practices most relevant to the present work.
 
 \section{Review of Prior Research}
-In this section, you should provide a comprehensive review of existing literature related to your research topic. This is the core of the literature survey, where you summarize and critically analyze previous studies, theories, methodologies, and findings in your field. You should organize the review into relevant themes or categories, if applicable, and highlight key contributions, trends, or debates in the literature. The purpose of this section is to demonstrate your understanding of the field, show how previous work relates to your research, and identify the theoretical foundation for your study.
+Churn is generally defined as the event in which a customer stops using a service or product for a meaningful period of time \cite{systematicreview}. In operational terms, this may mean account closure, inactivity, subscription cancellation, or migration to a competitor. Because churn directly affects profitability, many studies treat it as a classification problem in which historical customer behavior is used to predict future attrition.
+
+Early studies used Logistic Regression, Decision Trees, Support Vector Machines, and Artificial Neural Networks to establish predictive baselines. Malhotra et al. examined churn prediction for FinTech companies using artificial neural networks and reported that customer-level variables can be used effectively for predictive modeling \cite{malhotra2017}. Such studies demonstrated the value of supervised learning, but they also showed that model performance depends heavily on preprocessing quality and feature selection.
+
+Recent work increasingly favors ensemble models. Imani et al. compared Random Forest and XGBoost under multiple imbalance handling strategies and found that boosted and bagged tree methods consistently perform well on churn tasks, especially when the minority class is treated carefully \cite{imani2024}. Their findings support the use of XGBoost and Random Forest as strong candidates for churn classification on structured tabular data.
+
+Bhattacharjee et al. emphasized the importance of categorical encoding and standard scaling for churn prediction pipelines and highlighted the role of preprocessing in improving model effectiveness \cite{bhattacharjee2026}. Their study also reinforced the need to use more than one performance metric because accuracy alone can obscure weak minority-class performance.
+
+The broader review by Imani and Arabnia summarized recent advances in machine learning and deep learning for churn prediction and highlighted common concerns such as imbalance, feature quality, explainability, and deployment drift \cite{systematicreview}. Their review noted that no single model is universally best, but comparative evaluation across several methods is the most defensible approach.
+
+\section{Key Themes from the Literature}
+\subsection{Class Imbalance}
+Most churn datasets are imbalanced because the number of churners is smaller than the number of retained customers. As a result, high overall accuracy can coexist with poor churn detection. The literature therefore recommends oversampling methods such as SMOTE, class-weight balancing, and closer attention to recall and F1-score \cite{imani2024,systematicreview}.
+
+\subsection{Feature Engineering}
+Studies repeatedly identify tenure, transaction activity, support interactions, and usage intensity as influential predictors. Aggregated variables such as average transaction amount, complaint rate, or activity frequency often improve predictive performance beyond the raw features alone \cite{systematicreview}.
+
+\subsection{Model Selection}
+Interpretability-oriented models such as Logistic Regression and Decision Trees remain useful baselines, but ensemble methods such as Random Forest and XGBoost are preferred for higher predictive performance on nonlinear tabular data \cite{imani2024,bhattacharjee2026}. This motivates the comparative modeling strategy adopted in the present project.
+
+\subsection{Explainability and Deployment}
+More recent studies also stress business interpretability. Techniques such as SHAP and LIME are recommended to explain model decisions for operational teams and to support adoption in decision systems \cite{systematicreview}. Deployment concerns such as concept drift, retraining, and integration with CRM dashboards are now treated as important parts of the churn prediction lifecycle.
 
 \section{Identified Research Gaps}
-This section identifies gaps or areas in the existing literature that have not been fully addressed or explored. The goal is to critically assess the prior research and highlight limitations, unresolved questions, or areas that require further investigation. These gaps could include methodological limitations, contradictory findings, or under-researched aspects of the topic. The purpose of this section is to justify the need for your research by showing where it fits into the existing body of knowledge and how it will contribute to addressing these gaps.
+Although the literature provides strong modeling guidance, several gaps remain relevant:
+\begin{itemize}
+    \item Many studies focus on telecom datasets rather than FinTech-specific settings.
+    \item Real-world deployment details are often discussed briefly compared with model-building details.
+    \item Some works report accuracy prominently without giving equal importance to recall and F1-score for the churn class.
+    \item Explainability is recommended often, but operational integration with dashboards and business workflows is less thoroughly documented.
+\end{itemize}
 
 \section{Summary}
-This section summarizes the key points from the literature survey. It should briefly restate the critical findings from the review of prior research and the identified gaps in the literature. The purpose of this section is to wrap up the chapter by connecting the literature review to your research objectives. It may also point to the direction for your research, indicating how your study will build upon the existing literature and contribute to the field. Finally, it may emphasize the importance of addressing the identified research gaps.
+The literature supports a comparative machine learning approach that includes robust preprocessing, imbalance handling, engineered features, and multi-metric evaluation. Based on these findings, the present project uses Logistic Regression, Decision Tree, Random Forest, and XGBoost, with special focus on churn-class recall, F1-score, and deployment-oriented interpretation.

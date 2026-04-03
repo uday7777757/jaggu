@@ -8,7 +8,7 @@
 \usepackage{caption, subcaption}
 \usepackage{graphicx}
 \usepackage{mfirstuc}
-\graphicspath{Pictures}
+\graphicspath{{Pictures/}}
 \usepackage{geometry}
 \usepackage{setspace}
 \usepackage{tocloft}
@@ -40,28 +40,28 @@
 %-----------------------------------------
 % Editables of the document
 %-----------------------------------------
-\newcommand{\thesistitle}{TITLE OF THE PROJECT} % Title of the Thesis, change here
+\newcommand{\thesistitle}{Customer Churn Prediction for FinTech Platform Using Machine Learning}
 
 % -----------------------------------------
 % STUDENT INFORMATION 
 % ------------------------------------------
 \newcolumntype{C}[1]{>{\centering}m{#1}}
-\newcommand{\studentA}{Student 1 Name}
-\newcommand{\rollA}{Student 1  Roll Number}
-\newcommand{\studentB}{Student 2 Name}
-\newcommand{\rollB}{Student 2  Roll Number}
-\newcommand{\studentC}{Student 3 Name}
-\newcommand{\rollC}{Student 3  Roll Number}
-\newcommand{\guidename}{Name of the Supervisor}
-\newcommand{\guidedesignation}{Designation}
+\newcommand{\studentA}{Alice A.}
+\newcommand{\rollA}{1234}
+\newcommand{\studentB}{Bob B.}
+\newcommand{\rollB}{1235}
+\newcommand{\studentC}{Carol C.}
+\newcommand{\rollC}{1236}
+\newcommand{\guidename}{Dr. A. Smith}
+\newcommand{\guidedesignation}{Professor}
 % ---------------------------------------------
 
 % If the number of people is different, change accordingly in titlepage and bonafide certificate
-\newcommand{\thesisdept}{Computer Science and Engineering} % Department
+\newcommand{\thesisdept}{Computer Science \& Engineering}
  % Project Guide
  % Project Guide
-\newcommand{\depthodname}{Dr. Gagandeep Arora} % Department Head
-\newcommand{\depthoddesignation}{Professor and Head, CSE} % Department Head
+\newcommand{\depthodname}{Head of Department}
+\newcommand{\depthoddesignation}{Dept. of CSE, XYZ University}
 % Also, change the graduation year in titlepage and bonafide certificate
 %-----------------------------------------
 
@@ -201,9 +201,8 @@ minus 1.5\fontdimen4\font
 \input{titlepage}
 %\thispagestyle{empty}\null\newpage 
 \input{bonafide}
-\renewcommand{\footrulewidth}{0.4pt}
-\cfoot{\small{Kacharam (V), Shamshabad (M), Ranga Reddy (Dist.)–501218, Hyderabad, T.S.\\
-		Ph: 08413-253335, 253201, Fax: 08413-253482, www.vardhaman.org}}
+\renewcommand{\footrulewidth}{0pt}
+\cfoot{}
 
 
 
@@ -215,6 +214,7 @@ minus 1.5\fontdimen4\font
 \fancyfoot{}
 \renewcommand{\footrulewidth}{0pt}
 \input{acknowledgements.tex}
+\input{executive_summary.tex}
 \input{abstract}
 \clearpage
 \phantomsection
@@ -232,16 +232,6 @@ minus 1.5\fontdimen4\font
 \phantomsection
 \addcontentsline{toc}{chapter}{List of Figures}
 \listoffigures
-
-% List of Abbreviations Page
-
-\addcontentsline{toc}{chapter}{Abbreviations}
-\include{Abbreviations}
-\newcommand*\subtxt[1]{_{\textnormal{#1}}}
-\DeclareRobustCommand\_{\ifmmode\expandafter\subtxt\else\textunderscore\fi}
-
-\newcommand*\suptxt[1]{^{\textnormal{#1}}}
-\DeclareRobustCommand\^{\ifmmode\expandafter\suptxt\else\textunderscore\fi}
 
 % Main Content
 \mainmatter
@@ -280,6 +270,9 @@ minus 1.5\fontdimen4\font
 \renewcommand\bibname{REFERENCES}
 \clearpage
 \phantomsection
-\addcontentsline{toc}{chapter}{REFERENCES}
+\addcontentsline{toc}{chapter}{References}
 \printbibliography
+\clearpage
+\appendix
+\input{appendices.tex}
 \end{document}

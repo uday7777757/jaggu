@@ -1,24 +1,84 @@
-\chapter{System Testing}
+\chapter{System Testing \& Evaluation}
 
-\section{Testing Methodology}
+\section{Testing Approach}
+Testing is carried out at multiple levels to validate both the analytical pipeline and the system workflow:
+\begin{itemize}
+    \item \textbf{Unit testing}: validates isolated functions such as missing-value treatment, encoding, and prediction output formatting.
+    \item \textbf{Integration testing}: verifies complete execution from data input to risk report generation.
+    \item \textbf{Model evaluation}: measures predictive performance on unseen test data.
+    \item \textbf{Usability testing}: ensures dashboard outputs are understandable for business users.
+\end{itemize}
 
+\section{Evaluation Metrics}
+Because churn data is typically imbalanced, model selection cannot rely on accuracy alone. This project therefore uses multiple metrics, with special emphasis on the churn class \cite{systematicreview,bhattacharjee2026}.
 
-\section{Testing under Various Stages}
+\begin{table}[H]
+\centering
+\caption{Evaluation Metrics}
+\begin{tabular}{|p{3cm}|p{8.5cm}|}
+\hline
+\textbf{Metric} & \textbf{Definition} \\ \hline
+Accuracy & $(TP + TN) / (TP + TN + FP + FN)$ \\ \hline
+Precision & $TP / (TP + FP)$ \\ \hline
+Recall & $TP / (TP + FN)$ \\ \hline
+F1-Score & $2 \times \frac{Precision \times Recall}{Precision + Recall}$ \\ \hline
+ROC-AUC & Area under the ROC curve \\ \hline
+\end{tabular}
+\label{tab:evaluation_metrics}
+\end{table}
 
+\section{Example Test Results}
+Table \ref{tab:model_results} presents an illustrative comparison of model performance based on the pattern commonly reported in churn prediction studies \cite{imani2024,bhattacharjee2026}. These values serve as example results and should be replaced with actual measured values if a final dataset and implementation are available.
 
+\begin{table}[H]
+\centering
+\caption{Example Model Performance on Test Set}
+\begin{tabular}{|p{3.3cm}|c|c|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} & \textbf{F1-Score} & \textbf{ROC-AUC} \\ \hline
+Logistic Regression & 0.80 & 0.62 & 0.40 & 0.49 & 0.82 \\ \hline
+Decision Tree & 0.78 & 0.58 & 0.44 & 0.50 & 0.79 \\ \hline
+Random Forest & 0.85 & 0.72 & 0.55 & 0.63 & 0.87 \\ \hline
+XGBoost & 0.88 & 0.79 & 0.61 & 0.68 & 0.89 \\ \hline
+\end{tabular}
+\label{tab:model_results}
+\end{table}
 
+\section{Placeholder Figures}
+The following figures mark the locations where experimental graphics can be inserted after model execution.
 
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering Placeholder for ROC curves comparing all classifiers}}
+\caption{ROC Curves for Classifiers}
+\label{fig:roc_placeholder}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering Placeholder for confusion matrix of the best performing model}}
+\caption{Confusion Matrix for Best Model}
+\label{fig:cm_placeholder}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.8\textwidth}{\centering Placeholder for feature importance chart of the best performing model}}
+\caption{Feature Importance Bar Chart}
+\label{fig:importance_placeholder}
+\end{figure}
 
 \section{Test Cases}
-\begin{tabular}{|c|c|c|c|}
+\begin{table}[H]
+\centering
+\caption{Illustrative Test Cases}
+\begin{tabular}{|c|p{3.8cm}|p{4.6cm}|c|}
 \hline
-\textbf{S.No} &  
-\textbf{Test Case} & 
-\textbf{Expected Output} & 
-\textbf{Result} \\ \hline
-1 &  &  &  &     \hline
-2 &  &  &  &     \hline
-3 &  &  &  &     \hline
-4 &  &  &  &     \hline
-
-\end{tabular}%
+\textbf{S.No} & \textbf{Test Case} & \textbf{Expected Output} & \textbf{Result} \\ \hline
+1 & Upload valid customer dataset & Records loaded and validated successfully & Pass \\ \hline
+2 & Run preprocessing pipeline & Clean encoded feature matrix generated & Pass \\ \hline
+3 & Score unseen customer batch & Risk probabilities and labels returned & Pass \\ \hline
+4 & Open dashboard summary & At-risk customers and metrics displayed & Pass \\ \hline
+\end{tabular}
+\label{tab:test_cases}
+\end{table}

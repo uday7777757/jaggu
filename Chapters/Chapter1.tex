@@ -1,68 +1,30 @@
 \chapter{Introduction}
 
-\section{Introduction}
-The introduction section provides an overview of the project. It sets the context, presents the main focus of the study, and provides insight into the area of research or the problem being addressed. This section should give the reader a general understanding of the project, its relevance, and the motivations behind it.
-
-\begin{itemize}
-    \item Briefly describe the project.
-    \item Outline the significance and relevance of the research.
-    \item Highlight the general aim and scope of the project.
-    \item Provide an overview of the structure of the report.
-\end{itemize}
-
 \section{Background and Motivation}
-This section gives a detailed explanation of the background that led to the project. It includes a description of the problem domain and related work. The motivation part explains why this project was chosen and its importance to the field. The background information helps the reader understand the context of the research or project, while the motivation demonstrates the necessity or urgency for the work.
+FinTech platforms such as digital banking systems, payment applications, lending portals, and investment services depend heavily on recurring customer activity. When customers discontinue a service, revenue drops, customer lifetime value declines, and acquisition cost pressure increases. Churn prediction has therefore become a high-value analytics problem in customer relationship management. Prior literature reports that retaining existing customers is significantly more cost-effective than acquiring new ones, which makes proactive retention a more profitable strategy than reactive replacement \cite{systematicreview,bhattacharjee2026}.
 
+In FinTech settings, churn may appear as account closure, inactivity, reduced transaction behavior, subscription cancellation, or migration to a competing service. Because these behaviors are often preceded by measurable changes in usage and service interaction, machine learning offers a practical way to detect risk early and support targeted business interventions.
+
+\section{Problem Statement}
+Many customer analytics systems in FinTech environments rely on static reports, aggregate KPIs, or manually defined rules. Such approaches provide only retrospective visibility and do not reliably identify which individual customers are likely to leave in the near future. The core problem addressed in this project is the absence of a predictive and explainable system that can analyze historical customer data and classify users according to churn risk before the actual churn event occurs.
+
+\section{Objectives}
+The objectives of the proposed project are as follows:
 \begin{itemize}
-    \item Describe the field or area of study in which the project is situated.
-    \item Present any historical context or developments leading to the current project.
-    \item Discuss previous research or works relevant to the project.
-    \item Explain why this project is important, and why it addresses a gap or need in the current field.
+    \item To acquire or assume a structured customer dataset appropriate for churn prediction.
+    \item To preprocess the dataset by handling missing values, encoding categorical variables, scaling numeric variables, and treating outliers.
+    \item To engineer meaningful features related to tenure, engagement, and complaint behavior.
+    \item To train multiple machine learning models, namely Logistic Regression, Decision Tree, Random Forest, and XGBoost.
+    \item To tune major hyperparameters using cross-validation based search.
+    \item To evaluate model performance using accuracy, precision, recall, F1-score, ROC-AUC, and confusion matrix analysis.
+    \item To categorize customers into High, Medium, and Low churn risk bands for business use.
+    \item To present the full work in a formal academic report with diagrams, tables, and references.
 \end{itemize}
 
-% \section{Problem Statement}
-% The problem statement clearly defines the problem the project aims to solve. This section is crucial because it outlines the exact challenge the project will address. It should be precise, specific, and should define the scope of the problem.
+\section{Scope and Assumptions}
+This report assumes an anonymized customer churn dataset of approximately 10{,}000 records, similar in structure to public churn datasets used in prior studies \cite{malhotra2017}. The dataset source is treated as unspecified because no proprietary institutional dataset was provided. The work focuses on batch model development, offline evaluation, and dashboard-oriented interpretation. Real-time deployment, continuous retraining, and live experimentation are acknowledged as future work rather than core project scope.
 
-% \begin{itemize}
-%     \item Define the core problem that the project addresses.
-%     \item Explain the specific issues or challenges involved.
-%     \item Ensure the problem is framed clearly, with no ambiguity.
-%     \item Establish the relevance of the problem in practical or theoretical terms.
-% \end{itemize}
-
-
-\section{Objectives of the Project Work}
-
-This section outlines the specific goals the project aims to achieve. Objectives are more specific than the problem statement and help to guide the project toward a solution. The objectives should be measurable and achievable within the scope of the project.
-
-\begin{itemize}
-    \item List the primary objectives of the project.
-    \item Break down the general goal into smaller, specific goals.
-    \item Use clear, action-oriented language (e.g., ``To develop,'' ``To analyze,'' ``To evaluate'').
-    \item These objectives should align with solving the problem defined earlier.
-\end{itemize}
-
-The key aim of this research work is to examine the effects of incorporating multiple platforms into large-scale, cooperative wireless networks. The objectives of this work are set out below:
-\begin{enumerate}
-\item	To design and analyse the relay selection criteria for faster data transmission in cooperative networking with multi channels. 
-\item To formulate an optimal solution for energy efficient transmission for large scale cooperative network with multiple channels. 
-\item	To propose the optimal routing mechanism for large scale cooperative network by considering mobility factor.
-
-\end{enumerate}
+The report emphasizes recall and F1-score for the churn class because missing a true churner may be more costly than incorrectly flagging a marginal case. Code listings are intentionally omitted, and the report concentrates on methodology, design, and documented outputs.
 
 \section{Organization of the Report}
-The final section of Chapter 1 provides an outline of the structure of the entire report. It explains the organization and flow of the chapters and gives the reader an understanding of how the content will be presented. This section can be a simple list or paragraph summarizing each chapter’s main points.
-
-\begin{itemize}
-    \item Provide a brief description of what each chapter will cover.
-    \item Typically, the structure would include:
-    \begin{itemize}
-        \item \textbf{Chapter 2}: Literature Survey 
-        \item \textbf{Chapter 3}: System Analysis
-        \item \textbf{Chapter 4}: System Design
-        \item \textbf{Chapter 5}: System Implementation
-        \item \textbf{Chapter 6}: System Testing
-        \item \textbf{Chapter 7}: Results and Discussion
-        \item \textbf{Chapter 8}: Conclusions and Future Scope
-    \end{itemize}
-        \end{itemize}
+The remainder of the report is organized as follows. Chapter 2 presents the literature survey and identifies major research themes. Chapter 3 discusses the existing system, proposed solution, data assumptions, and system requirements. Chapter 4 explains the architecture, DFD, UML models, and deployment design. Chapter 5 describes technologies, preprocessing, feature engineering, model training, and tuning. Chapter 6 covers testing strategy and evaluation metrics. Chapter 7 presents illustrative results and discussion. Chapter 8 concludes the report and outlines future scope.

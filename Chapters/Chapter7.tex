@@ -1,13 +1,25 @@
 \chapter{Results and Discussion}
 
-\section{Introduction}
-The purpose of the Introduction section is to provide a brief overview of the chapter and set the stage for the presentation of the results. This section should explain the importance of the results in relation to the research questions or objectives outlined earlier in the project. It should also mention the structure of the chapter, giving the reader an idea of how the results will be presented and discussed.
-
 \section{Overview of Results}
-In this section, you present the major results or findings from the project. These should be described clearly, using text, tables, or figures to convey the data effectively. The purpose of this section is to give a comprehensive summary of what was observed or measured during the project. You may include raw data or provide an overview of significant trends, patterns, or relationships that emerged from the data.
+The illustrative performance comparison shows that ensemble models outperform simpler baseline models on the churn prediction task. Logistic Regression and Decision Tree provide useful interpretability, but their recall and F1-score are lower than those of Random Forest and XGBoost. XGBoost achieves the strongest overall balance of accuracy, churn recall, F1-score, and ROC-AUC in the example evaluation.
 
-\section{Result Screenshots}
-The purpose of the Analysis and Interpretation section is to provide a detailed examination of the results presented in the previous section. This involves breaking down the data and interpreting its meaning in the context of the research objectives. It’s important to compare the findings with expectations, hypotheses, or similar studies in the literature. This section may also highlight any unexpected results and offer explanations for these outcomes. The aim is to provide insights into why the results occurred and what they mean for the project.
+\section{Interpretation of Findings}
+The results align with the literature reviewed in Chapter 2. Churn behavior is influenced by multiple nonlinear interactions among tenure, product usage, complaint history, and account characteristics. Ensemble methods capture these relationships more effectively than linear or shallow single-tree models. The improved recall of XGBoost is especially important because churn management systems should minimize missed high-risk customers even if this increases false positives moderately.
 
+\section{Feature Analysis}
+Based on the assumed feature importance pattern, \texttt{TenureMonths}, \texttt{NumTransactions}, and \texttt{Complaints} are expected to be among the strongest predictors. Customers with short tenure, low activity, and repeated complaints are more likely to churn. This interpretation is practical because it maps directly to retention actions such as onboarding assistance, re-engagement campaigns, and service recovery initiatives.
 
-\section{Summary}
+\section{Business Impact}
+The practical value of the system lies in targeted retention. Instead of applying generic campaigns to the entire customer base, the business can focus on the segment with the highest predicted churn probability. Even a modest improvement in retention can produce substantial financial gains, as highlighted in churn management literature \cite{systematicreview}. A prioritized dashboard also allows customer success or marketing teams to work more efficiently with limited outreach capacity.
+
+\section{Limitations}
+The present study has several limitations:
+\begin{itemize}
+    \item The dataset is assumed rather than drawn from a live institutional source.
+    \item The numerical results shown are illustrative and must be replaced by real experimental outputs for final validation.
+    \item Churn patterns may change over time because of concept drift.
+    \item The strongest model, XGBoost, is less interpretable than simpler baselines unless paired with explainability tools.
+\end{itemize}
+
+\section{Discussion Summary}
+Overall, the findings support the use of machine learning, especially ensemble methods, for FinTech churn prediction. The report demonstrates how predictive modeling can be connected to business interpretation, visual reporting, and operational risk categorization rather than remaining a purely academic classification exercise.

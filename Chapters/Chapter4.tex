@@ -1,72 +1,184 @@
 \chapter{System Design}
+
 \section{System Architecture}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/unnamed.png} 
-    \caption{System Architecture Diagram.}
-    \label{fig:my_label} % For referencing in text
+The proposed architecture separates the system into data, processing, service, and presentation layers. This improves modularity and makes the solution easier to maintain and extend.
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering System architecture diagram placeholder. Editable Mermaid source is provided below.}}
+\caption{System Architecture}
+\label{fig:system_architecture}
 \end{figure}
+
+\begin{lstlisting}[language={},caption={System Architecture in Mermaid},label={lst:architecture}]
+flowchart LR
+    subgraph Data_Layer
+      CRM_DB["CRM/Account Database"]
+      Trans_DB["Transaction Data Store"]
+    end
+    subgraph Processing_Layer
+      Ingest["Data Ingestion"]
+      Clean["Preprocessing Module"]
+      FE["Feature Engineering"]
+      Train["Model Training & Tuning"]
+      Model["Final ML Model"]
+    end
+    subgraph Service_Layer
+      API["Prediction API (Flask)"]
+      Alerts["Notification Service"]
+    end
+    subgraph Presentation_Layer
+      WebApp["Dashboard (Web Application)"]
+    end
+    CRM_DB --> Ingest --> Clean --> FE --> Train --> Model --> API --> WebApp
+    Trans_DB --> Ingest
+    API --> Alerts
+    Alerts --> WebApp
+\end{lstlisting}
+
 \section{Data Flow Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.jpg} 
-    \caption{Data Flow Diagram}
-    \label{fig:my_label} % For referencing in text
+\subsection{Level 0 Context Diagram}
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering Context-level DFD placeholder. Editable Mermaid source is provided below.}}
+\caption{Data Flow Diagram -- Context Level}
+\label{fig:dfd_context}
 \end{figure}
+
+\begin{lstlisting}[language={},caption={DFD Level 0 in Mermaid},label={lst:dfd0}]
+flowchart TB
+    Customer[Customer Data Input] -->|Feed Data| ChurnSystem[/"Churn Prediction System"/]
+    ChurnSystem -->|Risk Scores| Business[Business Dashboard/Report]
+\end{lstlisting}
+
+\subsection{Level 1 Detailed Diagram}
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering Detailed DFD placeholder. Editable Mermaid source is provided below.}}
+\caption{Data Flow Diagram -- Detailed}
+\label{fig:dfd_detailed}
+\end{figure}
+
+\begin{lstlisting}[language={},caption={DFD Level 1 in Mermaid},label={lst:dfd1}]
+flowchart TB
+    A[Customer Transaction Logs] --> B["1. Data Collection"]
+    B --> C["2. Data Cleaning"]
+    C --> D["3. Feature Engineering"]
+    D --> E["4. Model Scoring (ML)"]
+    E --> F["5. Reporting & Dashboard"]
+    F --> G[Business Dashboard / Notifications]
+\end{lstlisting}
+
 \section{UML Diagrams}
 \subsection{Class Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.jpg} 
-    \caption{Class Diagram}
-    \label{fig:my_label} % For referencing in text
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering UML class diagram placeholder. Editable Mermaid source is provided below.}}
+\caption{UML Class Diagram of the Churn Prediction System}
+\label{fig:uml_class}
 \end{figure}
-\subsection{Object Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Object Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Collaboration Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Collaboration Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Use Case Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Use Case Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+
+\begin{lstlisting}[language={},caption={UML Class Diagram in Mermaid},label={lst:class}]
+classDiagram
+    class Customer {
+        +string customerID
+        +int age
+        +double balance
+        +bool churnLabel
+        +getRiskFactors()
+    }
+    class Account {
+        +int accountID
+        +double balance
+        +string status
+    }
+    class Transaction {
+        +int transID
+        +double amount
+        +date date
+    }
+    class ChurnModel {
+        +trainModel(data)
+        +predict(churnData)
+        +hyperparams
+    }
+    class Dashboard {
+        +displayRiskTable()
+        +showFeatureImportance()
+    }
+    Customer "1" -- "1" Account : has
+    Account "1" -- "*" Transaction : records
+    ChurnModel ..> Customer : uses
+    Dashboard --> ChurnModel : requests prediction
+\end{lstlisting}
+
 \subsection{Sequence Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Sequence Diagram}
-    \label{fig:my_label} % For referencing in text
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering UML sequence diagram placeholder. Editable Mermaid source is provided below.}}
+\caption{UML Sequence Diagram}
+\label{fig:uml_sequence}
 \end{figure}
+
+\begin{lstlisting}[language={},caption={UML Sequence Diagram in Mermaid},label={lst:sequence}]
+sequenceDiagram
+    participant U as User
+    participant W as WebApp
+    participant M as MLService
+    participant D as Dashboard
+
+    U->>W: Upload customer data (CSV)
+    W->>M: Send data for scoring
+    M-->>W: Return churn probabilities
+    W->>D: Update dashboard with risk levels
+    D-->>U: Display High/Med/Low risk list
+\end{lstlisting}
+
 \subsection{Activity Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Activity Diagram}
-    \label{fig:my_label} % For referencing in text
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering UML activity diagram placeholder. Editable Mermaid source is provided below.}}
+\caption{UML Activity Diagram}
+\label{fig:uml_activity}
 \end{figure}
-\subsection{Component Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Component Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+
+\begin{lstlisting}[language={},caption={UML Activity Diagram in Mermaid},label={lst:activity}]
+flowchart TD
+    Start --> Collect[Collect and Store Data]
+    Collect --> Clean[Clean & Preprocess Data]
+    Clean --> FeatureEng[Feature Engineering]
+    FeatureEng --> Train[Train ML Models]
+    Train --> Eval[Evaluate Performance]
+    Eval --> Split{Satisfactory?}
+    Split -- No --> FeatureEng
+    Split -- Yes --> Deploy[Deploy Best Model]
+    Deploy --> Monitor[Monitor & Update Model]
+    Monitor --> End[End]
+\end{lstlisting}
+
 \subsection{Deployment Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Deployment Diagram}
-    \label{fig:my_label} % For referencing in text
+\begin{figure}[H]
+\centering
+\fbox{\parbox[c][4cm][c]{0.82\textwidth}{\centering Deployment diagram placeholder. Editable Mermaid source is provided below.}}
+\caption{UML Deployment Diagram}
+\label{fig:uml_deployment}
 \end{figure}
+
+\begin{lstlisting}[language={},caption={Deployment Diagram in Mermaid},label={lst:deployment}]
+flowchart LR
+    subgraph User_Side
+      Browser["User Browser"]
+    end
+    subgraph Cloud
+      WebSrv["Web Server (EC2)"]
+      DB["Database (RDS)"]
+      MLSrv["ML Service"]
+    end
+    Browser --> WebSrv
+    WebSrv --> DB
+    WebSrv --> MLSrv
+    MLSrv --> DB
+\end{lstlisting}
+
+\section{Design Summary}
+The design supports modular implementation, staged model development, and future production integration. The use of explicit data flow and UML representations also helps communicate the system clearly to technical and academic reviewers.

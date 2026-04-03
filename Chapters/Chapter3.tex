@@ -1,34 +1,83 @@
 \chapter{System Analysis}
 
 \section{Existing System}
+Many existing customer retention workflows in FinTech organizations are based on descriptive dashboards, periodic reports, or manually defined business rules. Common examples include flagging users with no transactions for a fixed number of days or generating monthly inactivity summaries. These approaches are useful for monitoring but do not provide predictive risk estimation.
+
 \subsection{Disadvantages of Existing System}
+\begin{itemize}
+    \item No customer-level predictive scoring is available.
+    \item Rule-based methods are reactive and may miss hidden nonlinear patterns.
+    \item Business rules require constant manual updating.
+    \item Explanations are often shallow and not tied to statistically learned patterns.
+    \item It is difficult to prioritize outreach efficiently without risk stratification.
+\end{itemize}
+
 \section{Proposed System}
+The proposed system is a machine learning based churn prediction framework that ingests customer data, preprocesses it, engineers features, trains predictive models, and produces a churn risk category for each customer. The system is intended to support retention teams through dashboard-based decision support.
+
 \subsection{Advantages of Proposed System}
-\section{System Requirements}
-\subsection{Hardware Requirements}
-\subsection{Software Requirements}
+\begin{itemize}
+    \item Predictive scoring identifies at-risk customers before churn occurs.
+    \item Multiple models can be compared and tuned systematically.
+    \item Risk can be categorized as High, Medium, or Low for operational use.
+    \item Key features influencing churn can be highlighted to improve interpretability.
+    \item The framework is extensible to future real-time or API-based deployment.
+\end{itemize}
 
-Lorem ipsum \cite{loremipsum} dolor sit amet, consectetur adipiscing elit. Etiam consectetur libero dui, sit amet rutrum lectus mollis ac. Phasellus mattis augue quis auctor ullamcorper. Sed congue rutrum turpis, sit amet tincidunt erat laoreet ac. Morbi in feugiat erat, sit amet placerat lorem. Quisque cursus gravida nulla, nec pulvinar justo rutrum eget. Aenean et dolor vitae enim congue maximus. Praesent consequat finibus imperdiet. Sed ipsum erat, efficitur vitae urna a, convallis ornare ipsum. Quisque fringilla risus enim, ut elementum dui consectetur eu.
+\section{Dataset Specification}
+The dataset used in this report is assumed to be an anonymized FinTech customer dataset with approximately 10{,}000 records. The source is unspecified and is treated as a project assumption. The schema is inspired by public churn datasets and prior FinTech churn studies \cite{malhotra2017}.
 
-Vivamus sed enim quam. In facilisis consequat eros, id convallis diam congue et. Vivamus sed neque rutrum, gravida urna non, lobortis leo. Curabitur sagittis turpis sit amet dolor blandit lobortis. Fusce ac sem eget libero semper ultrices. Aliquam erat volutpat. Quisque tincidunt mi sapien, eu varius libero lacinia quis. Nullam dictum quam sed scelerisque aliquet. Mauris laoreet est nec dolor pellentesque dignissim. Praesent ac sapien erat. Mauris ut felis sit amet velit convallis cursus quis a tellus. Curabitur efficitur ultricies dui, eget vestibulum arcu venenatis ac. Nulla fermentum dolor a venenatis posuere. Vivamus eu luctus erat.\\
-
-Here is a table attached :
 \begin{table}[H]
-    \centering
-        \begin{tabular}{|c|c|}
-        \hline
-        $n$ & $F_n$\\
-        \hline
-        1 & 1 \\
-        \hline
-        2 & 1 \\
-        \hline
-        3 & 2 \\
-        \hline
-        4 & 3 \\
-        \hline
-        \end{tabular}
-    \caption{Fibonacci Table}
+\centering
+\caption{Dataset Attributes}
+\begin{tabular}{|p{3.2cm}|p{2.3cm}|p{6.2cm}|}
+\hline
+\textbf{Attribute} & \textbf{Type} & \textbf{Description} \\ \hline
+CustomerID & String & Unique customer identifier removed before modeling \\ \hline
+Age & Numeric & Customer age in years \\ \hline
+Gender & Categorical & Gender category \\ \hline
+Region & Categorical & Geographic region or service zone \\ \hline
+AccountBalance & Numeric & Current account balance \\ \hline
+CreditScore & Numeric & Credit score or equivalent rating \\ \hline
+NumTransactions & Numeric & Number of transactions in the recent period \\ \hline
+TenureMonths & Numeric & Account age in months \\ \hline
+Complaints & Numeric & Number of recorded complaints \\ \hline
+ActiveStatus & Categorical & Active or inactive account status \\ \hline
+Subscription & Categorical & Plan type such as Basic or Gold \\ \hline
+Churn & Binary & Target label where 1 indicates churn \\ \hline
+\end{tabular}
+\label{tab:dataset_attributes}
 \end{table}
 
-Morbi pulvinar turpis at ligula sollicitudin, et finibus nulla vestibulum. Etiam molestie tincidunt molestie. Mauris augue ex, tincidunt non ante eget, ultrices ornare quam. Nulla pellentesque fringilla neque, eget facilisis arcu mollis vel. Nulla quam ipsum, vulputate a nisi ut, iaculis tempus ante. Nam efficitur, augue et cursus varius, nisi eros tincidunt ex, porta aliquet massa libero a mauris. Vestibulum finibus, dui sit amet dapibus tincidunt, libero quam venenatis elit, ut porta dui neque a nunc. Donec tincidunt eleifend mauris a luctus. Vivamus eget porttitor metus. Etiam eu porta orci. Suspendisse imperdiet orci sed lobortis vestibulum. Pellentesque sit amet euismod eros.\\
+\section{Data Preprocessing}
+The preprocessing pipeline includes the following steps:
+\begin{itemize}
+    \item removal of non-predictive identifiers such as \texttt{CustomerID};
+    \item treatment of missing values using mean, median, or placeholder categories;
+    \item outlier control for features such as account balance;
+    \item one-hot encoding of categorical variables;
+    \item scaling of numerical features when required by the model;
+    \item imbalance handling using SMOTE or class weighting.
+\end{itemize}
+
+\section{Feature Engineering}
+To improve predictive quality, the proposed system creates additional derived variables such as average transactions per month, complaint rate, and tenure buckets. Interaction-oriented features may also be considered when they improve validation performance. Feature importance rankings from tree-based models guide selection of the most informative predictors.
+
+\section{System Requirements}
+\subsection{Hardware Requirements}
+\begin{itemize}
+    \item Processor: Intel i5 or equivalent and above
+    \item RAM: 8 GB minimum, 16 GB preferred
+    \item Storage: 20 GB free disk space
+    \item Internet connectivity for scholarly and package access
+\end{itemize}
+
+\subsection{Software Requirements}
+\begin{itemize}
+    \item Operating System: Windows, Linux, or macOS
+    \item Programming Language: Python
+    \item Libraries: pandas, NumPy, scikit-learn, XGBoost, matplotlib, seaborn
+    \item Notebook or IDE: Jupyter Notebook, VS Code, or PyCharm
+    \item Web Framework: Flask or Django for dashboard integration
+    \item Database: PostgreSQL, MySQL, or MongoDB
+\end{itemize}

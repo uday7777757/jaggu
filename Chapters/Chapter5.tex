@@ -1,13 +1,69 @@
 \chapter{System Implementation}
 
-\section{Modules Description}
+\section{Technologies and Tools}
+The system is implemented conceptually using Python and its machine learning ecosystem. The major tools are:
+\begin{itemize}
+    \item \textbf{Python}: main programming language for preprocessing and modeling.
+    \item \textbf{pandas and NumPy}: data loading and numerical processing.
+    \item \textbf{scikit-learn}: preprocessing, model training, evaluation, and cross-validation.
+    \item \textbf{XGBoost}: gradient boosting based classification for high-performance tabular learning.
+    \item \textbf{matplotlib and seaborn}: visualization of evaluation outputs.
+    \item \textbf{Flask or Django}: dashboard or API layer for model exposure.
+    \item \textbf{PostgreSQL or MongoDB}: storage of customer data and prediction results.
+\end{itemize}
 
-Lorem ipsum\cite{9016866} dolor sit amet, consectetur adipiscing elit. Etiam consectetur libero dui, sit amet rutrum lectus mollis ac. Phasellus mattis augue quis auctor ullamcorper. Sed congue rutrum turpis, sit amet tincidunt erat laoreet ac. Morbi in feugiat erat, sit amet placerat lorem. Quisque cursus gravida nulla, nec pulvinar justo rutrum eget. Aenean et dolor vitae enim congue maximus. Praesent consequat finibus imperdiet. Sed ipsum erat, efficitur vitae urna a, convallis ornare ipsum. Quisque fringilla risus enim, ut elementum dui consectetur eu.
+\section{Data Loading and Preprocessing}
+Customer data is assumed to be imported either from CSV files or an operational database into a pandas DataFrame. A preprocessing pipeline is then applied. Numeric columns are imputed and scaled where necessary, while categorical columns are encoded using one-hot encoding. The dataset is split into training and testing sets, for example in an 80:20 ratio, before model development. Cross-validation is used during tuning to reduce overfitting risk.
 
-\section{Technology Used}
+\section{Feature Engineering}
+Feature engineering improves model quality by translating raw fields into behavior-oriented indicators. Examples include:
+\begin{itemize}
+    \item \texttt{AvgTransPerMonth = NumTransactions / TenureMonths}
+    \item complaint rate computed relative to customer tenure
+    \item tenure segmentation into new, regular, and loyal customer buckets
+    \item interaction features connecting activity and service quality measures
+\end{itemize}
+Feature importance from preliminary tree-based models can be used to remove weak predictors and simplify the final feature set.
 
-Vivamus sed enim quam. In facilisis consequat eros, id convallis diam congue et. Vivamus sed neque rutrum, gravida urna non, lobortis leo. Curabitur sagittis turpis sit amet dolor blandit lobortis. Fusce ac sem eget libero semper ultrices. Aliquam erat volutpat. Quisque tincidunt mi sapien, eu varius libero lacinia quis. Nullam dictum quam sed scelerisque aliquet. Mauris laoreet est nec dolor pellentesque dignissim. Praesent ac sapien erat. Mauris ut felis sit amet velit convallis cursus quis a tellus. Curabitur efficitur ultricies dui, eget vestibulum arcu venenatis ac. Nulla fermentum dolor a venenatis posuere. Vivamus eu luctus erat.\\
-\section{Algorithms used}
-Open the word file. Click on the equation written in MathType. Go to Mathtype Tab at the top. You will find a option ToggleTex. Click and copy the codes here.
+\section{Algorithms Used}
+The following classification algorithms are used in the implementation:
+\begin{itemize}
+    \item \textbf{Logistic Regression}: simple, fast, and interpretable baseline.
+    \item \textbf{Decision Tree}: easy to interpret and useful for rule extraction.
+    \item \textbf{Random Forest}: more stable and robust than a single decision tree.
+    \item \textbf{XGBoost}: powerful boosting algorithm suited to structured churn data.
+\end{itemize}
 
-\section{Coding}
+\begin{table}[H]
+\centering
+\caption{Algorithm Comparison}
+\begin{tabular}{|p{3cm}|p{4.8cm}|p{4.8cm}|}
+\hline
+\textbf{Algorithm} & \textbf{Strengths} & \textbf{Weaknesses} \\ \hline
+Logistic Regression & Interpretable, fast, strong baseline & Limited for nonlinear relationships \\ \hline
+Decision Tree & Easy to visualize and explain & Prone to overfitting \\ \hline
+Random Forest & Good generalization, handles nonlinear patterns & Less interpretable than a single tree \\ \hline
+XGBoost & High predictive performance, handles tabular data well & More complex and less transparent \\ \hline
+\end{tabular}
+\label{tab:algorithm_comparison}
+\end{table}
+
+\section{Model Tuning and Cross-Validation}
+Hyperparameter tuning is performed using grid search or randomized search with five-fold cross-validation. The tuned parameters vary by model and include regularization settings for Logistic Regression and depth, estimators, and learning rate for tree-based methods.
+
+\begin{table}[H]
+\centering
+\caption{Hyperparameter Ranges for Models}
+\begin{tabular}{|p{3cm}|p{8.5cm}|}
+\hline
+\textbf{Model} & \textbf{Hyperparameters Considered} \\ \hline
+Logistic Regression & \texttt{C = \{0.01, 0.1, 1, 10\}}, penalty type \\ \hline
+Decision Tree & \texttt{max\_depth = \{3,5,7,10\}}, \texttt{min\_samples\_split = \{2,5,10\}} \\ \hline
+Random Forest & \texttt{n\_estimators = \{100,200,300\}}, \texttt{max\_depth = \{5,10,None\}} \\ \hline
+XGBoost & \texttt{n\_estimators = \{50,100,200\}}, \texttt{max\_depth = \{3,5,7\}}, \texttt{learning\_rate = \{0.01,0.1\}} \\ \hline
+\end{tabular}
+\label{tab:hyperparameters}
+\end{table}
+
+\section{Software Architecture}
+After training, the selected model is serialized using a model persistence tool such as \texttt{joblib} or \texttt{pickle}. At deployment time, a web API loads the model and serves prediction requests. The dashboard consumes the prediction output and displays churn risk categories along with supporting indicators such as important features or business notes.

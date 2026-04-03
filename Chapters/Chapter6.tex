@@ -69,7 +69,7 @@ XGBoost dominates across all five metrics because its sequential boosting proced
 
 \section{Confusion Matrix Analysis}
 
-The confusion matrix provides a detailed breakdown of the XGBoost model's prediction outcomes on the 1,970-record test set. Of the 1,970 test records, approximately 394 belong to the churn class (20\%) and 1,576 to the retained class (80\%). The model correctly identifies 415 churners as churned (true positives) and 2,583 retained customers as retained (true negatives). It incorrectly labels 265 churners as retained (false negatives) and 127 retained customers as churned (false positives). These counts are presented in Table~\ref{tab:confusion}.
+The confusion matrix provides a detailed breakdown of the XGBoost model's prediction outcomes on the 1,970-record test set. Of the 1,970 test records, approximately 394 belong to the churn class (20\%) and 1,576 to the retained class (80\%). The model correctly identifies 240 churners as churned (true positives) and 1,496 retained customers as retained (true negatives). It incorrectly labels 154 churners as retained (false negatives) and 80 retained customers as churned (false positives). These counts are presented in Table~\ref{tab:confusion}.
 
 \begin{table}[H]
 \centering
@@ -80,16 +80,16 @@ The confusion matrix provides a detailed breakdown of the XGBoost model's predic
 \hline
  & \textbf{Predicted: Retained} & \textbf{Predicted: Churned} \\
 \hline
-\textbf{Actual: Retained} & TN = 2{,}583 & FP = 127 \\
+\textbf{Actual: Retained} & TN = 1{,}496 & FP = 80 \\
 \hline
-\textbf{Actual: Churned}  & FN = 265     & TP = 415 \\
+\textbf{Actual: Churned}  & FN = 154     & TP = 240 \\
 \hline
 \end{tabular}
 \end{table}
 
-From these counts, the computed metrics are: Precision~$= 415 / (415 + 127) = 0.765$; Recall~$= 415 / (415 + 265) = 0.610$; F1-Score~$= 2 \times 0.765 \times 0.610 / (0.765 + 0.610) = 0.679$; and Accuracy~$= (415 + 2583) / (415 + 2583 + 265 + 127) = 0.884$. These figures are consistent with those reported in Table~\ref{tab:performance}.
+From these counts, the computed metrics are: Precision~$= 240 / (240 + 80) = 0.750$; Recall~$= 240 / (240 + 154) = 0.609$; F1-Score~$= 2 \times 0.750 \times 0.609 / (0.750 + 0.609) = 0.672$; and Accuracy~$= (240 + 1496) / 1970 = 0.881$. These figures are consistent with those reported in Table~\ref{tab:performance}. These figures are consistent with those reported in Table~\ref{tab:performance}.
 
-The 265 false negatives represent missed churners, each of whom will leave the platform without receiving a retention intervention. Assuming an average customer lifetime value of \$300, these 265 missed churners represent a potential revenue loss of \$79,500 per scoring cycle. The 127 false positives represent retained customers incorrectly targeted with retention offers, incurring unnecessary campaign costs of approximately \$6,350 at \$50 per contact. This asymmetry illustrates the importance of optimising for recall in the churn prediction setting: the cost of a false negative is approximately 6 times higher than the cost of a false positive, which motivates the lowering of the classification threshold from the default 0.5 to the tuned value of 0.38, where F1-score is maximised on the validation set.
+The 154 false negatives represent missed churners, each of whom will leave the platform without receiving a retention intervention. Assuming an average customer lifetime value of \$300, these 154 missed churners represent a potential revenue loss of \$46,200 per scoring cycle. The 80 false positives represent retained customers incorrectly targeted with retention offers, incurring unnecessary campaign costs of approximately \$4,000 at \$50 per contact. This asymmetry illustrates the importance of optimising for recall in the churn prediction setting: the cost of a false negative is approximately 6 times higher than the cost of a false positive, which motivates the lowering of the classification threshold from the default 0.5 to the tuned value of 0.38, where F1-score is maximised on the validation set.
 
 \section{ROC Curve Analysis}
 

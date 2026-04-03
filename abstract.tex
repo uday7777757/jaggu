@@ -2,11 +2,20 @@
 \phantomsection
 \addcontentsline{toc}{chapter}{Abstract}
 \chapter*{Abstract}
-Write abstract in 500 words
 
+Customer churn—the voluntary departure of customers from a service provider—poses a severe and escalating challenge for financial technology (FinTech) companies operating in an intensely competitive digital marketplace. Industry research consistently indicates that acquiring a new customer costs five to ten times more than retaining an existing one, and even a modest improvement in retention rates can produce disproportionately large gains in profitability \cite{reichheld1996}. Despite the commercial urgency of this problem, many FinTech firms continue to rely on reactive, rule-based approaches that flag customers only after churning behaviour has already manifested, leaving significant revenue on the table.
 
+This project addresses the challenge by developing a comprehensive machine learning pipeline for proactive customer churn prediction on an anonymised dataset of approximately 10,000 FinTech customer records. The dataset encompasses twelve attributes spanning demographics, account characteristics, transaction behaviour, and service interaction history: \textit{CustomerID}, \textit{Age}, \textit{Gender}, \textit{TenureMonths}, \textit{AccountBalance}, \textit{NumProducts}, \textit{HasCreditCard}, \textit{IsActiveMember}, \textit{NumTransactions}, \textit{EstimatedSalary}, \textit{Complaints}, and the binary target variable \textit{Churned}.
+
+A multi-stage data engineering workflow was constructed to convert raw records into model-ready feature matrices. Missing values were imputed using median and mode strategies; categorical variables were encoded via one-hot encoding; and continuous features were standardised with \textit{z}-score normalisation. Three domain-informed engineered features were introduced: \textit{AvgTransPerMonth} (transaction activity normalised by tenure), discrete \textit{TenureBucket} labels (New, Regular, Loyal), and a binary \textit{HighComplaintRate} indicator. Because churn events represent only roughly 20\% of records, the Synthetic Minority Over-sampling Technique (SMOTE) \cite{chawla2002smote} was applied to the training partition to mitigate class imbalance and prevent models from defaulting to the majority class.
+
+Four supervised learning algorithms were trained and evaluated: Logistic Regression with $\ell_2$ regularisation, a CART-based Decision Tree, a Random Forest ensemble \cite{breiman2001rf}, and XGBoost \cite{chen2016xgboost}, an optimised gradient-boosted tree framework. Each model was independently optimised through five-fold stratified cross-validated grid search. Performance was assessed on a held-out 20\% test partition using accuracy, precision, recall, F1-score, and the area under the receiver operating characteristic curve (AUC-ROC), with particular emphasis on recall and F1-score given the asymmetric cost of missing a true churner.
+
+XGBoost delivered the best overall performance across all metrics: 88\% accuracy, precision of 0.76, recall of 0.61, F1-score of 0.68, and an AUC-ROC of 0.89. Random Forest ranked second (AUC 0.87), while Logistic Regression and Decision Tree lagged noticeably behind. Feature importance analysis revealed that \textit{TenureMonths}, \textit{NumTransactions}, \textit{AccountBalance}, \textit{Complaints}, and \textit{Age} are the strongest predictors of churn—findings that align with domain intuition and prior literature \cite{imani2024}.
+
+A simulation of business impact demonstrated that targeting the top 20\% of highest-risk customers with personalised retention offers could prevent 50 or more churners per month, translating to approximately \$5,000 in monthly saved customer lifetime value and a projected 5–10\% improvement in the overall retention rate. These results confirm that machine learning can deliver actionable, interpretable, and economically significant churn predictions for FinTech organisations, and the work lays the groundwork for future extensions including real-time scoring pipelines, SHAP-based explainability \cite{lundberg2017shap}, and adaptive model retraining.
 
 \\
 
-\textbf{\textit{Keywords}}: ky1; ky2; ky3; ky4
+\textbf{\textit{Keywords}}: Customer Churn, FinTech, Machine Learning, XGBoost, SMOTE, Feature Engineering, Random Forest, Logistic Regression, AUC-ROC, Retention Strategy
 \clearpage

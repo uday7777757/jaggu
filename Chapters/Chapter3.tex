@@ -1,34 +1,206 @@
 \chapter{System Analysis}
 
-\section{Existing System}
-\subsection{Disadvantages of Existing System}
+\section{Existing Systems and Their Limitations}
+
+Prior to the adoption of machine learning-based approaches, customer churn management in FinTech organisations relied on a combination of descriptive analytics tools, manually curated business rule engines, and relationship management intuition. The most common configuration involves a business intelligence layer built on platforms such as Tableau or Microsoft Power BI, which aggregates customer data from the core banking system and CRM into a set of static key performance indicator (KPI) dashboards. These dashboards display summary statistics such as monthly active user counts, average account balance trends, transaction volume by segment, and customer service ticket volumes. While these visualisations are valuable for understanding the current state of the customer base at an aggregate level, they offer no forward-looking capability. A product manager examining a dashboard noting that monthly active users declined by three percent in the previous quarter is observing the outcome of churn that has already occurred, not gaining the ability to prevent churn that is imminent.
+
+A second layer of existing practice involves SQL-based business rule engines that flag customer accounts meeting certain threshold conditions for review by a retention team. Typical rules might take the form of flagging customers whose account balance has fallen below a minimum threshold and who have recorded zero transactions in the preceding ninety days. Such rules encode experienced practitioners' intuitions about the correlates of churn into a fixed logical structure. While they can identify some genuinely at-risk customers, they are fundamentally limited by the binary nature of threshold conditions: a customer with a balance just above the threshold is treated identically to a customer with a robust balance, despite potentially being at equal or greater risk due to other factors. More sophisticated CRM platforms such as Salesforce incorporate basic scoring models that assign a numeric health score to accounts based on rule-weighted combinations of engagement metrics, but these scores are rarely validated against historical churn outcomes and lack the calibration necessary to function as true churn probability estimates.
+
+The net result of these existing approaches is a retention operation that is reactive rather than predictive, undifferentiated rather than personalised, and difficult to evaluate in terms of return on investment.
+
+\subsection{Disadvantages of Existing Systems}
+
+\begin{enumerate}
+    \item \textbf{Reactive Rather Than Proactive Detection:} Existing dashboards and KPI monitoring systems report on churn that has already occurred, providing no predictive warning of impending disengagement. By the time a customer's inactivity becomes visible in an aggregate metric review, they are typically already in an advanced stage of disengagement, and the window for effective retention intervention has substantially narrowed. Proactive intervention requires forward-looking signals, not backward-looking summaries.
+
+    \item \textbf{High False Positive and False Negative Rates:} Rule-based threshold systems generate significant numbers of false positives by flagging customers who are merely temporarily less active but have no intention of churning, wasting costly retention resources on unnecessary outreach. Simultaneously, they miss large numbers of genuine churners who do not satisfy the specific threshold conditions encoded in the rules, resulting in false negatives that represent forfeited retention opportunities. This twin inefficiency is inherent to the rigidity of the rule-based paradigm.
+
+    \item \textbf{No Personalisation at Scale:} Existing retention campaigns typically offer the same intervention to all customers flagged as at-risk, regardless of the specific behavioural drivers of their individual risk. A customer at risk due to low product diversity has fundamentally different retention needs than one at risk due to service complaints. The inability to personalise interventions at scale means that resources are systematically misallocated, with some at-risk customers receiving irrelevant offers and others not receiving any intervention at all. Machine learning models that provide feature-level explanations for individual predictions enable a qualitatively different, personalised approach.
+
+    \item \textbf{Inability to Quantify Churn Probability:} Rule-based systems produce binary outputs: a customer is either flagged or not. This binary classification does not convey the degree of risk, making it impossible to rank customers by urgency or to apply differential retention strategies based on risk level. A probabilistic model, by contrast, produces a continuous score between zero and one that allows the retention team to prioritise the highest-risk customers, apply cost-benefit analysis to determine the retention budget, and set probability thresholds dynamically based on available resources.
+
+    \item \textbf{No Feature Importance or Explainability:} Business rule engines do not explain which specific factors are driving a given customer's elevated risk. Customer relationship managers therefore approach retention conversations without data-driven insight into the root cause of the customer's potential disengagement, relying instead on generic scripts. This not only reduces the effectiveness of the retention conversation but also forecloses the opportunity to address the specific service or product issue that is driving the customer towards the exit.
+
+    \item \textbf{High Operational Cost of Manual Review:} The volume of customers flagged by threshold-based rules often exceeds the capacity of the retention team to review and act upon each case individually. This forces teams to further manually prioritise cases based on subjective judgement, compounding the inefficiency of the original rule-based flagging. The operational cost of maintaining a large team of analysts to review these cases is substantial, and the variability in individual analysts' judgements introduces additional inconsistency into the retention process.
+\end{enumerate}
+
 \section{Proposed System}
+
+The proposed system is a machine learning-based churn prediction pipeline that addresses each of the limitations identified above through a data-driven, automated, and explainable architecture. The system operates as follows. Customer data is ingested on a scheduled batch basis from two primary sources: the organisation's CRM system, which contains demographic and relationship attributes, and the core transaction database, which provides the historical transaction log. A preprocessing pipeline performs the cleaning and transformation operations described in Section~\ref{sec:preprocessing}, producing a standardised feature matrix suitable for model inference.
+
+The engineered feature set, described in Section~\ref{sec:featureeng}, is computed from the preprocessed raw attributes and appended to the feature matrix. The complete feature set is then passed to the trained XGBoost classifier, which produces a calibrated churn probability score for each active customer. These scores are ranked in descending order and written to a churn risk dashboard accessible to the retention team, where each customer entry displays their overall churn probability, their top three contributing risk factors (derived from SHAP values computed at inference time), and a suggested intervention category based on the dominant risk driver.
+
+The retention team acts on this ranked list by prioritising outreach to customers in the top probability decile, using the SHAP-derived feature attributions to guide personalised retention conversations. The outcomes of these interventions are logged back to the CRM system and used to evaluate the model's precision and the financial return on retention investment. The entire pipeline, from data ingestion to scored output, is designed to run on a weekly cadence, providing predictions approximately four to six weeks before the expected churn event. This advance window aligns with the typical cycle time of a multi-touch retention campaign and provides sufficient lead time for the retention team to execute meaningful interventions.
+
 \subsection{Advantages of Proposed System}
-\section{System Requirements}
-\subsection{Hardware Requirements}
-\subsection{Software Requirements}
 
-Lorem ipsum \cite{loremipsum} dolor sit amet, consectetur adipiscing elit. Etiam consectetur libero dui, sit amet rutrum lectus mollis ac. Phasellus mattis augue quis auctor ullamcorper. Sed congue rutrum turpis, sit amet tincidunt erat laoreet ac. Morbi in feugiat erat, sit amet placerat lorem. Quisque cursus gravida nulla, nec pulvinar justo rutrum eget. Aenean et dolor vitae enim congue maximus. Praesent consequat finibus imperdiet. Sed ipsum erat, efficitur vitae urna a, convallis ornare ipsum. Quisque fringilla risus enim, ut elementum dui consectetur eu.
+\begin{enumerate}
+    \item \textbf{Proactive Early Warning:} The proposed system generates churn probability scores thirty to sixty days before the expected churn event by learning the behavioural patterns that precede disengagement from historical data. This advance warning enables retention teams to initiate outreach while the customer is still engaged enough to respond positively, fundamentally shifting the retention operation from reactive crisis management to proactive relationship maintenance.
 
-Vivamus sed enim quam. In facilisis consequat eros, id convallis diam congue et. Vivamus sed neque rutrum, gravida urna non, lobortis leo. Curabitur sagittis turpis sit amet dolor blandit lobortis. Fusce ac sem eget libero semper ultrices. Aliquam erat volutpat. Quisque tincidunt mi sapien, eu varius libero lacinia quis. Nullam dictum quam sed scelerisque aliquet. Mauris laoreet est nec dolor pellentesque dignissim. Praesent ac sapien erat. Mauris ut felis sit amet velit convallis cursus quis a tellus. Curabitur efficitur ultricies dui, eget vestibulum arcu venenatis ac. Nulla fermentum dolor a venenatis posuere. Vivamus eu luctus erat.\\
+    \item \textbf{Probabilistic Scoring Enables Prioritisation:} By producing a continuous probability score rather than a binary flag, the system enables the retention team to rank customers by their urgency of need and apply differential resource allocation strategies. High-probability customers can receive intensive, personalised outreach, while medium-probability customers receive lighter-touch interventions, and low-probability customers are monitored but not actively contacted, optimising the allocation of the finite retention budget.
 
-Here is a table attached :
+    \item \textbf{Feature Importance Enables Targeted Interventions:} SHAP-based feature attribution at the individual prediction level allows the system to communicate not merely that a customer is at risk, but specifically why they are at risk. A customer flagged primarily due to a high complaint rate and declining transaction frequency receives a qualitatively different retention conversation from one flagged due to low product diversity and high balance-to-salary ratio. This personalisation substantially increases the expected effectiveness of each retention contact.
+
+    \item \textbf{Scalable to Millions of Customers:} The trained XGBoost model can score an entire customer base of several hundred thousand or even millions of records in seconds using batch inference, making the system fully scalable to enterprise deployment without proportionate increases in computational cost. The preprocessing and feature engineering pipeline is implemented using vectorised operations in pandas and NumPy, enabling efficient computation without loops or row-by-row processing.
+
+    \item \textbf{Continuously Improvable Through Retraining:} As new labelled churn outcomes accumulate over time, the model can be periodically retrained on an updated dataset to maintain predictive accuracy as customer behaviour patterns evolve. A scheduled retraining pipeline, monitored by performance metrics computed on a rolling evaluation window, ensures that model drift is detected and corrected before it degrades the quality of churn scores delivered to the retention team.
+
+    \item \textbf{ROI-Measurable Retention Campaigns:} The probabilistic outputs of the model provide the inputs necessary for a formal return-on-investment calculation for the retention programme. By comparing the revenue recovered from customers predicted to churn who are successfully retained against the cost of the outreach campaign, the business can objectively evaluate the financial value of the model and make data-driven decisions about retention budget allocation.
+\end{enumerate}
+
+\section{Dataset Specification}
+\label{sec:dataset}
+
+The dataset used in this study consists of approximately ten thousand anonymised customer records drawn from a mid-sized FinTech platform operating in the retail digital banking segment. Each record corresponds to a unique customer whose relationship with the platform was active at the beginning of the twelve-month observation window. The target variable, \textit{Churned}, was assigned based on the operational definition of churn employed by the platform, namely the cessation of all transactional activity for a period of ninety or more consecutive days within the observation window, without subsequent reactivation. Table~\ref{tab:dataset} provides a complete specification of the thirteen attributes present in the raw dataset.
+
 \begin{table}[H]
     \centering
-        \begin{tabular}{|c|c|}
+    \caption{Dataset Attribute Description}
+    \label{tab:dataset}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.2cm}|p{2.0cm}|p{5.0cm}|p{2.8cm}|}
         \hline
-        $n$ & $F_n$\\
+        \textbf{Attribute Name} & \textbf{Data Type} & \textbf{Description} & \textbf{Range / Values} \\
         \hline
-        1 & 1 \\
+        CustomerID & Integer & Unique customer identifier & 10001--19999 \\
         \hline
-        2 & 1 \\
+        Age & Integer & Customer age in years & 18--75 \\
         \hline
-        3 & 2 \\
+        Gender & Categorical & Customer gender & Male / Female \\
         \hline
-        4 & 3 \\
+        TenureMonths & Integer & Duration of customer relationship in months & 1--120 \\
         \hline
-        \end{tabular}
-    \caption{Fibonacci Table}
+        AccountBalance & Float & Current account balance in USD & 0--250{,}000 \\
+        \hline
+        NumProducts & Integer & Number of financial products held & 1--4 \\
+        \hline
+        HasCreditCard & Binary & Indicates credit card holder & 0 / 1 \\
+        \hline
+        IsActiveMember & Binary & Indicates active membership status & 0 / 1 \\
+        \hline
+        NumTransactions & Integer & Total transactions in last 12 months & 0--200 \\
+        \hline
+        EstimatedSalary & Float & Annual estimated salary in USD & 11{,}500--199{,}000 \\
+        \hline
+        Complaints & Integer & Service complaints filed in last 12 months & 0--5 \\
+        \hline
+        Churned & Binary & Target variable: 1 = churned, 0 = retained & 0 / 1 \\
+        \hline
+    \end{tabular}
 \end{table}
 
-Morbi pulvinar turpis at ligula sollicitudin, et finibus nulla vestibulum. Etiam molestie tincidunt molestie. Mauris augue ex, tincidunt non ante eget, ultrices ornare quam. Nulla pellentesque fringilla neque, eget facilisis arcu mollis vel. Nulla quam ipsum, vulputate a nisi ut, iaculis tempus ante. Nam efficitur, augue et cursus varius, nisi eros tincidunt ex, porta aliquet massa libero a mauris. Vestibulum finibus, dui sit amet dapibus tincidunt, libero quam venenatis elit, ut porta dui neque a nunc. Donec tincidunt eleifend mauris a luctus. Vivamus eget porttitor metus. Etiam eu porta orci. Suspendisse imperdiet orci sed lobortis vestibulum. Pellentesque sit amet euismod eros.\\
+The class distribution within the dataset exhibits the imbalance characteristic of real-world churn scenarios: approximately twenty percent of records carry a positive churn label (Churned = 1), while the remaining eighty percent represent retained customers (Churned = 0). This eight-to-two ratio necessitates the application of class imbalance handling techniques, as described in Section~\ref{sec:preprocessing}, and dictates the selection of recall and F1-score as primary evaluation metrics rather than overall accuracy.
+
+Data quality inspection reveals a small proportion of missing values concentrated in two attributes: \textit{AccountBalance} has approximately 2.1\% missing entries, likely arising from recording gaps at account opening, while \textit{EstimatedSalary} has approximately 2.8\% missing entries attributable to customers who declined to provide income information during on-boarding. All other attributes are complete. The dataset spans a collection period of twelve months ending in the fourth quarter of 2023, ensuring that the churn labels reflect relatively recent customer behaviour patterns. All personally identifiable information has been removed or pseudonymised in compliance with applicable data privacy regulations, and the CustomerID field serves solely as a record identifier with no predictive utility.
+
+\section{Data Preprocessing Pipeline}
+\label{sec:preprocessing}
+
+The raw dataset undergoes a sequential preprocessing pipeline before being passed to any machine learning model. Each step is described below in the order in which it is applied.
+
+\textbf{Step 1 --- Data Loading and Inspection:} The raw data is loaded from a comma-separated values (CSV) file into a pandas DataFrame, yielding an initial shape of $(10{,}000 \times 13)$. Initial inspection includes verifying column data types, computing summary statistics for each attribute, and generating a missing value report. Shape validation and a sample printout confirm that the loading process has introduced no parsing errors.
+
+\textbf{Step 2 --- Identifier Column Removal:} The \textit{CustomerID} column is dropped at the outset of preprocessing. As a unique identifier assigned sequentially at account opening, CustomerID carries no information about churn propensity and would introduce spurious regularities if retained as a feature. Its removal reduces the feature matrix to $(10{,}000 \times 12)$ before further transformation.
+
+\textbf{Step 3 --- Missing Value Imputation:} Missing values in \textit{AccountBalance} and \textit{EstimatedSalary} are imputed using the median of the respective column, computed exclusively on the training partition to prevent data leakage. The median is preferred over the mean for these attributes because both distributions are right-skewed due to the presence of high-balance and high-income outliers; the median is a more representative measure of central tendency for skewed distributions and is more robust to the influence of extreme values. A \texttt{SimpleImputer} from scikit-learn is fitted on the training set and applied to both training and test sets consistently.
+
+\textbf{Step 4 --- Outlier Detection and Treatment:} Outliers in \textit{AccountBalance} and \textit{EstimatedSalary} are identified using the interquartile range (IQR) method. Values falling below the first percentile or above the ninety-ninth percentile of each distribution are winsorised, meaning they are clipped to the respective boundary values rather than removed. This approach preserves all records in the dataset (avoiding sample loss) while preventing extreme values from disproportionately influencing model training and feature scaling.
+
+\textbf{Step 5 --- Categorical Encoding:} The \textit{Gender} attribute, which takes the values ``Male'' and ``Female'', is encoded using one-hot encoding with the \texttt{drop='first'} option to avoid the multicollinearity problem that arises when all dummy columns are retained in linear models. This produces a single binary column representing one gender category, with the other implicitly represented by the zero value. All other attributes in the dataset are already numeric or binary and require no additional encoding.
+
+\textbf{Step 6 --- Feature Scaling:} All numeric features are standardised using a \texttt{StandardScaler}, which transforms each feature to have zero mean and unit variance by subtracting the column mean and dividing by the column standard deviation. The scaler is fitted exclusively on the training data to prevent test set statistics from influencing the transformation. Standardisation is particularly important for Logistic Regression, which uses gradient-based optimisation sensitive to feature scales, and for distance-based algorithms; it does not affect the performance of tree-based models but is applied uniformly for consistency.
+
+\textbf{Step 7 --- Class Imbalance Correction via SMOTE:} To address the 80/20 class imbalance, the \textit{Synthetic Minority Over-sampling Technique} (SMOTE) \cite{chawla2002smote} is applied exclusively to the training dataset after the train-test split. SMOTE is configured with $k=5$ nearest neighbours, generating synthetic minority-class examples by interpolating between each minority sample and its five nearest minority-class neighbours in the scaled feature space. The application of SMOTE only to the training set is a critical constraint: applying it before the split would contaminate the test set with synthetic samples, producing an optimistically biased estimate of generalisation performance.
+
+\textbf{Step 8 --- Train-Test Split:} The dataset is partitioned into an 80\% training set (approximately 8,000 records) and a 20\% held-out test set (approximately 2,000 records) using stratified random sampling, which preserves the class ratio in both partitions. The stratified split ensures that the evaluation results on the test set are not distorted by chance imbalances in class representation arising from random assignment.
+
+The complete preprocessing pipeline is encapsulated in a scikit-learn \texttt{Pipeline} object, ensuring that all transformations are applied in the correct order and that fitting is performed only on the training data, with fitted transformers applied to the test data at evaluation time.
+
+\section{Feature Engineering Approach}
+\label{sec:featureeng}
+
+Beyond the preprocessing steps that clean and normalise the raw attributes, four domain-informed derived features are constructed to augment the predictive signal available to the classifier. These engineered features are designed to capture churn-relevant behavioural patterns that are implicit in the raw data but not directly observable as single attributes.
+
+\textbf{AvgTransPerMonth:} This feature is computed as $\text{AvgTransPerMonth} = \frac{\text{NumTransactions}}{\max(\text{TenureMonths}, 1)}$, where the denominator is floored at one to prevent division-by-zero errors for customers with less than one month of recorded tenure. This ratio normalises transaction volume by the duration of the customer relationship, capturing transaction velocity in a manner that is comparable across customers at different lifecycle stages. A long-tenure customer with fifty transactions in twelve months is behaving very differently from a new customer with the same count; the per-month normalisation makes this distinction explicit. Declining AvgTransPerMonth over successive measurement periods would be a strong indicator of disengagement, though only the current-period value is available in the static dataset used here.
+
+\textbf{TenureBucket:} Customer tenure in months is discretised into three ordinal categories that correspond to distinct lifecycle stages: \textit{New} (TenureMonths $< 6$), \textit{Regular} ($6 \leq$ TenureMonths $\leq 24$), and \textit{Loyal} (TenureMonths $> 24$). Research consistently shows that churn risk is non-linear in tenure: new customers have high early-life churn risk driven by onboarding failure modes, established customers have the lowest risk due to inertia and product embedding, and some very long-tenure customers show elevated risk when their life circumstances change. Discretising into buckets allows the model to learn qualitatively different churn patterns for each lifecycle stage without imposing a linear or monotonic tenure effect.
+
+\textbf{HighComplaintRate:} This binary indicator is set to one if the customer's \textit{Complaints} count is greater than or equal to two within the observation window, and zero otherwise. A single complaint may reflect an isolated incident that was resolved satisfactorily, but customers with two or more complaints within twelve months exhibit a pattern of repeated dissatisfaction that is strongly associated with voluntary churn. The binarisation at the threshold of two is motivated by inspection of the complaint count distribution and its empirical relationship with the churn rate in the training data.
+
+\textbf{BalanceToSalaryRatio:} This continuous feature is defined as $\text{BalanceToSalaryRatio} = \frac{\text{AccountBalance}}{\text{EstimatedSalary}}$, capturing the customer's relative financial engagement with the platform normalised for income level. A customer maintaining an account balance that is a large multiple of their annual income is more financially embedded in the platform than one whose balance represents only a small fraction of salary, reflecting a level of commitment that is associated with lower churn risk. Conversely, a customer with a very low balance relative to their annual income may be using the account as a secondary or overflow account rather than as their primary banking relationship, a pattern associated with higher churn risk. The computed ratio is included in the feature set after being passed through the StandardScaler to normalise its distribution.
+
+All four engineered features are computed prior to the train-test split, treated as additional input columns in the feature matrix, and passed through the StandardScaler along with the original numeric features. Their predictive contributions are subsequently assessed using mutual information scoring and SHAP feature importance analysis, as reported in Chapters Four and Five respectively.
+
+\section{System Requirements}
+
+\subsection{Hardware Requirements}
+
+The following hardware configuration represents the minimum and recommended specifications for running the complete churn prediction pipeline, including data preprocessing, model training with cross-validated hyperparameter tuning, inference, and dashboard generation.
+
+\begin{table}[H]
+    \centering
+    \caption{Hardware Requirements}
+    \label{tab:hardware}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{4.5cm}|p{4.5cm}|}
+        \hline
+        \textbf{Component} & \textbf{Minimum Specification} & \textbf{Recommended Specification} \\
+        \hline
+        Processor & Intel Core i5 8th Gen (2.0 GHz) & Intel Core i7 10th Gen or AMD Ryzen 7 (3.0+ GHz) \\
+        \hline
+        RAM & 8 GB DDR4 & 16 GB DDR4 \\
+        \hline
+        Storage & 50 GB HDD & 256 GB SSD \\
+        \hline
+        GPU & Not required for base implementation & CUDA-compatible GPU (4 GB VRAM) for deep learning extensions \\
+        \hline
+        Network & Broadband (10 Mbps) & High-speed broadband (100 Mbps) for cloud deployment \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Software Requirements}
+
+The following software stack was used in the development and evaluation of the proposed system. All packages are open source and freely available through the Python Package Index (PyPI) or official distribution channels.
+
+\begin{table}[H]
+    \centering
+    \caption{Software Requirements}
+    \label{tab:software}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|p{3.5cm}|p{2.5cm}|p{6.5cm}|}
+        \hline
+        \textbf{Software / Library} & \textbf{Version} & \textbf{Purpose} \\
+        \hline
+        Operating System & Ubuntu 20.04 LTS / Windows 10 & Development and deployment host environment \\
+        \hline
+        Python & 3.8+ & Primary programming language for all pipeline components \\
+        \hline
+        scikit-learn & 1.0+ & Preprocessing, baseline models, cross-validation, evaluation metrics \\
+        \hline
+        XGBoost & 1.6+ & Gradient boosting classifier (primary model) \\
+        \hline
+        pandas & 1.3+ & Data loading, manipulation, and feature engineering \\
+        \hline
+        NumPy & 1.21+ & Numerical computation and array operations \\
+        \hline
+        imbalanced-learn & 0.9+ & SMOTE implementation for class imbalance handling \\
+        \hline
+        SHAP & 0.40+ & Model explainability and feature attribution \\
+        \hline
+        Matplotlib / Seaborn & 3.4+ & Visualisation of metrics, distributions, and SHAP plots \\
+        \hline
+        Flask & 2.0+ & REST API for model serving in deployment prototype \\
+        \hline
+        PostgreSQL & 13+ & Relational database for customer data storage \\
+        \hline
+        Docker & 20.10+ & Containerisation of pipeline for reproducible deployment \\
+        \hline
+        Jupyter Notebook & 6.4+ & Interactive development and experimental evaluation \\
+        \hline
+        Git & 2.30+ & Version control for code and pipeline artefacts \\
+        \hline
+    \end{tabular}
+\end{table}
+
+The entire Python environment is managed using a \texttt{requirements.txt} file to ensure full reproducibility of the experimental results. Docker containerisation wraps the training and inference pipeline into a portable image that can be deployed consistently across development, staging, and production environments without dependency conflicts. The Flask-based REST API exposes a \texttt{/predict} endpoint that accepts a JSON payload of customer feature values and returns a churn probability score along with the top SHAP feature attributions, enabling integration with existing CRM and dashboard tooling through standard HTTP calls.

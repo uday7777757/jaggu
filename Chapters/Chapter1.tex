@@ -1,68 +1,53 @@
 \chapter{Introduction}
 
-\section{Introduction}
-The introduction section provides an overview of the project. It sets the context, presents the main focus of the study, and provides insight into the area of research or the problem being addressed. This section should give the reader a general understanding of the project, its relevance, and the motivations behind it.
-
-\begin{itemize}
-    \item Briefly describe the project.
-    \item Outline the significance and relevance of the research.
-    \item Highlight the general aim and scope of the project.
-    \item Provide an overview of the structure of the report.
-\end{itemize}
-
 \section{Background and Motivation}
-This section gives a detailed explanation of the background that led to the project. It includes a description of the problem domain and related work. The motivation part explains why this project was chosen and its importance to the field. The background information helps the reader understand the context of the research or project, while the motivation demonstrates the necessity or urgency for the work.
 
-\begin{itemize}
-    \item Describe the field or area of study in which the project is situated.
-    \item Present any historical context or developments leading to the current project.
-    \item Discuss previous research or works relevant to the project.
-    \item Explain why this project is important, and why it addresses a gap or need in the current field.
-\end{itemize}
+The financial technology (\textit{FinTech}) industry has undergone a profound transformation over the past decade. The emergence of digital banking platforms, mobile payment applications, and neo-banks has fundamentally disrupted the traditional financial services landscape. Consumers today interact with their financial service providers almost exclusively through digital channels, generating vast quantities of behavioural and transactional data with every interaction. This digital shift has democratised access to financial products but has simultaneously lowered the barriers to switching providers, creating an environment in which customer loyalty can no longer be assumed.
 
-% \section{Problem Statement}
-% The problem statement clearly defines the problem the project aims to solve. This section is crucial because it outlines the exact challenge the project will address. It should be precise, specific, and should define the scope of the problem.
+Customer retention has emerged as one of the most strategically critical concerns for FinTech operators. The seminal research of Reichheld \cite{reichheld1996} established that acquiring a new customer costs approximately five to ten times more than retaining an existing one, and that even a modest five percent improvement in customer retention can increase overall profitability by twenty to ninety-five percent depending on the sector. These findings remain as relevant today as when they were first published, and arguably more so in the hyper-competitive FinTech environment where customer acquisition costs continue to rise due to aggressive digital marketing and incentive-based on-boarding strategies.
 
-% \begin{itemize}
-%     \item Define the core problem that the project addresses.
-%     \item Explain the specific issues or challenges involved.
-%     \item Ensure the problem is framed clearly, with no ambiguity.
-%     \item Establish the relevance of the problem in practical or theoretical terms.
-% \end{itemize}
+The financial stakes of customer churn are considerable. Each customer who discontinues their relationship with a FinTech platform represents not merely the loss of a current revenue stream but the forfeiture of an entire lifetime of projected future value. Industry estimates suggest that annual churn rates in digital banking platforms range between twenty and thirty percent, significantly higher than those observed in traditional retail banking. Each churned customer is estimated to represent between \$300 and \$500 in lost lifetime value, a figure that accumulates rapidly at platform scale. For a mid-sized FinTech platform with two hundred thousand active customers, a twenty percent annual churn rate translates to the loss of approximately forty thousand customers per year, representing a potential revenue impact exceeding \$15 million.
 
+What distinguishes the modern FinTech context from earlier retail banking environments is the abundance and richness of available customer data. Digital platforms capture granular transactional data, product usage logs, customer service interactions, and engagement metrics at a level of detail that was historically impossible to obtain. This data abundance creates a compelling opportunity for the application of machine learning techniques to predict churn behaviour before it occurs. Rather than responding reactively to customers who have already disengaged, a well-designed predictive model can identify at-risk customers weeks or even months in advance, enabling targeted retention interventions when they are most likely to be effective. The proliferation of open-source machine learning libraries and cloud computing infrastructure has further lowered the technical barriers to deploying such systems at scale, making proactive, data-driven churn prediction an increasingly attainable objective for FinTech organisations of all sizes.
 
-\section{Objectives of the Project Work}
+\section{Problem Statement}
 
-This section outlines the specific goals the project aims to achieve. Objectives are more specific than the problem statement and help to guide the project toward a solution. The objectives should be measurable and achievable within the scope of the project.
+\textit{Customer churn} is formally defined as the event in which a customer ceases to use the products or services of a given organisation within a defined observation window. In the context of digital banking and FinTech platforms, churn may manifest as account closure, complete cessation of transactional activity, or migration of primary banking relationships to a competing provider. Churn may be classified as voluntary, wherein the customer actively chooses to leave, or involuntary, wherein the relationship is terminated due to non-payment, fraud, or regulatory action. This project focuses exclusively on voluntary churn, which is the category most amenable to prediction and preventive intervention.
 
-\begin{itemize}
-    \item List the primary objectives of the project.
-    \item Break down the general goal into smaller, specific goals.
-    \item Use clear, action-oriented language (e.g., ``To develop,'' ``To analyze,'' ``To evaluate'').
-    \item These objectives should align with solving the problem defined earlier.
-\end{itemize}
+The current state of the art in most mid-sized FinTech organisations relies on a combination of static analytics dashboards, periodic key performance indicator monitoring, and reactive retention campaigns executed by customer relationship management teams. These approaches share a fundamental limitation: they are diagnostic rather than prognostic. They describe what has already happened rather than predicting what is about to happen. A customer who has not transacted in ninety days is already well along the path to permanent disengagement; by the time such a signal is captured in a dashboard review, the window for effective intervention may have closed.
 
-The key aim of this research work is to examine the effects of incorporating multiple platforms into large-scale, cooperative wireless networks. The objectives of this work are set out below:
+Manual business rule engines, which flag customers meeting certain threshold criteria such as low account balance combined with an absence of recent transactions, suffer from two additional deficiencies. First, they treat churn as a binary event triggered by simple threshold conditions rather than as the outcome of a complex, multi-dimensional process unfolding over time. Second, they generate high rates of both false positives and false negatives, wasting retention resources on customers who would not have churned and failing to identify those who would. The result is a costly and inefficient retention operation that cannot be justified on return-on-investment grounds.
+
+This project therefore aims to build a machine learning-based churn prediction system that overcomes these limitations. The specific objective is to develop a model capable of assigning a calibrated churn probability to each active customer, enabling the identification of at-risk individuals thirty to sixty days before the expected churn event. Such a system would allow retention teams to intervene proactively, personalise their approach based on the specific risk factors driving each customer's predicted churn, and measure the financial return on their retention activities with quantitative precision.
+
+\section{Objectives of the Project}
+
+The following objectives have been defined to guide the development, evaluation, and reporting of the proposed churn prediction system:
+
 \begin{enumerate}
-\item	To design and analyse the relay selection criteria for faster data transmission in cooperative networking with multi channels. 
-\item To formulate an optimal solution for energy efficient transmission for large scale cooperative network with multiple channels. 
-\item	To propose the optimal routing mechanism for large scale cooperative network by considering mobility factor.
+    \item \textbf{Data Acquisition and Preprocessing:} Acquire and preprocess a dataset of approximately ten thousand anonymised customer records from a mid-sized FinTech platform. This objective encompasses loading raw data from its source format, handling missing values through statistically appropriate imputation strategies, detecting and treating outliers, encoding categorical variables, and scaling numerical features to ensure compatibility with gradient-based learning algorithms.
 
+    \item \textbf{Feature Engineering:} Construct a set of domain-informed derived features that augment the predictive signal contained in the raw attributes. Specifically, this includes computing the average number of transactions per month (\textit{AvgTransPerMonth}), creating customer lifecycle stage buckets based on tenure in months, deriving a binary high-complaint-rate flag, and computing the ratio of account balance to estimated salary. These engineered features are expected to capture behavioural patterns associated with churn that are not directly observable in the raw data.
+
+    \item \textbf{Model Development and Training:} Develop and train four machine learning classifiers spanning a range of algorithmic families: Logistic Regression as an interpretable linear baseline, a Decision Tree classifier as a non-linear but inherently explainable model, a Random Forest ensemble as a variance-reducing bagging method, and XGBoost as a state-of-the-art gradient boosting framework. All models are to be trained on the same preprocessed and feature-engineered dataset to ensure fair comparison.
+
+    \item \textbf{Hyperparameter Tuning:} Apply systematic hyperparameter optimisation to each model using stratified $k$-fold cross-validation combined with grid search over a predefined parameter space. This objective ensures that observed performance differences between models reflect genuine algorithmic differences rather than suboptimal default configurations.
+
+    \item \textbf{Model Evaluation and Comparison:} Evaluate all models on a held-out test set using a comprehensive suite of evaluation metrics appropriate for a class-imbalanced binary classification task. Metrics to be computed include classification accuracy, precision, recall, F1-score, and the area under the receiver operating characteristic curve (AUC-ROC). Given the asymmetric cost structure of churn prediction, recall and F1-score are designated as primary optimisation targets.
+
+    \item \textbf{Business Impact Analysis and Deployment Planning:} Translate model outputs into actionable business recommendations by estimating the financial value of the predicted churn prevention. Apply post-hoc explainability techniques, specifically SHAP (SHapley Additive exPlanations), to identify the most influential features driving individual churn predictions. Outline a practical deployment architecture suitable for integration with existing CRM and data infrastructure, including a discussion of model monitoring and retraining cadence.
 \end{enumerate}
 
-\section{Organization of the Report}
-The final section of Chapter 1 provides an outline of the structure of the entire report. It explains the organization and flow of the chapters and gives the reader an understanding of how the content will be presented. This section can be a simple list or paragraph summarizing each chapter’s main points.
+\section{Scope and Assumptions}
 
-\begin{itemize}
-    \item Provide a brief description of what each chapter will cover.
-    \item Typically, the structure would include:
-    \begin{itemize}
-        \item \textbf{Chapter 2}: Literature Survey 
-        \item \textbf{Chapter 3}: System Analysis
-        \item \textbf{Chapter 4}: System Design
-        \item \textbf{Chapter 5}: System Implementation
-        \item \textbf{Chapter 6}: System Testing
-        \item \textbf{Chapter 7}: Results and Discussion
-        \item \textbf{Chapter 8}: Conclusions and Future Scope
-    \end{itemize}
-        \end{itemize}
+The scope of this project is deliberately bounded to ensure that the research objectives are achievable within the constraints of an undergraduate final-year project while remaining representative of real-world deployment conditions.
+
+The dataset used in this study comprises approximately ten thousand anonymised customer records sourced from a mid-sized FinTech platform operating in the retail digital banking segment. The anonymisation process removes all personally identifiable information, ensuring compliance with data privacy requirements while preserving the statistical properties necessary for model development. The observation window for churn label assignment spans twelve months, meaning that a customer is labelled as churned if they meet the operational definition of churn at any point within the twelve months following the feature measurement date.
+
+The problem is formulated as a supervised binary classification task, with the target variable taking the value of one for customers who churned and zero for those who were retained. Multi-class and ordinal churn severity formulations are outside the scope of this project. The evaluation framework prioritises recall and F1-score over raw accuracy, reflecting the asymmetric cost of false negatives (missed churners) relative to false positives (unnecessary retention outreach) in the business context.
+
+Several technically and commercially relevant extensions are explicitly excluded from this project's scope. Real-time streaming inference on live transaction data, continuous automated retraining pipelines, natural language processing of unstructured customer service notes, and personalised retention offer optimisation are considered out of scope. These represent meaningful directions for future work and are discussed accordingly in the concluding chapter. All modelling is performed on static, batch-processed data, and deployment artefacts are described architecturally rather than instantiated in a live production environment.
+
+\section{Organisation of the Report}
+
+This report is structured across eight chapters, each addressing a distinct phase of the research and development process. Chapter One, the present chapter, has provided the motivational context, problem formulation, research objectives, and scope of the project. Chapter Two presents a comprehensive survey of the academic and applied literature on customer churn prediction, covering traditional machine learning approaches, ensemble and deep learning methods, class imbalance handling strategies, feature engineering practices, evaluation frameworks, and model explainability techniques. Chapter Three details the system analysis, including an examination of existing solutions and their limitations, a specification of the proposed system architecture, a description of the dataset and its attributes, and a thorough account of the preprocessing and feature engineering pipeline. Chapter Four describes the implementation of the four classification models, the hyperparameter tuning strategy, and the technical architecture of the end-to-end prediction pipeline. Chapter Five presents the experimental results, including comparative performance tables, ROC curves rendered as TikZ figures, and SHAP-based feature importance analysis. Chapter Six provides a business impact analysis, quantifying the expected financial return of deploying the proposed system and translating model outputs into actionable retention strategies. Chapter Seven discusses the limitations of the current study and proposes concrete directions for future research. Chapter Eight concludes the report with a summary of findings and contributions.

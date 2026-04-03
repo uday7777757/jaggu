@@ -1,0 +1,32 @@
+\chapter{Project Timeline}
+
+\section{Development Schedule}
+
+The project was executed over a period of approximately ten weeks, structured into seven distinct phases. Table~\ref{tab:gantt} presents the development schedule with estimated durations for each phase.
+
+\begin{table}[H]
+\centering
+\caption{Project Development Schedule}
+\label{tab:gantt}
+\begin{tabular}{|l|c|c|l|}
+\hline
+\textbf{Phase} & \textbf{Start (Day)} & \textbf{Duration (Days)} & \textbf{Key Deliverable} \\
+\hline
+Data Collection \& Preparation & 1  & 10 & Raw dataset (CSV), EDA report \\
+\hline
+Data Cleaning                  & 11 & 5  & Cleaned DataFrame, imputation log \\
+\hline
+Feature Engineering            & 16 & 7  & Engineered feature matrix \\
+\hline
+Model Selection \& Training    & 23 & 15 & Trained model artefacts (.pkl) \\
+\hline
+Hyperparameter Tuning          & 38 & 7  & Best hyperparameter configuration \\
+\hline
+Dashboard Development          & 45 & 15 & Flask web application \\
+\hline
+Testing \& Deployment          & 60 & 7  & Deployed system, test report \\
+\hline
+\end{tabular}
+\end{table}
+
+The first ten days were devoted to sourcing and understanding the anonymised customer dataset, conducting exploratory data analysis, and documenting attribute distributions and class imbalance characteristics. The subsequent five-day cleaning phase produced a validated, imputed DataFrame ready for modelling. Feature engineering consumed seven days and yielded four domain-specific features (\textit{AvgTransPerMonth}, \textit{TenureBucket}, \textit{HighComplaintRate}, \textit{BalanceToSalaryRatio}). The longest phase—model selection and training at fifteen days—covered training all four classifiers, evaluating baseline performance, and applying SMOTE augmentation. Hyperparameter tuning via five-fold grid search required a further seven days due to the combinatorial search space. Dashboard development (fifteen days) built the Flask REST API and the web-based risk ranking interface. The final seven days covered unit testing, integration testing, and containerised deployment via Docker.

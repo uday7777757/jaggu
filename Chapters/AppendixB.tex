@@ -1,0 +1,131 @@
+\chapter{Technical Details}
+
+\section{Detailed Algorithm Pseudocode}
+
+\subsection{XGBoost Training Pseudocode}
+
+\begin{lstlisting}[language=Python, caption={XGBoost Training Pseudocode}, label={lst:xgb_pseudo}]
+# Initialise residuals
+F_0(x) = argmin_gamma sum_i L(y_i, gamma)
+
+for m = 1 to M:          # M boosting rounds
+    # Compute negative gradients (pseudo-residuals)
+    r_im = -[dL(y_i, F(x_i)) / dF(x_i)]  for each i
+
+    # Fit a regression tree h_m to pseudo-residuals
+    h_m = fit_tree(X_train, r_im, max_depth=6)
+
+    # Compute optimal leaf weights (with L2 regularisation)
+    w_j = -sum(r_i in leaf j) / (count(leaf j) + lambda)
+
+    # Update model with learning rate eta
+    F_m(x) = F_{m-1}(x) + eta * h_m(x)
+
+# Final prediction (sigmoid for binary classification)
+y_prob = sigmoid(F_M(x))
+y_pred = 1 if y_prob >= threshold else 0
+\end{lstlisting}
+
+\subsection{Preprocessing Pipeline Pseudocode}
+
+\begin{lstlisting}[language=Python, caption={Full Preprocessing Pipeline}, label={lst:pipe_pseudo}]
+def build_pipeline(X_train, y_train):
+    # Step 1: Impute missing values
+    X_train['AccountBalance'].fillna(median(AccountBalance))
+    X_train['EstimatedSalary'].fillna(median(EstimatedSalary))
+
+    # Step 2: Winsorise outliers (1st-99th percentile)
+    for col in numeric_cols:
+        lo, hi = percentile(col, [1, 99])
+        X_train[col] = clip(X_train[col], lo, hi)
+
+    # Step 3: One-hot encode Gender
+    X_train = get_dummies(X_train, columns=['Gender'], drop_first=True)
+
+    # Step 4: Standardise numeric features
+    scaler = StandardScaler()
+    X_train[numeric_cols] = scaler.fit_transform(X_train[numeric_cols])
+
+    # Step 5: SMOTE on training data only
+    smote = SMOTE(k_neighbors=5, random_state=42)
+    X_bal, y_bal = smote.fit_resample(X_train, y_train)
+
+    return X_bal, y_bal, scaler
+\end{lstlisting}
+
+\section{Mathematical Formulations}
+
+\subsection{Gradient Boosting Objective}
+
+The XGBoost objective function at boosting round $m$ is:
+
+\begin{equation}
+\mathcal{L}^{(m)} = \sum_{i=1}^{n} l(y_i, \hat{y}_i^{(m)}) + \sum_{k=1}^{m} \Omega(h_k)
+\end{equation}
+
+where $l$ is the logistic loss, and the regularisation term is:
+
+\begin{equation}
+\Omega(h) = \gamma T + \frac{1}{2}\lambda \sum_{j=1}^{T} w_j^2
+\end{equation}
+
+with $T$ the number of leaves, $w_j$ leaf weights, $\gamma$ complexity penalty, and $\lambda$ the $\ell_2$ regularisation coefficient \cite{chen2016xgboost}.
+
+\subsection{Logistic Function}
+
+The binary churn probability is obtained via the sigmoid transformation:
+
+\begin{equation}
+P(\text{Churn}=1 \mid \mathbf{x}) = \sigma(F_M(\mathbf{x})) = \frac{1}{1 + e^{-F_M(\mathbf{x})}}
+\end{equation}
+
+\subsection{Information Gain for Decision Trees}
+
+The information gain used for splitting in Decision Tree nodes is:
+
+\begin{equation}
+IG(S, a) = H(S) - \sum_{v \in \text{values}(a)} \frac{|S_v|}{|S|} H(S_v)
+\end{equation}
+
+where $H(S) = -\sum_{k} p_k \log_2 p_k$ is the entropy of set $S$.
+
+\section{Database Schema}
+
+The PostgreSQL schema used in the deployment environment is defined as follows:
+
+\begin{lstlisting}[language=SQL, caption={Database Schema DDL}, label={lst:ddl}]
+CREATE TABLE customers (
+    customer_id       SERIAL PRIMARY KEY,
+    age               INTEGER NOT NULL,
+    gender            VARCHAR(10),
+    tenure_months     INTEGER,
+    account_balance   NUMERIC(12,2),
+    num_products      INTEGER,
+    has_credit_card   BOOLEAN,
+    is_active_member  BOOLEAN,
+    num_transactions  INTEGER,
+    estimated_salary  NUMERIC(12,2),
+    complaints        INTEGER DEFAULT 0,
+    created_at        TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE churn_predictions (
+    prediction_id     SERIAL PRIMARY KEY,
+    customer_id       INTEGER REFERENCES customers(customer_id),
+    churn_probability NUMERIC(5,4),
+    is_high_risk      BOOLEAN,
+    prediction_date   DATE NOT NULL,
+    model_version     VARCHAR(20),
+    acted_upon        BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE model_registry (
+    model_id    SERIAL PRIMARY KEY,
+    model_name  VARCHAR(50),
+    version     VARCHAR(20),
+    accuracy    NUMERIC(5,4),
+    auc_roc     NUMERIC(5,4),
+    trained_at  TIMESTAMP,
+    is_active   BOOLEAN DEFAULT FALSE
+);
+\end{lstlisting}

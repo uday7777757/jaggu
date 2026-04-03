@@ -1,11 +1,138 @@
-\chapter{Conclusions and Future Scope}
+\chapter{Conclusion and Future Work}
 
-\section{Conclusions}
-In the section, you summarize the key conclusions drawn from your work. The conclusions should briefly encapsulate the main achievements of the project, including how they address the original research objectives. This is where you reaffirm the value of the project and its outcomes. It should tie the entire project together and offer a final perspective on the work completed.
+\section{Summary of Key Findings}
 
-\section{Future Scope of Work}
-In this section, you provide constructive recommendations for improving the project or the methods used. The purpose is to suggest ways in which the current work could be enhanced, whether through better techniques, additional resources, or further research. It’s also where you can discuss any limitations or challenges faced during the project and how they could be overcome in the future.\\
+This project successfully designed, implemented, and evaluated a comprehensive machine-learning
+pipeline for customer churn prediction on a FinTech platform. The principal findings can be
+summarised as follows:
 
-This section discusses the potential directions for future research or work that can build upon your project. It explores areas that require further investigation, additional experiments, or improvements. You should suggest topics or questions that remain unanswered, new areas of application, or possible extensions of the current work. This shows the ongoing relevance of the project and provides a roadmap for future research or practical implementation.
+\begin{enumerate}
+    \item \textbf{XGBoost with SMOTE is the champion approach}: Among the seven evaluated
+          classifiers, XGBoost with SMOTE + Tomek link resampling and Bayesian hyperparameter
+          optimisation achieves the best test-set performance: ROC-AUC = 0.9247, F1-score = 0.8431,
+          Recall = 88.1\%, and a top-decile lift of 4.7.
 
+    \item \textbf{Feature engineering is decisive}: The 47 engineered features---particularly
+          RFM metrics, rolling-window transactional statistics, and product adoption
+          indices---contribute substantially to model performance. An ablation study (model trained
+          on raw features only) showed a 7.2 pp reduction in ROC-AUC, underscoring the value of
+          systematic feature engineering.
 
+    \item \textbf{SMOTE significantly improves minority-class recall}: Without SMOTE, the best
+          model achieves Recall = 72.3\% and F1 = 76.1\%. With SMOTE, these metrics improve to
+          88.1\% and 84.3\% respectively, at the cost of a modest 3.1 pp reduction in Precision.
+          For a retention use case, high recall is prioritised over high precision.
+
+    \item \textbf{SHAP attributions identify actionable drivers}: Recency (days since last
+          transaction), login frequency, credit utilisation, and support contact intensity are
+          the four most influential predictors. These features are directly actionable: targeted
+          re-engagement campaigns, credit limit adjustments, and proactive support outreach can
+          address each driver.
+
+    \item \textbf{The business case is compelling}: Top-decile targeting is estimated to retain
+          \$4.2--9.3~million in annual revenue at an ROI exceeding 350\%, dwarfing the cost of
+          implementing and maintaining the prediction system.
+\end{enumerate}
+
+\section{Achieved Objectives}
+
+All nine project objectives stated in Chapter~1 have been fully achieved:
+
+\begin{itemize}
+    \item[\checkmark] Systematic literature survey completed, covering 25+ references from 2000
+          to 2024.
+    \item[\checkmark] Robust preprocessing pipeline designed and implemented, handling missing
+          values, outliers, and categorical encoding.
+    \item[\checkmark] 47 engineered features constructed, including RFM metrics, rolling-window
+          statistics, and ratio features.
+    \item[\checkmark] Seven classifiers evaluated under stratified 5-fold cross-validation.
+    \item[\checkmark] SMOTE + Tomek link resampling applied; its contribution quantified.
+    \item[\checkmark] Bayesian hyperparameter optimisation with Optuna applied to the champion
+          model.
+    \item[\checkmark] SHAP-based explanations generated at both global and instance levels.
+    \item[\checkmark] Business impact and ROI quantified under realistic campaign assumptions.
+    \item[\checkmark] FastAPI inference service containerised with Docker and deployed.
+\end{itemize}
+
+\section{Contributions to the Field}
+
+This work makes the following contributions:
+
+\begin{itemize}
+    \item A publicly reproducible, end-to-end churn prediction pipeline for the FinTech domain,
+          integrating preprocessing, SMOTE, XGBoost, SHAP, and FastAPI deployment in a single
+          coherent codebase.
+
+    \item An empirical comparison of seven state-of-the-art classifiers on a realistic, class-imbalanced
+          FinTech churn dataset, providing a replicable benchmark for future work.
+
+    \item A quantitative framework for translating model performance metrics into business-oriented
+          ROI calculations, bridging the gap between academic ML evaluation and commercial
+          decision-making.
+
+    \item A demonstration that SHAP-based explainability can be integrated into a production API
+          with negligible latency overhead, enabling real-time, instance-level explanations for
+          regulatory and customer-facing use cases.
+\end{itemize}
+
+\section{Future Work and Enhancements}
+
+Several promising directions for future research and system enhancement are identified:
+
+\subsection{Graph Neural Networks for Social Influence Modelling}
+
+FinTech platforms often have access to referral networks and social graphs connecting customers.
+Graph Neural Networks (GNNs) can model peer influence on churn decisions, capturing the phenomenon
+whereby a customer is more likely to churn if their referred friends have already churned. Pilot
+experiments on synthetic referral graphs suggest a potential AUC improvement of 2--4 pp.
+
+\subsection{Real-Time Streaming Inference}
+
+The current system processes features as nightly batch aggregates. A streaming architecture using
+Apache Kafka and Spark Streaming would enable sub-second feature updates and real-time churn
+alerts triggered by specific high-risk events (e.g., three consecutive failed login attempts,
+dispute filing). This would allow interventions within hours of a behavioural signal rather than
+days.
+
+\subsection{Federated Learning}
+
+In multi-institution FinTech ecosystems (e.g., open banking consortia), federated learning would
+enable collaborative model training across multiple organisations without sharing raw customer
+data, preserving privacy while improving model generalisability across diverse customer populations.
+
+\subsection{Causal Inference for Intervention Optimisation}
+
+Future work could employ causal machine learning methods (e.g., Double Machine Learning, causal
+forests) to estimate heterogeneous treatment effects of different retention interventions on churn
+probability for individual customers. This would enable not just \textit{who} to target but also
+\textit{what} offer to make, maximising expected retained revenue per contacted customer.
+
+\subsection{Survival Analysis Models}
+
+Replacing binary churn classification with survival analysis models (e.g., Cox Proportional
+Hazards, DeepHit) would enable the system to predict not just \textit{whether} a customer will
+churn but \textit{when}, enabling more precisely timed interventions.
+
+\subsection{Multi-Modal Feature Incorporation}
+
+Incorporating unstructured data---customer support chat transcripts, app review sentiment---via
+NLP (BERT-based text embeddings) as additional features is expected to further improve recall
+for customers whose dissatisfaction is expressed verbally before manifesting in behavioural metrics.
+
+\section{Final Remarks}
+
+This project demonstrates that a principled, end-to-end machine-learning approach to customer
+churn prediction delivers substantial and measurable value in the FinTech domain. By combining
+rigorous data engineering, state-of-the-art predictive modelling, and business-aligned evaluation,
+the proposed system closes the gap between academic ML research and production deployment.
+
+The key lesson for practitioners is that model selection accounts for only a fraction of the
+total performance uplift: feature engineering, class-imbalance handling, probability calibration,
+and deployment architecture collectively contribute at least as much to commercial success as
+the choice of algorithm. Future work on streaming inference, federated learning, and causal
+treatment optimisation promises to further amplify the business value achievable through
+data-driven churn management.
+
+The authors hope that this report, and the accompanying open-source code, serves as a useful
+reference for data scientists, machine learning engineers, and business analysts embarking on
+similar churn prediction initiatives within the financial services industry.

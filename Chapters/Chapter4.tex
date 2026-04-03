@@ -1,72 +1,338 @@
 \chapter{System Design}
+
 \section{System Architecture}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/unnamed.png} 
-    \caption{System Architecture Diagram.}
-    \label{fig:my_label} % For referencing in text
+\label{sec:architecture}
+
+The proposed system follows a layered microservices architecture that decouples data ingestion,
+model training, and inference serving. Figure~\ref{fig:architecture} illustrates the high-level
+architecture, showing the flow from raw data sources through ETL, preprocessing, feature
+engineering, model training, and finally to inference API delivery.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=0.8cm and 1.4cm,
+  box/.style={draw, rectangle, rounded corners, minimum width=3.5cm, minimum height=0.75cm,
+              font=\small, align=center, fill=blue!10},
+  arrow/.style={->, thick}
+]
+  \node[box, fill=green!15] (src)  {Data Sources (DB/Logs/CRM)};
+  \node[box, below=of src]  (etl)  {ETL Pipeline (Python/Airflow)};
+  \node[box, below=of etl]  (pre)  {Preprocessing Engine};
+  \node[box, below=of pre]  (feat) {Feature Store (47 Features)};
+  \node[box, right=2.2cm of feat] (train) {Model Training (XGBoost)};
+  \node[box, above=of train] (sel)  {Model Selection (Cross-Validation)};
+  \node[box, above=of sel]  (reg)  {Model Registry (MLflow)};
+  \node[box, right=2.2cm of reg]  (api)  {Inference API (FastAPI + Docker)};
+  \node[box, below=of api, fill=orange!15]  (crm)  {CRM / Marketing Automation};
+  \node[box, below=of crm]  (dash)  {Business Dashboard (Grafana)};
+
+  \draw[arrow] (src)  -- (etl);
+  \draw[arrow] (etl)  -- (pre);
+  \draw[arrow] (pre)  -- (feat);
+  \draw[arrow] (feat) -- (train);
+  \draw[arrow] (train)-- (sel);
+  \draw[arrow] (sel)  -- (reg);
+  \draw[arrow] (reg)  -- (api);
+  \draw[arrow] (api)  -- (crm);
+  \draw[arrow] (crm)  -- (dash);
+  \draw[arrow] (feat) -- node[above, font=\tiny]{real-time} (api);
+\end{tikzpicture}
+\caption{High-Level System Architecture for the Churn Prediction Platform}
+\label{fig:architecture}
 \end{figure}
-\section{Data Flow Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.jpg} 
-    \caption{Data Flow Diagram}
-    \label{fig:my_label} % For referencing in text
+
+The architecture is designed with the following principles:
+
+\begin{itemize}
+    \item \textbf{Separation of concerns}: Training and inference paths are independent; model
+          updates do not require downtime of the serving API.
+    \item \textbf{Reproducibility}: All pipeline parameters, feature transformations, and model
+          artefacts are versioned and tracked in MLflow, enabling full experiment reproducibility.
+    \item \textbf{Scalability}: The FastAPI inference service is stateless and horizontally
+          scalable via container orchestration (Kubernetes).
+    \item \textbf{Observability}: Prediction distributions, model drift indicators, and API
+          latency metrics are continuously monitored via Grafana dashboards.
+\end{itemize}
+
+\section{Data Flow Diagrams}
+
+\subsection{Level 0 -- Context Diagram}
+
+The context diagram (Figure~\ref{fig:dfd0}) depicts the system boundary and its interactions with
+external entities. The Churn Prediction System receives raw customer data from the operational
+database, configuration from the data scientist, and returns churn scores to the CRM platform
+and analytics reports to the retention manager.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=2.3cm,
+  entity/.style={draw, rectangle, minimum width=2.2cm, minimum height=0.9cm, font=\small,
+                 align=center, fill=yellow!20},
+  process/.style={draw, ellipse, minimum width=3.2cm, minimum height=1.2cm, font=\small\bfseries,
+                  align=center, fill=blue!20},
+  arrow/.style={->, thick}
+]
+  \node[process] (sys) {Churn Prediction\\System};
+  \node[entity, left=3cm of sys]  (db)   {Operational\\Database};
+  \node[entity, above=2cm of sys] (ds)   {Data\\Scientist};
+  \node[entity, right=3cm of sys] (crm)  {CRM\\Platform};
+  \node[entity, below=2cm of sys] (mgr)  {Retention\\Manager};
+
+  \draw[arrow] (db)  -- node[above, font=\tiny]{Raw customer data} (sys);
+  \draw[arrow] (ds)  -- node[right, font=\tiny]{Model config} (sys);
+  \draw[arrow] (sys) -- node[above, font=\tiny]{Churn scores + SHAP} (crm);
+  \draw[arrow] (sys) -- node[right, font=\tiny]{Analytics report} (mgr);
+\end{tikzpicture}
+\caption{Level 0 Data Flow Diagram -- Context Diagram}
+\label{fig:dfd0}
 \end{figure}
-\section{UML Diagrams}
-\subsection{Class Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.jpg} 
-    \caption{Class Diagram}
-    \label{fig:my_label} % For referencing in text
+
+\subsection{Level 1 -- Detailed Data Flow}
+
+Figure~\ref{fig:dfd1} decomposes the system into its principal sub-processes and shows the data
+stores and data flows between them.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node distance=0.9cm and 1.3cm,
+  proc/.style={draw, rectangle, rounded corners, minimum width=2.8cm, minimum height=0.7cm,
+               font=\scriptsize, align=center, fill=blue!15},
+  store/.style={draw, rectangle, minimum width=2.8cm, minimum height=0.6cm,
+                font=\scriptsize, align=center, fill=gray!20},
+  ext/.style={draw, rectangle, minimum width=2.4cm, minimum height=0.6cm,
+              font=\scriptsize, align=center, fill=yellow!20},
+  arrow/.style={->, thick, font=\tiny}
+]
+  \node[ext]   (db)    {Operational DB};
+  \node[proc, right=1.3cm of db] (p1) {P1: Ingest Raw Data};
+  \node[store, right=1.3cm of p1] (s1) {D1: Raw Data Store};
+  \node[proc, below=0.9cm of s1] (p2) {P2: Preprocess \& Clean};
+  \node[store, left=1.3cm of p2] (s2) {D2: Clean Data Store};
+  \node[proc, below=0.9cm of s2] (p3) {P3: Feature Engineering};
+  \node[store, right=1.3cm of p3] (s3) {D3: Feature Store};
+  \node[proc, right=1.3cm of s3] (p4) {P4: Model Training};
+  \node[store, above=0.9cm of p4] (s4) {D4: Model Registry};
+  \node[proc, above=0.9cm of s4] (p5) {P5: Inference API};
+  \node[ext, left=1.3cm of p5]  (crm)  {CRM Platform};
+
+  \draw[arrow] (db) -- (p1);
+  \draw[arrow] (p1) -- (s1);
+  \draw[arrow] (s1) -- (p2);
+  \draw[arrow] (p2) -- (s2);
+  \draw[arrow] (s2) -- (p3);
+  \draw[arrow] (p3) -- (s3);
+  \draw[arrow] (s3) -- (p4);
+  \draw[arrow] (p4) -- (s4);
+  \draw[arrow] (s4) -- (p5);
+  \draw[arrow] (s3) -- (p5);
+  \draw[arrow] (p5) -- (crm);
+\end{tikzpicture}
+\caption{Level 1 Data Flow Diagram -- Detailed Sub-Process View}
+\label{fig:dfd1}
 \end{figure}
-\subsection{Object Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Object Diagram}
-    \label{fig:my_label} % For referencing in text
+
+\section{UML Class Diagram}
+\label{sec:classdiagram}
+
+Figure~\ref{fig:classdiag} shows the key classes in the system and their relationships.
+The four primary classes are \texttt{DataPipeline}, \texttt{ChurnModel}, \texttt{ModelEvaluator},
+and \texttt{InferenceService}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  class/.style={draw, rectangle, font=\scriptsize, fill=blue!10, text width=3.5cm, align=left},
+  arrow/.style={->, thick}
+]
+  \node[class] (dp) at (0,0) {
+    \textbf{DataPipeline}\\
+    \rule{3.4cm}{0.4pt}\\
+    -- source\_path: str\\
+    -- scaler: StandardScaler\\
+    -- encoder: OrdinalEncoder\\
+    \rule{3.4cm}{0.4pt}\\
+    + load() : DataFrame\\
+    + preprocess() : DataFrame\\
+    + engineer\_features() : DataFrame
+  };
+
+  \node[class] (cm) at (5.5,0) {
+    \textbf{ChurnModel}\\
+    \rule{3.4cm}{0.4pt}\\
+    -- estimator: XGBClassifier\\
+    -- threshold: float\\
+    -- version: str\\
+    \rule{3.4cm}{0.4pt}\\
+    + train(X, y) : void\\
+    + predict\_proba(X) : array\\
+    + explain(X) : DataFrame
+  };
+
+  \node[class] (me) at (5.5,-4.5) {
+    \textbf{ModelEvaluator}\\
+    \rule{3.4cm}{0.4pt}\\
+    -- metrics: dict\\
+    \rule{3.4cm}{0.4pt}\\
+    + evaluate(y\_true, y\_pred)\\
+    + plot\_roc() : Figure\\
+    + compute\_lift() : DataFrame
+  };
+
+  \node[class] (is) at (0,-4.5) {
+    \textbf{InferenceService}\\
+    \rule{3.4cm}{0.4pt}\\
+    -- model: ChurnModel\\
+    -- pipeline: DataPipeline\\
+    -- port: int\\
+    \rule{3.4cm}{0.4pt}\\
+    + score\_batch(ids)\\
+    + score\_single(id) : dict\\
+    + health\_check() : dict
+  };
+
+  \draw[arrow] (dp) -- (cm);
+  \draw[arrow] (cm) -- (me);
+  \draw[arrow] (is) -- (cm);
+  \draw[arrow] (is) -- (dp);
+\end{tikzpicture}
+\caption{UML Class Diagram of the Churn Prediction System}
+\label{fig:classdiag}
 \end{figure}
-\subsection{Collaboration Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Collaboration Diagram}
-    \label{fig:my_label} % For referencing in text
+
+\section{UML Sequence Diagram}
+\label{sec:sequencediag}
+
+Figure~\ref{fig:seqdiag} illustrates the sequence of interactions for a batch scoring request,
+showing the message flow between the CRM client, the API service, the DataPipeline, and the
+ChurnModel.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  lifeline/.style={draw, rectangle, fill=blue!15, minimum width=2.5cm,
+                   minimum height=0.5cm, font=\scriptsize\bfseries, align=center},
+  arrow/.style={->, thick, font=\scriptsize}
+]
+  \node[lifeline] (crm)  at (0,0)    {CRM Client};
+  \node[lifeline] (api)  at (3.8,0)  {API Service};
+  \node[lifeline] (pipe) at (7.6,0)  {DataPipeline};
+  \node[lifeline] (mdl)  at (11.4,0) {ChurnModel};
+
+  \draw[dashed] (0,-0.25)    -- (0,-7);
+  \draw[dashed] (3.8,-0.25)  -- (3.8,-7);
+  \draw[dashed] (7.6,-0.25)  -- (7.6,-7);
+  \draw[dashed] (11.4,-0.25) -- (11.4,-7);
+
+  \draw[arrow] (0,-1)    -- node[above]{\tiny POST /score/batch} (3.8,-1);
+  \draw[arrow] (3.8,-2)  -- node[above]{\tiny fetch\_features(ids)} (7.6,-2);
+  \draw[arrow] (7.6,-3)  -- node[above]{\tiny engineer\_features()} (7.6,-3);
+  \draw[arrow, dashed] (7.6,-3.5) -- node[above]{\tiny feature\_matrix} (3.8,-3.5);
+  \draw[arrow] (3.8,-4.5) -- node[above]{\tiny predict\_proba(X)} (11.4,-4.5);
+  \draw[arrow] (11.4,-5)  -- node[above]{\tiny explain(X)} (11.4,-5);
+  \draw[arrow, dashed] (11.4,-5.5) -- node[above]{\tiny scores + SHAP} (3.8,-5.5);
+  \draw[arrow, dashed] (3.8,-6.5)  -- node[above]{\tiny JSON response} (0,-6.5);
+\end{tikzpicture}
+\caption{UML Sequence Diagram -- Batch Scoring Request}
+\label{fig:seqdiag}
 \end{figure}
-\subsection{Use Case Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Use Case Diagram}
-    \label{fig:my_label} % For referencing in text
+
+\section{UML Activity Diagram}
+\label{sec:activitydiag}
+
+Figure~\ref{fig:actdiag} presents the activity flow for the end-to-end model training workflow,
+from data loading through model evaluation and deployment to the registry.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  act/.style={draw, rectangle, rounded corners, minimum width=3.5cm, minimum height=0.6cm,
+              font=\scriptsize, align=center, fill=green!15},
+  dec/.style={draw, diamond, minimum width=2.2cm, minimum height=0.9cm,
+              font=\scriptsize, align=center, fill=orange!20},
+  arrow/.style={->, thick, font=\tiny},
+  startend/.style={draw, circle, fill=black, minimum size=0.4cm}
+]
+  \node[startend] (start) at (0,0) {};
+  \node[act]  (load) at (0,-1)    {Load Raw Data};
+  \node[act]  (pre)  at (0,-2)    {Preprocess and Clean};
+  \node[act]  (feat) at (0,-3)    {Engineer Features};
+  \node[act]  (smot) at (0,-4)    {Apply SMOTE Resampling};
+  \node[act]  (cv)   at (0,-5)    {5-Fold Cross-Validation};
+  \node[dec]  (best) at (0,-6.4)  {Best Model?};
+  \node[act]  (tune) at (3.5,-6.4){Hyperparameter Tuning};
+  \node[act]  (eval) at (0,-7.8)  {Evaluate on Test Set};
+  \node[dec]  (ok)   at (0,-9.2)  {AUC $\geq$ 0.90?};
+  \node[act]  (dep)  at (0,-10.5) {Deploy to Registry};
+  \node[startend, fill=white, draw=black, double] (end) at (0,-11.5) {};
+
+  \draw[arrow] (start)--(load);
+  \draw[arrow] (load)--(pre);
+  \draw[arrow] (pre)--(feat);
+  \draw[arrow] (feat)--(smot);
+  \draw[arrow] (smot)--(cv);
+  \draw[arrow] (cv)--(best);
+  \draw[arrow] (best)--node[above]{\tiny No}(tune);
+  \draw[arrow] (tune)|-(0,-7.8);
+  \draw[arrow] (best)--node[left]{\tiny Yes}(eval);
+  \draw[arrow] (eval)--(ok);
+  \draw[arrow] (ok)--node[left]{\tiny Yes}(dep);
+  \draw[arrow] (ok)--node[right]{\tiny No}(4.5,-9.2)--(4.5,-5)--(cv);
+  \draw[arrow] (dep)--(end);
+\end{tikzpicture}
+\caption{UML Activity Diagram -- Model Training Workflow}
+\label{fig:actdiag}
 \end{figure}
-\subsection{Sequence Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Sequence Diagram}
-    \label{fig:my_label} % For referencing in text
+
+\section{System Deployment Diagram}
+\label{sec:deploydiag}
+
+Figure~\ref{fig:deploydiag} illustrates the deployment architecture on a cloud infrastructure.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  node/.style={draw, rectangle, rounded corners, minimum width=3.2cm, minimum height=0.65cm,
+               font=\scriptsize, align=center, fill=purple!15},
+  arrow/.style={->, thick, font=\tiny}
+]
+  \draw[dashed, thick] (1,-0.6) rectangle (9.5,-5.5);
+  \node at (5.25, -0.3) {\small\textbf{Cloud Platform (AWS/GCP)}};
+
+  \node[node] (lb)   at (5.25, -1.2)  {Load Balancer};
+  \node[node] (api1) at (3.5, -2.2)   {FastAPI Pod 1};
+  \node[node] (api2) at (7.0, -2.2)   {FastAPI Pod 2};
+  \node[node] (redis) at (5.25, -3.2) {Redis Cache};
+  \node[node] (pg)   at (3.5, -4.3)   {PostgreSQL DB};
+  \node[node] (mlf)  at (7.0, -4.3)   {MLflow Registry};
+
+  \node[node, fill=yellow!20] (client) at (-1.5, -2.2) {CRM Client};
+  \node[node, fill=yellow!20] (ds)     at (11.8, -2.2) {Data Scientist};
+
+  \draw[arrow] (client) -- (lb);
+  \draw[arrow] (lb) -- (api1);
+  \draw[arrow] (lb) -- (api2);
+  \draw[arrow] (api1) -- (redis);
+  \draw[arrow] (api2) -- (redis);
+  \draw[arrow] (redis) -- (pg);
+  \draw[arrow] (api1) -- (mlf);
+  \draw[arrow] (ds) -- (mlf);
+\end{tikzpicture}
+\caption{System Deployment Diagram -- Cloud Infrastructure}
+\label{fig:deploydiag}
 \end{figure}
-\subsection{Activity Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Activity Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Component Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Component Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
-\subsection{Deployment Diagram}
-\begin{figure}[H] % 'H' means force placement here
-    \centering
-    \includegraphics[width=0.7\textwidth]{images/imagename.imageformat(like jpg or png)} 
-    \caption{Deployment Diagram}
-    \label{fig:my_label} % For referencing in text
-\end{figure}
+
+The deployment architecture features:
+
+\begin{itemize}
+    \item \textbf{Load balancer}: Distributes incoming scoring requests across multiple API pods.
+    \item \textbf{FastAPI pods}: Stateless inference containers that load the champion model
+          from the MLflow registry at startup.
+    \item \textbf{Redis cache}: Stores pre-computed feature vectors for recently scored customers,
+          reducing database load for repeat requests.
+    \item \textbf{PostgreSQL}: Persists scoring results, SHAP values, and audit logs.
+    \item \textbf{MLflow model registry}: Version-controlled model artefacts with staging and
+          production environments.
+\end{itemize}

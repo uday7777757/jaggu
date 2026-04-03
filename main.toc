@@ -1,0 +1,120 @@
+\textbf {Title}\hfill \textbf {Page No.}\par 
+\contentsline {chapter}{Acknowledgements}{i}{section*.6}%
+\contentsline {chapter}{Abstract}{ii}{section*.8}%
+\contentsline {chapter}{List of Tables}{viii}{section*.11}%
+\contentsline {chapter}{List of Figures}{ix}{section*.12}%
+\contentsline {chapter}{Abbreviations}{ix}{section*.12}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Background and Motivation}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objectives}{3}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Scope and Assumptions}{4}{section.1.4}%
+\contentsline {subsection}{\numberline {1.4.1}Scope}{4}{subsection.1.4.1}%
+\contentsline {subsection}{\numberline {1.4.2}Assumptions}{5}{subsection.1.4.2}%
+\contentsline {section}{\numberline {1.5}Organisation of the Report}{5}{section.1.5}%
+\contentsline {chapter}{\numberline {2}Literature Survey}{7}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Definitions and Importance of Churn}{7}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Traditional Machine Learning Models}{8}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Logistic Regression}{8}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}Decision Trees}{8}{subsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.2.3}Support Vector Machines}{8}{subsection.2.2.3}%
+\contentsline {section}{\numberline {2.3}Ensemble and Boosting Methods}{9}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Random Forest}{9}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Gradient Boosting Machines}{9}{subsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3.3}XGBoost}{9}{subsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.3.4}LightGBM}{10}{subsection.2.3.4}%
+\contentsline {section}{\numberline {2.4}Neural Networks and Deep Learning}{10}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Multi-Layer Perceptrons}{10}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Recurrent Neural Networks}{10}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Attention Mechanisms and Transformers}{11}{subsection.2.4.3}%
+\contentsline {section}{\numberline {2.5}Handling Class Imbalance}{11}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Resampling Strategies}{11}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Cost-Sensitive Learning}{12}{subsection.2.5.2}%
+\contentsline {section}{\numberline {2.6}Feature Engineering Strategies}{12}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Evaluation Metrics}{13}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Explainability and Interpretable AI}{13}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Summary}{14}{section.2.9}%
+\contentsline {chapter}{\numberline {3}System Analysis}{16}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Existing Systems and Limitations}{16}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Rule-Based Threshold Systems}{16}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Traditional Logistic Regression Scorecards}{16}{subsection.3.1.2}%
+\contentsline {subsection}{\numberline {3.1.3}Periodic Batch Scoring Without Retraining}{17}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {3.1.4}Summary of Existing System Limitations}{17}{subsection.3.1.4}%
+\contentsline {section}{\numberline {3.2}Proposed System Overview}{17}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Dataset Specification}{18}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Data Preprocessing Pipeline}{20}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Missing Value Imputation}{20}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Outlier Treatment}{20}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Categorical Encoding}{20}{subsection.3.4.3}%
+\contentsline {subsection}{\numberline {3.4.4}Normalisation}{20}{subsection.3.4.4}%
+\contentsline {section}{\numberline {3.5}Feature Engineering Approach}{21}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}RFM Metrics}{21}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Rolling-Window Statistics}{21}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Ratio and Interaction Features}{21}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Time-Based Features}{22}{subsection.3.5.4}%
+\contentsline {chapter}{\numberline {4}System Design}{23}{chapter.4}%
+\contentsline {section}{\numberline {4.1}System Architecture}{23}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Data Flow Diagrams}{24}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Level 0 -- Context Diagram}{24}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}Level 1 -- Detailed Data Flow}{24}{subsection.4.2.2}%
+\contentsline {section}{\numberline {4.3}UML Class Diagram}{25}{section.4.3}%
+\contentsline {section}{\numberline {4.4}UML Sequence Diagram}{25}{section.4.4}%
+\contentsline {section}{\numberline {4.5}UML Activity Diagram}{26}{section.4.5}%
+\contentsline {section}{\numberline {4.6}System Deployment Diagram}{27}{section.4.6}%
+\contentsline {chapter}{\numberline {5}System Implementation}{29}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Technologies and Tools Stack}{29}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Data Loading and Preprocessing}{29}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Feature Engineering Implementation}{31}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Model Training and Selection}{32}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Hyperparameter Tuning}{33}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Software Architecture Details}{35}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Module Structure}{35}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}REST API Design}{36}{subsection.5.6.2}%
+\contentsline {chapter}{\numberline {6}Testing and Evaluation}{37}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Comprehensive Testing Approach}{37}{section.6.1}%
+\contentsline {subsection}{\numberline {6.1.1}Unit Testing}{37}{subsection.6.1.1}%
+\contentsline {subsection}{\numberline {6.1.2}Integration Testing}{37}{subsection.6.1.2}%
+\contentsline {subsection}{\numberline {6.1.3}Model Validation Testing}{38}{subsection.6.1.3}%
+\contentsline {subsection}{\numberline {6.1.4}Load Testing}{38}{subsection.6.1.4}%
+\contentsline {section}{\numberline {6.2}Evaluation Metrics Framework}{39}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Primary Metrics}{39}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}Business-Oriented Metrics}{39}{subsection.6.2.2}%
+\contentsline {section}{\numberline {6.3}Test Case Results}{40}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Visualisations and Analysis}{42}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}ROC Curve Analysis}{42}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}Precision--Recall Curve}{42}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.3}Confusion Matrix}{42}{subsection.6.4.3}%
+\contentsline {subsection}{\numberline {6.4.4}Lift and Gain Charts}{43}{subsection.6.4.4}%
+\contentsline {chapter}{\numberline {7}Results and Discussion}{44}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Experimental Results Summary}{44}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Feature Importance Analysis}{44}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Business Impact and ROI}{46}{section.7.3}%
+\contentsline {subsection}{\numberline {7.3.1}Revenue Retention Analysis}{46}{subsection.7.3.1}%
+\contentsline {subsection}{\numberline {7.3.2}Comparison with Baseline Strategy}{47}{subsection.7.3.2}%
+\contentsline {section}{\numberline {7.4}Model Performance Insights}{47}{section.7.4}%
+\contentsline {subsection}{\numberline {7.4.1}Calibration}{47}{subsection.7.4.1}%
+\contentsline {subsection}{\numberline {7.4.2}Temporal Stability}{47}{subsection.7.4.2}%
+\contentsline {section}{\numberline {7.5}Limitations and Challenges}{47}{section.7.5}%
+\contentsline {section}{\numberline {7.6}Comparative Analysis}{48}{section.7.6}%
+\contentsline {chapter}{\numberline {8}Conclusion and Future Work}{49}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Summary of Key Findings}{49}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Achieved Objectives}{50}{section.8.2}%
+\contentsline {section}{\numberline {8.3}Contributions to the Field}{50}{section.8.3}%
+\contentsline {section}{\numberline {8.4}Future Work and Enhancements}{51}{section.8.4}%
+\contentsline {subsection}{\numberline {8.4.1}Graph Neural Networks for Social Influence Modelling}{51}{subsection.8.4.1}%
+\contentsline {subsection}{\numberline {8.4.2}Real-Time Streaming Inference}{51}{subsection.8.4.2}%
+\contentsline {subsection}{\numberline {8.4.3}Federated Learning}{51}{subsection.8.4.3}%
+\contentsline {subsection}{\numberline {8.4.4}Causal Inference for Intervention Optimisation}{52}{subsection.8.4.4}%
+\contentsline {subsection}{\numberline {8.4.5}Survival Analysis Models}{52}{subsection.8.4.5}%
+\contentsline {subsection}{\numberline {8.4.6}Multi-Modal Feature Incorporation}{52}{subsection.8.4.6}%
+\contentsline {section}{\numberline {8.5}Final Remarks}{52}{section.8.5}%
+\contentsline {chapter}{REFERENCES}{54}{section*.27}%
+\renewcommand {\@chapapp }{Appendix}
+\contentsline {chapter}{\numberline {A}Project Timeline}{57}{appendix.a.A}%
+\contentsline {chapter}{\numberline {B}Sources Consulted}{58}{appendix.a.B}%
+\contentsline {chapter}{\numberline {C}Technical Implementation Details}{59}{appendix.a.C}%
+\contentsline {section}{\numberline {C.1}Environment Configuration}{59}{section.a.C.1}%
+\contentsline {section}{\numberline {C.2}Docker Configuration}{59}{section.a.C.2}%
+\contentsline {section}{\numberline {C.3}API Request and Response Schemas}{59}{section.a.C.3}%
+\contentsline {chapter}{\numberline {D}Submission Checklist}{61}{appendix.a.D}%
+\contentsfinish 

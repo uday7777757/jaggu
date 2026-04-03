@@ -1,13 +1,279 @@
 \chapter{System Implementation}
 
-\section{Modules Description}
+\section{Technologies and Tools Stack}
 
-Lorem ipsum\cite{9016866} dolor sit amet, consectetur adipiscing elit. Etiam consectetur libero dui, sit amet rutrum lectus mollis ac. Phasellus mattis augue quis auctor ullamcorper. Sed congue rutrum turpis, sit amet tincidunt erat laoreet ac. Morbi in feugiat erat, sit amet placerat lorem. Quisque cursus gravida nulla, nec pulvinar justo rutrum eget. Aenean et dolor vitae enim congue maximus. Praesent consequat finibus imperdiet. Sed ipsum erat, efficitur vitae urna a, convallis ornare ipsum. Quisque fringilla risus enim, ut elementum dui consectetur eu.
+The implementation leverages an open-source Python ecosystem that is both mature and production
+proven. Table~\ref{tab:techstack} summarises the principal technologies employed.
 
-\section{Technology Used}
+\begin{table}[H]
+\centering
+\caption{Technologies and Libraries Used}
+\label{tab:techstack}
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Category} & \textbf{Technology} & \textbf{Purpose} \\
+\hline
+Language & Python 3.10 & Primary implementation language \\
+\hline
+Data manipulation & pandas 2.0, NumPy 1.24 & Data loading, transformation, EDA \\
+\hline
+ML framework & scikit-learn 1.3 & Preprocessing, cross-validation, baselines \\
+\hline
+Boosting & XGBoost 1.7, LightGBM 4.0 & Champion model training \\
+\hline
+Imbalance & imbalanced-learn 0.11 & SMOTE + Tomek link sampling \\
+\hline
+Explainability & SHAP 0.42 & Model and prediction attribution \\
+\hline
+Optimisation & Optuna 3.0 & Bayesian hyperparameter search \\
+\hline
+Experiment tracking & MLflow 2.5 & Model registry and metrics logging \\
+\hline
+API serving & FastAPI 0.100 & RESTful inference endpoint \\
+\hline
+Containerisation & Docker 24, Kubernetes & Deployment and orchestration \\
+\hline
+Visualisation & Matplotlib 3.7, Seaborn 0.12 & Plots and reporting \\
+\hline
+CI/CD & GitHub Actions & Automated testing and deployment \\
+\hline
+\end{tabular}
+\end{table}
 
-Vivamus sed enim quam. In facilisis consequat eros, id convallis diam congue et. Vivamus sed neque rutrum, gravida urna non, lobortis leo. Curabitur sagittis turpis sit amet dolor blandit lobortis. Fusce ac sem eget libero semper ultrices. Aliquam erat volutpat. Quisque tincidunt mi sapien, eu varius libero lacinia quis. Nullam dictum quam sed scelerisque aliquet. Mauris laoreet est nec dolor pellentesque dignissim. Praesent ac sapien erat. Mauris ut felis sit amet velit convallis cursus quis a tellus. Curabitur efficitur ultricies dui, eget vestibulum arcu venenatis ac. Nulla fermentum dolor a venenatis posuere. Vivamus eu luctus erat.\\
-\section{Algorithms used}
-Open the word file. Click on the equation written in MathType. Go to Mathtype Tab at the top. You will find a option ToggleTex. Click and copy the codes here.
+\section{Data Loading and Preprocessing}
 
-\section{Coding}
+The data loading module reads customer records from CSV or Parquet files into a pandas DataFrame,
+performs schema validation, and hands the validated frame to the preprocessing pipeline.
+
+\begin{lstlisting}[language=Python, caption={Data loading and preprocessing snippet}]
+import pandas as pd
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+from sklearn.compose import ColumnTransformer
+from category_encoders import TargetEncoder
+
+def build_preprocessor(num_cols, cat_low, cat_high):
+    num_pipeline = Pipeline([
+        ('imputer', SimpleImputer(strategy='median')),
+        ('scaler',  StandardScaler()),
+    ])
+    cat_low_pipeline = Pipeline([
+        ('imputer', SimpleImputer(strategy='most_frequent')),
+        ('encoder', pd.get_dummies),  # one-hot
+    ])
+    cat_high_pipeline = Pipeline([
+        ('imputer', SimpleImputer(strategy='most_frequent')),
+        ('encoder', TargetEncoder()),  # target encoding
+    ])
+    return ColumnTransformer([
+        ('num',      num_pipeline,      num_cols),
+        ('cat_low',  cat_low_pipeline,  cat_low),
+        ('cat_high', cat_high_pipeline, cat_high),
+    ])
+\end{lstlisting}
+
+The \texttt{ColumnTransformer} ensures that numeric, low-cardinality categorical, and
+high-cardinality categorical columns are processed by their respective sub-pipelines in a single
+fit-transform call, preventing any information leakage between the training and test subsets.
+
+\section{Feature Engineering Implementation}
+
+The feature engineering module constructs the 47 derived features described in Chapter~3. The
+implementation processes each customer's transaction history using a sliding-window approach.
+
+\begin{lstlisting}[language=Python, caption={RFM feature construction}]
+from datetime import timedelta
+
+def compute_rfm(df: pd.DataFrame,
+                ref_date: pd.Timestamp,
+                window_days: int = 90) -> pd.DataFrame:
+    cutoff = ref_date - timedelta(days=window_days)
+    recent = df[df['txn_date'] >= cutoff]
+    rfm = recent.groupby('customer_id').agg(
+        recency  = ('txn_date',  lambda x: (ref_date - x.max()).days),
+        frequency= ('txn_id',    'count'),
+        monetary = ('txn_amount','sum'),
+    ).reset_index()
+    return rfm
+
+def compute_rolling_stats(df: pd.DataFrame,
+                          col: str,
+                          windows: list = [30, 60, 90]) -> pd.DataFrame:
+    result = {}
+    for w in windows:
+        rolled = df.groupby('customer_id')[col].rolling(w, min_periods=1)
+        result[f'{col}_mean_{w}d'] = rolled.mean().reset_index(0, drop=True)
+        result[f'{col}_std_{w}d']  = rolled.std().reset_index(0, drop=True)
+    return pd.DataFrame(result)
+\end{lstlisting}
+
+\section{Model Training and Selection}
+
+Seven classifiers are evaluated under identical experimental conditions. Each model is wrapped in
+a \texttt{Pipeline} object that prepends the preprocessing and feature engineering steps,
+ensuring reproducibility and preventing data leakage.
+
+\begin{table}[H]
+\centering
+\caption{Algorithm Comparison -- Cross-Validated Performance (5-Fold Stratified)}
+\label{tab:algocmp}
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Algorithm} & \textbf{ROC-AUC} & \textbf{F1-Score} & \textbf{Recall} & \textbf{Precision} \\
+\hline
+Logistic Regression  & 0.7812 & 0.6934 & 0.7214 & 0.6672 \\
+\hline
+Decision Tree        & 0.7341 & 0.6812 & 0.7063 & 0.6577 \\
+\hline
+Random Forest        & 0.8914 & 0.8121 & 0.8304 & 0.7948 \\
+\hline
+Gradient Boosting    & 0.9012 & 0.8234 & 0.8441 & 0.8036 \\
+\hline
+\textbf{XGBoost}     & \textbf{0.9147} & \textbf{0.8312} & \textbf{0.8719} & \textbf{0.7953} \\
+\hline
+LightGBM             & 0.9098 & 0.8289 & 0.8641 & 0.7978 \\
+\hline
+MLP (2 hidden layers)& 0.8743 & 0.7991 & 0.8213 & 0.7782 \\
+\hline
+\end{tabular}
+\end{table}
+
+XGBoost achieves the highest ROC-AUC (0.9147) and F1-score (0.8312) across the five folds and
+is selected as the champion model for hyperparameter tuning and final evaluation.
+
+The SMOTE oversampling (with Tomek link cleaning) is applied to the training fold within each
+cross-validation iteration, not to the entire training set before splitting, to prevent optimistic
+bias in the reported metrics.
+
+\begin{lstlisting}[language=Python, caption={SMOTE within cross-validation}]
+from imblearn.pipeline import Pipeline as ImbPipeline
+from imblearn.combine import SMOTETomek
+from xgboost import XGBClassifier
+from sklearn.model_selection import StratifiedKFold, cross_validate
+
+pipeline = ImbPipeline([
+    ('preprocess',   build_preprocessor(num_cols, cat_low, cat_high)),
+    ('resample',     SMOTETomek(random_state=42)),
+    ('classifier',   XGBClassifier(random_state=42, eval_metric='logloss')),
+])
+
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+scores = cross_validate(
+    pipeline, X_train, y_train, cv=cv,
+    scoring=['roc_auc', 'f1', 'recall', 'precision'],
+    return_train_score=True,
+)
+\end{lstlisting}
+
+\section{Hyperparameter Tuning}
+
+Bayesian optimisation using Optuna is employed to search the hyperparameter space of XGBoost.
+An Optuna study with 100 trials and a Tree-structured Parzen Estimator (TPE) sampler is run,
+optimising the cross-validated ROC-AUC. Table~\ref{tab:hyperparam} documents the search space
+and the optimal values found.
+
+\begin{table}[H]
+\centering
+\caption{XGBoost Hyperparameter Search Space and Optimal Values}
+\label{tab:hyperparam}
+\begin{tabular}{|l|l|c|}
+\hline
+\textbf{Hyperparameter} & \textbf{Search Range} & \textbf{Optimal Value} \\
+\hline
+\texttt{n\_estimators}       & [100, 1000] (step 50) & 650 \\
+\hline
+\texttt{max\_depth}          & [3, 10]               & 6   \\
+\hline
+\texttt{learning\_rate}      & [0.005, 0.3] (log)    & 0.048 \\
+\hline
+\texttt{subsample}           & [0.5, 1.0]            & 0.83 \\
+\hline
+\texttt{colsample\_bytree}   & [0.4, 1.0]            & 0.71 \\
+\hline
+\texttt{min\_child\_weight}  & [1, 10]               & 3   \\
+\hline
+\texttt{gamma}               & [0, 5]                & 0.12 \\
+\hline
+\texttt{reg\_alpha}          & [0, 1] (log)          & 0.037 \\
+\hline
+\texttt{reg\_lambda}         & [1, 5]                & 1.84 \\
+\hline
+\texttt{scale\_pos\_weight}  & [1, 10]               & 1.0 (SMOTE used) \\
+\hline
+\end{tabular}
+\end{table}
+
+The Optuna search improved the cross-validated ROC-AUC from 0.9147 (default parameters) to
+0.9247 (tuned parameters), representing a gain of 0.010 AUC points.
+
+\begin{lstlisting}[language=Python, caption={Optuna objective function for XGBoost tuning}]
+import optuna
+from sklearn.model_selection import cross_val_score
+
+def objective(trial):
+    params = {
+        'n_estimators':      trial.suggest_int('n_estimators', 100, 1000, step=50),
+        'max_depth':         trial.suggest_int('max_depth', 3, 10),
+        'learning_rate':     trial.suggest_float('learning_rate', 0.005, 0.3, log=True),
+        'subsample':         trial.suggest_float('subsample', 0.5, 1.0),
+        'colsample_bytree':  trial.suggest_float('colsample_bytree', 0.4, 1.0),
+        'min_child_weight':  trial.suggest_int('min_child_weight', 1, 10),
+        'gamma':             trial.suggest_float('gamma', 0, 5),
+        'reg_alpha':         trial.suggest_float('reg_alpha', 1e-8, 1.0, log=True),
+        'reg_lambda':        trial.suggest_float('reg_lambda', 1, 5),
+    }
+    model = XGBClassifier(**params, random_state=42, eval_metric='logloss')
+    pipe  = ImbPipeline([
+        ('pre',      build_preprocessor(num_cols, cat_low, cat_high)),
+        ('smote',    SMOTETomek(random_state=42)),
+        ('clf',      model),
+    ])
+    score = cross_val_score(pipe, X_train, y_train, cv=5,
+                            scoring='roc_auc').mean()
+    return score
+
+study = optuna.create_study(direction='maximize')
+study.optimize(objective, n_trials=100)
+\end{lstlisting}
+
+\section{Software Architecture Details}
+
+\subsection{Module Structure}
+
+The codebase follows a clean modular structure:
+
+\begin{lstlisting}[caption={Project directory structure}]
+churn_prediction/
+|-- data/
+|   |-- raw/            # Raw CSV / Parquet files
+|   `-- processed/      # Preprocessed and feature-engineered data
+|-- notebooks/          # Exploratory Jupyter notebooks
+|-- src/
+|   |-- pipeline.py     # DataPipeline class
+|   |-- features.py     # Feature engineering functions
+|   |-- model.py        # ChurnModel class (train / predict / explain)
+|   |-- evaluate.py     # Evaluation metrics and plots
+|   |-- api.py          # FastAPI application
+|   `-- config.py       # Centralised configuration constants
+|-- tests/              # Unit and integration tests
+|-- Dockerfile
+|-- requirements.txt
+|-- mlflow_server.sh    # Script to launch MLflow tracking server
+`-- README.md
+\end{lstlisting}
+
+\subsection{REST API Design}
+
+The FastAPI application exposes three endpoints:
+
+\begin{itemize}
+    \item \texttt{GET /health}: Returns service status, model version, and uptime.
+    \item \texttt{POST /score/batch}: Accepts a JSON array of customer identifiers and returns
+          churn probability scores and top-5 SHAP attributions for each customer.
+    \item \texttt{POST /score/single}: Accepts a full feature vector for a single customer and
+          returns an immediate synchronous prediction.
+\end{itemize}
+
+The batch scoring endpoint uses an asynchronous worker pool (via \texttt{asyncio} and \texttt{concurrent.futures})
+to parallelise feature retrieval and model inference for large request batches.

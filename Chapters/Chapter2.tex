@@ -1,13 +1,262 @@
 \chapter{Literature Survey}
 
-\section{Introduction}
-The purpose of the Introduction section is to provide an overview of the chapter and establish its importance in the context of the research. This section should introduce the topic of the literature survey, explain the methodology of how the literature was reviewed, and highlight the relevance of reviewing previous studies in your field. Additionally, this section may outline the structure of the chapter and indicate what key aspects of the prior research will be discussed.
+\section{Definitions and Importance of Churn}
 
-\section{Review of Prior Research}
-In this section, you should provide a comprehensive review of existing literature related to your research topic. This is the core of the literature survey, where you summarize and critically analyze previous studies, theories, methodologies, and findings in your field. You should organize the review into relevant themes or categories, if applicable, and highlight key contributions, trends, or debates in the literature. The purpose of this section is to demonstrate your understanding of the field, show how previous work relates to your research, and identify the theoretical foundation for your study.
+Customer churn, also referred to as customer attrition or customer defection, is broadly defined
+as the process by which customers cease their relationship with a business entity over a given
+observation period. In the FinTech domain, churn can manifest as account closure, cessation of
+transactional activity, or migration to a competing platform~\cite{ngai2009application}. The
+distinction between \textit{voluntary churn} (customer-initiated departure due to dissatisfaction
+or superior alternatives) and \textit{involuntary churn} (service termination due to payment
+failure or fraud) is important from a modelling perspective, as the predictive signals differ
+substantially between the two categories.
 
-\section{Identified Research Gaps}
-This section identifies gaps or areas in the existing literature that have not been fully addressed or explored. The goal is to critically assess the prior research and highlight limitations, unresolved questions, or areas that require further investigation. These gaps could include methodological limitations, contradictory findings, or under-researched aspects of the topic. The purpose of this section is to justify the need for your research by showing where it fits into the existing body of knowledge and how it will contribute to addressing these gaps.
+The economic importance of churn prevention has been extensively quantified in the literature.
+Gupta et al.~\cite{gupta2006modeling} demonstrated that a one-percentage-point reduction in churn
+rate generates a greater improvement in firm value than a comparable reduction in customer
+acquisition cost or variable cost, underscoring the strategic priority of retention. In the
+financial services sector, the situation is particularly acute: the average churn rate for digital
+banking applications exceeds twenty-five percent annually, and the average cost of replacing a
+churned customer, when factoring in marketing expenditure, onboarding overhead, and the revenue
+forgone during the transition period, is estimated at between four hundred and twelve hundred
+US dollars~\cite{hung2006applying}.
+
+Early churn prediction research relied heavily on simple threshold-based rules applied to a small
+number of manually selected indicators, such as recency of last purchase or frequency of logins.
+While interpretable, these approaches suffer from low recall---they miss a significant proportion
+of churners who do not exhibit the specific thresholded behaviours---and from high false-positive
+rates that result in unnecessary campaign expenditure. The subsequent shift to machine-learning
+methods has enabled substantially richer feature utilisation and more accurate probabilistic risk
+scoring.
+
+\section{Traditional Machine Learning Models}
+
+\subsection{Logistic Regression}
+
+Logistic Regression (LR) was one of the earliest ML techniques applied to churn
+prediction~\cite{burez2009handling}. Its principal advantage is interpretability: the coefficient
+of each predictor directly quantifies the direction and magnitude of its association with churn
+risk on the log-odds scale. Coussement and Van den Poel~\cite{coussement2008churn} applied LR to
+a Belgian newspaper subscription dataset and reported an area under the ROC curve (AUC) of 0.81,
+establishing a meaningful baseline. However, LR assumes a linear relationship between features
+and the log-odds of churn, a restriction that limits its capacity to capture the complex
+non-linear interactions present in FinTech data.
+
+\subsection{Decision Trees}
+
+Decision Tree classifiers partition the feature space into axis-aligned rectangular regions through
+a recursive greedy splitting procedure, typically optimised by minimising Gini impurity or
+information gain. Their primary virtue is interpretability: the resulting tree structure can be
+visualised and communicated to business stakeholders without requiring statistical expertise.
+Lemmens and Croux~\cite{lemmens2006bagging} evaluated decision trees for churn prediction in
+the telecommunications sector and noted a tendency towards overfitting when trees are grown to
+excessive depth. Regularisation through minimum leaf size constraints and maximum depth limits
+partially mitigates this, but single-tree classifiers remain outperformed by ensemble methods.
+
+\subsection{Support Vector Machines}
+
+Support Vector Machines (SVM) seek to identify the maximum-margin hyperplane separating positive
+(churn) and negative (retain) instances in the feature space, potentially after applying a kernel
+function to map inputs into a higher-dimensional space where linear separation is feasible. Huang
+et al.~\cite{huang2015customer} applied radial-basis-function SVMs to a telecommunications churn
+dataset and achieved AUC values competitive with ensemble methods. The main practical limitation
+of SVMs in the churn prediction context is their computational cost during both training and
+prediction, which scales unfavourably with dataset size.
+
+\section{Ensemble and Boosting Methods}
+
+\subsection{Random Forest}
+
+Breiman's Random Forest~\cite{breiman2001random} combines the predictions of many de-correlated
+decision trees grown on bootstrap samples of the training data using random feature subsets at
+each split. The aggregation of diverse trees substantially reduces variance without a commensurate
+increase in bias, yielding models that generalise well to unseen data. Verbeke et al.~\cite{verbeke2012new}
+demonstrated that Random Forest achieves superior top-decile lift---a metric of particular
+commercial relevance in targeted retention campaigns---compared to both single-tree and LR
+classifiers.
+
+\subsection{Gradient Boosting Machines}
+
+Gradient Boosting Machines (GBM), introduced by Friedman~\cite{friedman2001greedy}, construct an
+additive ensemble of shallow trees by iteratively fitting each new tree to the pseudo-residuals
+(negative gradients of the loss function) of the current ensemble. Gradient boosting is less
+susceptible to overfitting than simple decision trees and achieves higher predictive accuracy than
+Random Forest on many structured datasets, at the cost of increased training time and a larger
+hyperparameter search space.
+
+\subsection{XGBoost}
+
+Extreme Gradient Boosting (XGBoost), developed by Chen and Guestrin~\cite{xgboost2016}, extends
+the standard gradient boosting framework with a regularised objective function that penalises tree
+complexity, a novel sparsity-aware split-finding algorithm that handles missing values natively,
+and highly optimised parallel computation. XGBoost has dominated Kaggle competitions involving
+structured data and has been widely adopted for churn prediction in commercial settings. Stripling
+et al.~\cite{stripling2018profit} reported XGBoost as the top-performing algorithm in a benchmark
+study covering eight churn datasets, outperforming Random Forest in terms of both AUC and
+profit-driven metrics.
+
+\subsection{LightGBM}
+
+LightGBM, developed at Microsoft Research~\cite{ke2017lightgbm}, further accelerates gradient
+boosting via two novel techniques: Gradient-based One-Side Sampling (GOSS), which preferentially
+retains instances with large gradient magnitudes, and Exclusive Feature Bundling (EFB), which
+compresses mutually exclusive sparse features to reduce dimensionality. These innovations enable
+LightGBM to train five to twenty times faster than XGBoost on large datasets with minimal loss in
+predictive accuracy, making it particularly suitable for real-time churn scoring applications.
+
+\section{Neural Networks and Deep Learning}
+
+\subsection{Multi-Layer Perceptrons}
+
+Multi-Layer Perceptrons (MLP) are feedforward neural networks with one or more hidden layers of
+densely connected neurons. When applied to tabular data for churn prediction, MLPs require
+careful regularisation (dropout, weight decay) and hyperparameter tuning to avoid overfitting,
+particularly when the training dataset is moderately sized. Mozer et al.~\cite{mozer2000predicting}
+pioneered the use of neural networks for customer churn prediction in the telecommunications
+sector, demonstrating that a three-layer MLP outperformed conventional statistical models on a
+proprietary subscriber dataset.
+
+\subsection{Recurrent Neural Networks}
+
+Recurrent Neural Networks (RNN) and their Long Short-Term Memory (LSTM) variant are naturally
+suited to sequential data, enabling the model to capture temporal dependencies in transaction
+histories that are invisible to batch-aggregation approaches. Wangperawong et al.~\cite{wangperawong2016churn}
+modelled individual transaction sequences as time series inputs to an LSTM and demonstrated
+improved churn recall relative to static-feature baselines. The computational cost of training
+sequence models and the requirement for aligned temporal records are practical constraints in
+production deployments.
+
+\subsection{Attention Mechanisms and Transformers}
+
+Recent work has explored Transformer-based architectures~\cite{vaswani2017attention} for tabular
+data. TabNet~\cite{arik2021tabnet} uses sequential attention to select a sparse subset of features
+at each decision step, yielding simultaneously high predictive performance and instance-level
+interpretability. Preliminary evaluations suggest TabNet is competitive with XGBoost on large
+FinTech datasets, while its native feature selection mechanism reduces the dependency on manual
+feature engineering.
+
+\section{Handling Class Imbalance}
+
+Class imbalance is a pervasive challenge in churn prediction: in most real-world deployments,
+churners represent fewer than twenty percent of the active customer base, and in some contexts the
+ratio reaches one-to-twenty or more. Standard classifiers trained on imbalanced data are biased
+towards the majority class, achieving high accuracy by predominantly predicting ``no churn'' while
+delivering low recall for the minority churn class.
+
+\subsection{Resampling Strategies}
+
+Chawla et al.~\cite{chawla2002smote} introduced the Synthetic Minority Over-sampling Technique
+(SMOTE), which generates synthetic minority-class instances by interpolating along line segments
+connecting existing minority-class nearest neighbours in feature space. SMOTE is widely adopted
+and has been shown to improve minority-class recall substantially without simply duplicating
+existing examples. Tomek links---pairs of instances from opposite classes that are mutual nearest
+neighbours---can be removed as a complementary under-sampling step to clean ambiguous boundary
+regions.
+
+\subsection{Cost-Sensitive Learning}
+
+An alternative to resampling is to incorporate class weights directly into the model's loss
+function, penalising misclassification of minority-class instances more heavily. Most scikit-learn
+classifiers support a \texttt{class\_weight} parameter that can be set to ``balanced'' to
+automatically compute weights inversely proportional to class frequencies. Bahnsen et al.~\cite{bahnsen2016feature}
+extended cost-sensitive learning by incorporating instance-specific misclassification costs
+derived from customer lifetime value estimates, a natural fit for FinTech applications.
+
+\section{Feature Engineering Strategies}
+
+Feature engineering---the process of constructing informative input representations from raw
+data---has been consistently identified as one of the most impactful levers for improving churn
+model performance~\cite{provost2013data}. Key strategies include:
+
+\begin{itemize}
+    \item \textbf{RFM features}: Recency (days since last transaction), Frequency (number of
+          transactions in a window), and Monetary value (total spend) provide a compact
+          behavioural summary that has proven predictive across diverse churn
+          contexts~\cite{fader2005rfm}.
+
+    \item \textbf{Rolling-window aggregation}: Computing statistics (mean, standard deviation,
+          trend slope) over multiple time windows (30, 60, 90 days) captures temporal dynamics
+          and enables the model to distinguish customers exhibiting declining engagement from
+          stable ones.
+
+    \item \textbf{Ratio and interaction features}: Derived quantities such as the credit
+          utilisation ratio (outstanding balance divided by credit limit) or the support contact
+          rate (tickets per month of tenure) often carry more predictive signal than their
+          constituent raw features.
+
+    \item \textbf{Categorical embeddings}: For high-cardinality categorical variables such as
+          product category or geographic region, target-encoding (replacing the category with
+          the within-category mean of the target variable) or learned entity embeddings may
+          outperform one-hot encoding.
+\end{itemize}
+
+\section{Evaluation Metrics}
+
+The choice of evaluation metric has a decisive influence on which model is selected for
+deployment. Accuracy is inappropriate for imbalanced churn datasets because a trivial model that
+always predicts ``no churn'' achieves high accuracy while providing zero actionable value.
+The metrics most commonly used in churn prediction literature are:
+
+\begin{itemize}
+    \item \textbf{ROC-AUC}: The area under the Receiver Operating Characteristic curve measures
+          the probability that the model ranks a randomly chosen churner above a randomly chosen
+          non-churner. It is threshold-independent and robust to class imbalance.
+
+    \item \textbf{Precision, Recall, and F1-score}: Precision is the proportion of predicted
+          churners that are true churners; Recall (Sensitivity) is the proportion of actual
+          churners that are correctly identified. The F1-score is their harmonic mean, providing
+          a single balanced metric particularly useful when both false positives (campaign waste)
+          and false negatives (missed churners) carry significant cost.
+
+    \item \textbf{Top-decile lift}: The ratio of the churn rate within the top ten percent of
+          risk-scored customers to the overall churn rate in the population. It directly quantifies
+          the efficiency gain achieved by targeting the highest-risk cohort.
+
+    \item \textbf{Kolmogorov--Smirnov (KS) statistic}: The maximum difference between the
+          cumulative distribution of churn probabilities for churners and non-churners. KS
+          statistics above 40 are generally considered commercially useful.
+\end{itemize}
+
+\section{Explainability and Interpretable AI}
+
+Regulatory frameworks such as the European Union's General Data Protection Regulation (GDPR) and
+the Algorithmic Accountability Act impose requirements for explanations of automated decisions
+that affect individuals. In the FinTech domain, model explainability is also a prerequisite for
+adoption by risk management teams and business stakeholders accustomed to transparent scorecard
+models.
+
+SHAP (SHapley Additive exPlanations)~\cite{lundberg2017unified} provides a theoretically grounded
+attribution framework based on cooperative game theory. Each feature is assigned a Shapley value
+that represents its average marginal contribution to the model's prediction across all possible
+feature coalitions. SHAP values satisfy several desirable axioms (local accuracy, missingness,
+consistency) that other attribution methods do not. For tree-based models, TreeSHAP~\cite{lundberg2020local}
+computes exact Shapley values in polynomial time, making it practical for production-scale
+datasets.
+
+LIME (Local Interpretable Model-agnostic Explanations)~\cite{ribeiro2016should} is an alternative
+that approximates the complex model locally with a simple interpretable surrogate (e.g., a sparse
+linear model) fitted to perturbations of a specific input instance. While LIME is
+model-agnostic---applicable to any black-box classifier---it produces explanations that are
+sensitive to the perturbation strategy and may be inconsistent across runs.
 
 \section{Summary}
-This section summarizes the key points from the literature survey. It should briefly restate the critical findings from the review of prior research and the identified gaps in the literature. The purpose of this section is to wrap up the chapter by connecting the literature review to your research objectives. It may also point to the direction for your research, indicating how your study will build upon the existing literature and contribute to the field. Finally, it may emphasize the importance of addressing the identified research gaps.
+
+The literature survey reveals several consistent themes:
+
+\begin{enumerate}
+    \item Ensemble methods---particularly gradient boosting variants (XGBoost, LightGBM)---achieve
+          the highest predictive accuracy on structured FinTech churn datasets.
+    \item Class imbalance must be explicitly addressed, with SMOTE-based resampling offering a
+          reliable and widely validated approach.
+    \item Feature engineering, especially the construction of RFM metrics and rolling-window
+          statistics, provides substantial predictive value over raw input features.
+    \item Explainability via SHAP values has emerged as the industry standard for communicating
+          model decisions to business and regulatory stakeholders.
+    \item There is a growing trend towards real-time scoring architectures and streaming feature
+          pipelines, which the present work addresses in its deployment design.
+\end{enumerate}
+
+The gaps identified in the literature---specifically the lack of comprehensive production-grade
+implementations that integrate preprocessing, imbalance handling, interpretable modelling, and
+API deployment in a single end-to-end pipeline for the FinTech context---directly motivate the
+proposed system described in the subsequent chapters.

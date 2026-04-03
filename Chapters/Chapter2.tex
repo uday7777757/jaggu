@@ -20,7 +20,7 @@ FinTech churn exhibits characteristics that distinguish it from telecommunicatio
 
 \subsection{Logistic Regression}
 
-Logistic Regression (LR) is the baseline method most frequently cited in the churn literature. Its linear decision boundary makes it highly interpretable, and coefficient estimates can be directly linked to business factors. Lariviere and Van den Poel \cite{lariviere2005investigating} demonstrate competitive performance of LR on a large Belgian banking churn dataset, noting that regularisation (L2 penalty) is essential to prevent overfitting on high-dimensional feature spaces. However, LR's linear assumption limits its ability to capture complex interaction effects that characterise customer behaviour.
+Logistic Regression (LR) is the baseline method most frequently cited in the churn literature. Its linear decision boundary makes it highly interpretable, and coefficient estimates can be directly linked to business factors. Lariviere and Van den Poel \cite{lariviere2004investigating} demonstrate competitive performance of LR on a large Belgian banking churn dataset, noting that regularisation (L2 penalty) is essential to prevent overfitting on high-dimensional feature spaces. However, LR's linear assumption limits its ability to capture complex interaction effects that characterise customer behaviour.
 
 \subsection{Decision Tree Classifiers}
 
@@ -32,7 +32,7 @@ Random Forest (RF), introduced by Breiman \cite{breiman2001random}, combines the
 
 \subsection{Gradient Boosting and XGBoost}
 
-Gradient Boosting Machines (GBMs), based on Friedman's functional gradient descent framework \cite{friedman2001greedy}, build an ensemble of weak learners (shallow trees) sequentially, with each tree fitted to the residuals of the previous ensemble. XGBoost (Extreme Gradient Boosting), developed by Chen and Guestrin \cite{chen2016xgboost}, extends the GBM framework with second-order gradient approximation, regularisation terms (L1 and L2 on tree weights), and efficient sparsity-aware split finding. XGBoost has consistently achieved state-of-the-art performance in structured/tabular data competitions and has been widely applied to churn prediction \cite{lu2020xgboost}. Its ability to handle missing values natively and its built-in regularisation make it particularly well-suited to noisy FinTech datasets.
+Gradient Boosting Machines (GBMs), based on Friedman's functional gradient descent framework \cite{friedman2001greedy}, build an ensemble of weak learners (shallow trees) sequentially, with each tree fitted to the residuals of the previous ensemble. XGBoost (Extreme Gradient Boosting), developed by Chen and Guestrin \cite{chen2016xgboost}, extends the GBM framework with second-order gradient approximation, regularisation terms (L1 and L2 on tree weights), and efficient sparsity-aware split finding. XGBoost has consistently achieved state-of-the-art performance in structured/tabular data competitions and has been widely applied to churn prediction \cite{lu2014xgboost}. Its ability to handle missing values natively and its built-in regularisation make it particularly well-suited to noisy FinTech datasets.
 
 \subsection{Support Vector Machines}
 
@@ -75,7 +75,7 @@ Coussement et al. \cite{coussement2008churn} demonstrate that feature engineerin
 
     \item \textbf{Engagement decline metrics}: Percentage change in login frequency, transaction count, or balance over rolling windows. Declining engagement is a strong leading indicator of impending churn \cite{mozer1999predicting}.
 
-    \item \textbf{Product cross-holding}: Number of distinct product categories held (savings, current, credit, investment). Customers holding multiple products exhibit lower churn rates due to switching costs \cite{lariviere2005investigating}.
+    \item \textbf{Product cross-holding}: Number of distinct product categories held (savings, current, credit, investment). Customers holding multiple products exhibit lower churn rates due to switching costs \cite{lariviere2004investigating}.
 
     \item \textbf{Demographic and lifecycle features}: Age, estimated income bracket, and estimated tenure interact with engagement metrics to shape churn risk.
 

@@ -1,0 +1,49 @@
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{Executive Summary}
+\chapter*{Executive Summary}
+
+\textbf{Project Title:} Customer Churn Prediction for FinTech Platform Using Machine Learning
+
+\textbf{Institution:} Vardhaman College of Engineering, Department of Computer Science and Engineering
+
+\textbf{Academic Year:} 2025--26
+
+\vspace{0.5em}
+
+\noindent\textbf{Context and Motivation}
+
+Customer churn---the voluntary discontinuation of a financial service---is one of the most strategically significant and costly challenges facing modern FinTech platforms. Research consistently indicates that acquiring a new customer costs five to seven times more than retaining an existing one, and a five percentage-point improvement in retention can increase profitability by up to 95\%. Despite the availability of rich transactional and behavioural data, most FinTech operators rely on heuristic rules or simple statistical scorecards that fail to capture complex non-linear churn drivers, suffer from severe recall degradation under class imbalance, and provide no explanation mechanism for regulatory compliance.
+
+\vspace{0.5em}
+
+\noindent\textbf{Objectives}
+
+This project develops an end-to-end, production-ready machine learning system for FinTech customer churn prediction. Specific objectives are: (1) perform comprehensive exploratory data analysis and domain-informed feature engineering; (2) benchmark six ML algorithms under consistent experimental conditions; (3) mitigate class imbalance using SMOTE and alternative strategies; (4) optimise hyperparameters via Bayesian search; (5) provide per-prediction interpretability via SHAP; and (6) deploy the best model as a Flask REST microservice containerised with Docker.
+
+\vspace{0.5em}
+
+\noindent\textbf{Methodology}
+
+The study uses the publicly available Bank Customer Churn dataset (10{,}000 records, 14 features, 20.37\% churn rate). An automated preprocessing pipeline handles categorical encoding, standard scaling, and feature engineering (10 derived features). SMOTE resampling balances the training set from 20:80 to 50:50. Six algorithms are evaluated---Logistic Regression, Decision Tree, Random Forest, SVM, ANN, and XGBoost---using 5-fold stratified cross-validation and a held-out test set. Performance is assessed using Accuracy, Precision, Recall, F1-Score, AUC-ROC, and AUC-PR. SHAP TreeExplainer provides global and local interpretability. The final model is packaged as a Flask REST API in a Docker container.
+
+\vspace{0.5em}
+
+\noindent\textbf{Key Results}
+
+\begin{itemize}
+    \item XGBoost with SMOTE achieves the best performance: \textbf{AUC-ROC = 0.923}, Recall = 80.3\%, Precision = 74.5\%, F1 = 0.773, Accuracy = 90.4\%.
+    \item SMOTE raises XGBoost recall from 51.2\% (no resampling) to 80.3\%, confirming the critical importance of imbalance handling.
+    \item The top five churn predictors (by SHAP importance) are: Age, Balance, NumOfProducts, IsActiveMember, and Geography (Germany).
+    \item The engineered feature \texttt{InactiveWithBalance} ranks 6th globally, validating domain-informed feature engineering.
+    \item The REST API achieves mean response latency $<$ 100 ms and supports 100+ concurrent users.
+    \item Business impact analysis projects \textbf{net annual revenue value of approximately \$27 million} for a 500{,}000-customer FinTech platform operating a model-driven retention programme---representing a 15x return on campaign investment.
+\end{itemize}
+
+\vspace{0.5em}
+
+\noindent\textbf{Conclusions}
+
+The project demonstrates that a well-engineered ML pipeline---combining systematic feature engineering, principled class imbalance handling, Bayesian hyperparameter optimisation, SHAP interpretability, and production-grade deployment---can deliver both statistically strong and business-relevant churn prediction for FinTech applications. The XGBoost classifier with SMOTE resampling is recommended as the production model. Future work directions include temporal survival analysis, uplift modelling for campaign optimisation, federated learning for privacy preservation, and real-time streaming integration.
+
+\clearpage

@@ -1,68 +1,85 @@
 \chapter{Introduction}
 
-\section{Introduction}
-The introduction section provides an overview of the project. It sets the context, presents the main focus of the study, and provides insight into the area of research or the problem being addressed. This section should give the reader a general understanding of the project, its relevance, and the motivations behind it.
+\section{Background}
 
-\begin{itemize}
-    \item Briefly describe the project.
-    \item Outline the significance and relevance of the research.
-    \item Highlight the general aim and scope of the project.
-    \item Provide an overview of the structure of the report.
-\end{itemize}
+The financial technology (FinTech) sector has experienced rapid and transformative growth over the past decade. Digital payment platforms, neo-banks, peer-to-peer lending portals, robo-advisors, and insurance-technology companies now collectively serve billions of customers worldwide. This digital shift has dramatically lowered the barriers to switching between providers, fundamentally altering competitive dynamics. Unlike traditional branch-based banking, where friction and inertia often kept customers loyal, FinTech platforms compete on user experience, fee structure, and product breadth---factors that customers can evaluate and act upon within minutes using a smartphone.
 
-\section{Background and Motivation}
-This section gives a detailed explanation of the background that led to the project. It includes a description of the problem domain and related work. The motivation part explains why this project was chosen and its importance to the field. The background information helps the reader understand the context of the research or project, while the motivation demonstrates the necessity or urgency for the work.
+In this hypercompetitive environment, \textit{customer churn}---the decision by a customer to discontinue using a platform's services---emerges as one of the most strategically significant phenomena that operators must manage. Industry research consistently indicates that acquiring a new customer costs five to seven times more than retaining an existing one \cite{reichheld1996loyalty}. Furthermore, even a modest improvement in retention rate of five percentage points can increase profitability by 25--95\% depending on the business model \cite{reichheld2000ecommerce}. Despite its importance, accurately predicting \textit{which} customers are at risk of churning remains a challenging analytical problem.
 
-\begin{itemize}
-    \item Describe the field or area of study in which the project is situated.
-    \item Present any historical context or developments leading to the current project.
-    \item Discuss previous research or works relevant to the project.
-    \item Explain why this project is important, and why it addresses a gap or need in the current field.
-\end{itemize}
+Traditional churn management relied on rule-based heuristics: customers who had not logged in for 90 days, or whose monthly transaction volume had declined below a threshold, were flagged by customer service teams. These approaches suffer from poor precision---flagging too many customers who would not have churned anyway---and poor recall---missing customers who churn without obvious behavioural signals. Machine learning (ML) methods, which can jointly exploit dozens of features and detect non-linear interaction effects, offer substantially better predictive power for this task \cite{burez2009handling}.
 
-% \section{Problem Statement}
-% The problem statement clearly defines the problem the project aims to solve. This section is crucial because it outlines the exact challenge the project will address. It should be precise, specific, and should define the scope of the problem.
+\section{Problem Statement}
 
-% \begin{itemize}
-%     \item Define the core problem that the project addresses.
-%     \item Explain the specific issues or challenges involved.
-%     \item Ensure the problem is framed clearly, with no ambiguity.
-%     \item Establish the relevance of the problem in practical or theoretical terms.
-% \end{itemize}
+Despite the availability of rich transactional and behavioural data, many FinTech operators lack a systematic, data-driven churn prediction capability. Key challenges include:
 
+\begin{enumerate}
+    \item \textbf{Class imbalance}: In most FinTech portfolios, only 15--25\% of customers churn in any given period. Standard classifiers optimised for accuracy tend to predict the majority class (non-churn) for most observations, yielding high nominal accuracy but poor actionable recall on the minority (churn) class \cite{chawla2002smote}.
+
+    \item \textbf{Feature engineering complexity}: Raw data stored in CRM and transactional databases must be transformed into informative features. This requires domain knowledge about which behavioural patterns are predictive of future churn \cite{coussement2008churn}.
+
+    \item \textbf{Model interpretability}: Financial institutions are subject to regulatory requirements (e.g., GDPR, model risk management guidelines) that demand explainable AI. Black-box models cannot be deployed without adequate interpretation mechanisms \cite{lundberg2017shap}.
+
+    \item \textbf{Operational integration}: Even a highly accurate offline model has no business value unless it can be integrated into customer engagement workflows---such as CRM systems, marketing automation platforms, or customer service dashboards---in near-real-time.
+
+    \item \textbf{Concept drift}: Customer behaviour evolves over time; models trained on historical data degrade in performance without periodic retraining and monitoring \cite{gama2014conceptdrift}.
+\end{enumerate}
+
+This project addresses all five challenges by developing an end-to-end churn prediction system that is accurate, interpretable, and designed for production deployment.
 
 \section{Objectives of the Project Work}
 
-This section outlines the specific goals the project aims to achieve. Objectives are more specific than the problem statement and help to guide the project toward a solution. The objectives should be measurable and achievable within the scope of the project.
+The primary objective of this project is to design, develop, and evaluate a machine learning-based customer churn prediction system tailored to the FinTech domain. The specific objectives are as follows:
 
-\begin{itemize}
-    \item List the primary objectives of the project.
-    \item Break down the general goal into smaller, specific goals.
-    \item Use clear, action-oriented language (e.g., ``To develop,'' ``To analyze,'' ``To evaluate'').
-    \item These objectives should align with solving the problem defined earlier.
-\end{itemize}
-
-The key aim of this research work is to examine the effects of incorporating multiple platforms into large-scale, cooperative wireless networks. The objectives of this work are set out below:
 \begin{enumerate}
-\item	To design and analyse the relay selection criteria for faster data transmission in cooperative networking with multi channels. 
-\item To formulate an optimal solution for energy efficient transmission for large scale cooperative network with multiple channels. 
-\item	To propose the optimal routing mechanism for large scale cooperative network by considering mobility factor.
+    \item To conduct a thorough exploratory data analysis (EDA) of the bank customer churn dataset, identifying key statistical properties, data quality issues, and preliminary predictors of churn.
 
+    \item To engineer a comprehensive set of discriminative features from raw demographic, account, and behavioural data, including interaction terms and aggregate statistics.
+
+    \item To implement and compare six state-of-the-art machine learning algorithms---Logistic Regression, Decision Tree, Random Forest, Gradient Boosting (XGBoost), Support Vector Machine, and Artificial Neural Network---under consistent experimental conditions.
+
+    \item To investigate and mitigate the adverse effects of class imbalance using SMOTE, Random Over-Sampling, and class-weight adjustment strategies, evaluating their impact on model performance.
+
+    \item To perform rigorous hyperparameter optimisation using Bayesian search and stratified cross-validation, and to assess model performance using a multi-metric suite including Accuracy, Precision, Recall, F1-Score, AUC-ROC, and AUC-PR.
+
+    \item To apply SHAP (SHapley Additive exPlanations) for model-agnostic feature importance analysis and individual prediction explanation, satisfying interpretability requirements.
+
+    \item To architect and implement the best-performing model as a RESTful microservice, containerised with Docker and designed for integration into existing FinTech CRM platforms.
+
+    \item To quantify the potential business impact of the proposed system in terms of estimated revenue retention and return on investment for proactive churn intervention campaigns.
 \end{enumerate}
 
-\section{Organization of the Report}
-The final section of Chapter 1 provides an outline of the structure of the entire report. It explains the organization and flow of the chapters and gives the reader an understanding of how the content will be presented. This section can be a simple list or paragraph summarizing each chapter’s main points.
+\section{Scope of the Project}
+
+This project operates within the following scope boundaries:
 
 \begin{itemize}
-    \item Provide a brief description of what each chapter will cover.
-    \item Typically, the structure would include:
-    \begin{itemize}
-        \item \textbf{Chapter 2}: Literature Survey 
-        \item \textbf{Chapter 3}: System Analysis
-        \item \textbf{Chapter 4}: System Design
-        \item \textbf{Chapter 5}: System Implementation
-        \item \textbf{Chapter 6}: System Testing
-        \item \textbf{Chapter 7}: Results and Discussion
-        \item \textbf{Chapter 8}: Conclusions and Future Scope
-    \end{itemize}
-        \end{itemize}
+    \item \textbf{Dataset}: The study uses the publicly available Bank Customer Churn dataset (10{,}000 records, 14 features) as a representative proxy for a FinTech customer portfolio.
+
+    \item \textbf{Algorithms}: Six supervised binary classification algorithms are implemented using the Python scikit-learn library and the XGBoost framework. Deep learning architectures beyond shallow ANNs are outside scope.
+
+    \item \textbf{Deployment}: A Flask-based REST API is developed and containerised using Docker. Cloud-native deployment (e.g., Kubernetes orchestration) is discussed as future work.
+
+    \item \textbf{Data privacy}: No real customer data is used. All experiments are conducted on publicly available data, and the system design conforms to GDPR data minimisation principles.
+
+    \item \textbf{Temporal modelling}: This project does not address time-series survival analysis or recurrent neural network-based temporal churn modelling, which are identified as future research directions.
+\end{itemize}
+
+\section{Organisation of the Report}
+
+The remainder of this report is organised as follows:
+
+\begin{itemize}
+    \item \textbf{Chapter 2 -- Literature Survey}: Reviews published research on customer churn prediction, machine learning models applied to churn, class imbalance handling techniques, and feature engineering methodologies. Identifies gaps in the existing literature that this project addresses.
+
+    \item \textbf{Chapter 3 -- System Analysis}: Analyses existing churn prediction systems, presents the proposed system architecture, describes the dataset specification in detail, and details the data preprocessing and feature engineering pipeline.
+
+    \item \textbf{Chapter 4 -- System Design}: Presents the overall system architecture, Data Flow Diagrams (DFDs), UML diagrams (Use Case, Class, Sequence, Activity, Component, Deployment), and the deployment architecture. All diagrams are documented as Mermaid code blocks.
+
+    \item \textbf{Chapter 5 -- System Implementation}: Describes the technology stack, provides annotated code listings for key pipeline stages including data loading, feature engineering, model training, and hyperparameter tuning, and discusses algorithmic details.
+
+    \item \textbf{Chapter 6 -- System Testing \& Evaluation}: Defines the testing strategy, describes unit, integration, and system test cases, and presents evaluation results with comparative tables.
+
+    \item \textbf{Chapter 7 -- Results \& Discussion}: Presents detailed experimental results, feature importance analysis, business impact estimation, and a critical discussion of limitations and threats to validity.
+
+    \item \textbf{Chapter 8 -- Conclusion \& Future Work}: Summarises the key contributions of the project and outlines promising directions for future research and system enhancement.
+\end{itemize}

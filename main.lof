@@ -1,8 +1,20 @@
-\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
-\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {1.1}{\ignorespaces Give Figure Caption here\relax }}{2}{figure.caption.13}
-\defcounter {refsection}{0}\relax 
-\contentsline {figure}{\numberline {1.2}{\ignorespaces \relax }}{3}{figure.caption.14}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces High-Level System Architecture for the Churn Prediction Platform}}{23}{figure.caption.14}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Level 0 Data Flow Diagram -- Context Diagram}}{24}{figure.caption.15}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Level 1 Data Flow Diagram -- Detailed Sub-Process View}}{24}{figure.caption.16}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces UML Class Diagram of the Churn Prediction System}}{25}{figure.caption.17}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces UML Sequence Diagram -- Batch Scoring Request}}{26}{figure.caption.18}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces UML Activity Diagram -- Model Training Workflow}}{27}{figure.caption.19}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces System Deployment Diagram -- Cloud Infrastructure}}{27}{figure.caption.20}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
 \contentsfinish 

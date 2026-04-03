@@ -1,8 +1,21 @@
-\boolfalse {citerequest}\boolfalse {citetracker}\boolfalse {pagetracker}\boolfalse {backtracker}\relax 
-\defcounter {refsection}{0}\relax 
 \addvspace {10\p@ }
-\defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {1.1}{\ignorespaces Table Caption\relax }}{3}{table.caption.15}
-\defcounter {refsection}{0}\relax 
-\contentsline {table}{\numberline {1.2}{\ignorespaces Table Caption\relax }}{4}{table.caption.16}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {3.1}{\ignorespaces Dataset Specification}}{19}{table.caption.13}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {5.1}{\ignorespaces Technologies and Libraries Used}}{29}{table.caption.21}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Algorithm Comparison -- Cross-Validated Performance (5-Fold Stratified)}}{32}{table.caption.22}%
+\contentsline {table}{\numberline {5.3}{\ignorespaces XGBoost Hyperparameter Search Space and Optimal Values}}{34}{table.caption.23}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {6.1}{\ignorespaces Evaluation Metrics Definitions and Formulae}}{39}{table.caption.24}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Sample Test Case Results}}{41}{table.caption.25}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {7.1}{\ignorespaces Final Model Performance on Test Set (With SMOTE)}}{44}{table.caption.26}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {A.1}{\ignorespaces Project Gantt Chart (Weeks 1--20)}}{57}{table.caption.29}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
 \contentsfinish 

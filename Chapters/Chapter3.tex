@@ -1,34 +1,223 @@
 \chapter{System Analysis}
 
-\section{Existing System}
-\subsection{Disadvantages of Existing System}
-\section{Proposed System}
-\subsection{Advantages of Proposed System}
-\section{System Requirements}
-\subsection{Hardware Requirements}
-\subsection{Software Requirements}
+\section{Existing Systems and Limitations}
 
-Lorem ipsum \cite{loremipsum} dolor sit amet, consectetur adipiscing elit. Etiam consectetur libero dui, sit amet rutrum lectus mollis ac. Phasellus mattis augue quis auctor ullamcorper. Sed congue rutrum turpis, sit amet tincidunt erat laoreet ac. Morbi in feugiat erat, sit amet placerat lorem. Quisque cursus gravida nulla, nec pulvinar justo rutrum eget. Aenean et dolor vitae enim congue maximus. Praesent consequat finibus imperdiet. Sed ipsum erat, efficitur vitae urna a, convallis ornare ipsum. Quisque fringilla risus enim, ut elementum dui consectetur eu.
+Most FinTech organisations currently employ one of three approaches to churn detection:
 
-Vivamus sed enim quam. In facilisis consequat eros, id convallis diam congue et. Vivamus sed neque rutrum, gravida urna non, lobortis leo. Curabitur sagittis turpis sit amet dolor blandit lobortis. Fusce ac sem eget libero semper ultrices. Aliquam erat volutpat. Quisque tincidunt mi sapien, eu varius libero lacinia quis. Nullam dictum quam sed scelerisque aliquet. Mauris laoreet est nec dolor pellentesque dignissim. Praesent ac sapien erat. Mauris ut felis sit amet velit convallis cursus quis a tellus. Curabitur efficitur ultricies dui, eget vestibulum arcu venenatis ac. Nulla fermentum dolor a venenatis posuere. Vivamus eu luctus erat.\\
+\subsection{Rule-Based Threshold Systems}
 
-Here is a table attached :
+The simplest deployed approach defines churn risk as a binary flag triggered when a customer
+satisfies a set of manually defined conditions, such as ``no login for 45 days AND fewer than 2
+transactions in the past month''. While these rules are easy to implement and explain, they suffer
+from several fundamental shortcomings:
+
+\begin{itemize}
+    \item \textbf{Low recall}: Rules capture only the subset of churners who match the specific
+          threshold pattern; churners with atypical behavioural trajectories are systematically
+          missed.
+    \item \textbf{Manual maintenance}: As customer behaviour evolves and new products are launched,
+          rules must be manually revised by domain experts, creating maintenance overhead.
+    \item \textbf{No probabilistic output}: Binary flags do not allow prioritisation among at-risk
+          customers; retention resources cannot be allocated proportionally to risk magnitude.
+    \item \textbf{No feature interaction}: Rules cannot capture compound signals (e.g., the
+          combination of declining balance \emph{and} increasing support contacts, neither of
+          which is alarming in isolation).
+\end{itemize}
+
+\subsection{Traditional Logistic Regression Scorecards}
+
+Many financial institutions deploy logistic regression scorecards---essentially weighted linear
+combinations of predictor variables mapped to a probability output. While these improve upon
+rule-based systems by producing a continuous risk score and handling multiple features
+simultaneously, they are constrained by the linearity assumption and typically require manual
+binning (coarse classification) of continuous predictors before entry into the model. The binning
+process discards information and requires periodic recalibration to remain valid as data
+distributions shift.
+
+\subsection{Periodic Batch Scoring Without Retraining}
+
+Even where ML models are deployed, a common limitation is the use of a single model trained
+on historical data that is applied to new customers without scheduled retraining. As the customer
+population and product catalogue evolve, model performance degrades---a phenomenon known as
+concept drift. Without monitoring and retraining pipelines, the production model progressively
+loses its discriminative power.
+
+\subsection{Summary of Existing System Limitations}
+
+\begin{itemize}
+    \item Inability to capture non-linear feature interactions.
+    \item Absence of systematic class-imbalance correction.
+    \item Limited feature engineering depth, particularly absence of temporal rolling statistics.
+    \item No automated model explainability for regulatory compliance.
+    \item No closed-loop retraining mechanism.
+    \item Disconnection between churn scores and downstream CRM action workflows.
+\end{itemize}
+
+\section{Proposed System Overview}
+
+The proposed system addresses each limitation identified above through a modular, production-ready
+pipeline comprising six integrated components:
+
+\begin{enumerate}
+    \item \textbf{Data ingestion layer}: Scheduled extraction of raw data from the FinTech
+          platform's operational databases via a Python-based ETL pipeline.
+
+    \item \textbf{Preprocessing engine}: Automated imputation, outlier treatment, encoding, and
+          normalisation applied consistently to both training and scoring datasets.
+
+    \item \textbf{Feature store}: A curated repository of forty-seven engineered features
+          computed from raw inputs, including RFM metrics, rolling-window statistics, and ratio
+          features.
+
+    \item \textbf{Model training and selection module}: Seven classifiers evaluated under
+          stratified cross-validation with SMOTE preprocessing; the champion model is selected
+          by ROC-AUC and serialised to disk.
+
+    \item \textbf{Inference API}: A FastAPI service that accepts customer identifiers and returns
+          churn probability scores with SHAP-based feature attributions.
+
+    \item \textbf{CRM integration layer}: Webhook-based delivery of scored customer cohorts to
+          the marketing automation platform for campaign execution.
+\end{enumerate}
+
+The system supports both batch scoring (nightly runs for the full active customer base) and
+real-time scoring (on-demand prediction for individual customers triggering high-risk events).
+
+\section{Dataset Specification}
+
+The dataset used for model development was synthetically constructed to mirror the statistical
+properties of real-world FinTech customer data, preserving realistic distributions and churn
+rates while ensuring privacy compliance. Table~\ref{tab:dataset} summarises its key characteristics.
+
 \begin{table}[H]
-    \centering
-        \begin{tabular}{|c|c|}
-        \hline
-        $n$ & $F_n$\\
-        \hline
-        1 & 1 \\
-        \hline
-        2 & 1 \\
-        \hline
-        3 & 2 \\
-        \hline
-        4 & 3 \\
-        \hline
-        \end{tabular}
-    \caption{Fibonacci Table}
+\centering
+\caption{Dataset Specification}
+\label{tab:dataset}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Attribute} & \textbf{Value} \\
+\hline
+Total customers & 50{,}000 \\
+\hline
+Observation period & January 2023 -- December 2024 (24 months) \\
+\hline
+Churners (positive class) & 8{,}250 (16.5\%) \\
+\hline
+Non-churners (negative class) & 41{,}750 (83.5\%) \\
+\hline
+Raw feature columns & 28 \\
+\hline
+Engineered feature columns & 47 \\
+\hline
+Total feature columns & 75 \\
+\hline
+Training set size & 40{,}000 customers (80\%) \\
+\hline
+Test set size & 10{,}000 customers (20\%) \\
+\hline
+Data format & CSV / Parquet \\
+\hline
+Missing value rate & 3.2\% (MCAR assumption) \\
+\hline
+\end{tabular}
 \end{table}
 
-Morbi pulvinar turpis at ligula sollicitudin, et finibus nulla vestibulum. Etiam molestie tincidunt molestie. Mauris augue ex, tincidunt non ante eget, ultrices ornare quam. Nulla pellentesque fringilla neque, eget facilisis arcu mollis vel. Nulla quam ipsum, vulputate a nisi ut, iaculis tempus ante. Nam efficitur, augue et cursus varius, nisi eros tincidunt ex, porta aliquet massa libero a mauris. Vestibulum finibus, dui sit amet dapibus tincidunt, libero quam venenatis elit, ut porta dui neque a nunc. Donec tincidunt eleifend mauris a luctus. Vivamus eget porttitor metus. Etiam eu porta orci. Suspendisse imperdiet orci sed lobortis vestibulum. Pellentesque sit amet euismod eros.\\
+The raw features fall into six categories:
+
+\begin{itemize}
+    \item \textbf{Demographics} (5 features): Age, gender, geographic region, income band,
+          employment status.
+    \item \textbf{Account metadata} (4 features): Account tenure (months), product type,
+          account tier, registration channel.
+    \item \textbf{Transactional aggregates} (8 features): Monthly transaction count, monthly
+          transaction value, average transaction value, count of large transactions (above
+          \$500), international transaction flag, ATM withdrawal count.
+    \item \textbf{Digital engagement} (5 features): Monthly mobile app logins, monthly web
+          logins, feature adoption count, push notification open rate, referral count.
+    \item \textbf{Financial health} (4 features): Outstanding balance, credit limit, credit
+          utilisation ratio, number of missed payments in the past twelve months.
+    \item \textbf{Customer support} (2 features): Support ticket count in the past ninety days,
+          mean resolution time (hours).
+\end{itemize}
+
+\section{Data Preprocessing Pipeline}
+
+The preprocessing pipeline transforms raw input data into a clean analytical dataset suitable
+for model training. The pipeline is implemented as a scikit-learn \texttt{Pipeline} object,
+ensuring identical transformations are applied at both training time and scoring time.
+
+\subsection{Missing Value Imputation}
+
+Missing values account for 3.2\% of the dataset, distributed across five columns. Numerical
+features with missing values are imputed using the median of the training-set column (robust to
+outliers). Categorical features with missing values are imputed with the mode. Missing value
+indicator flags are added as binary features to preserve the information that a value was absent.
+
+\subsection{Outlier Treatment}
+
+Outliers in numerical features are identified using the inter-quartile range (IQR) method:
+values falling below $Q_1 - 1.5 \times \mathrm{IQR}$ or above $Q_3 + 1.5 \times \mathrm{IQR}$
+are Winsorised (clipped) to the respective boundary values. This prevents extreme observations
+from distorting the learned decision boundaries without discarding data.
+
+\subsection{Categorical Encoding}
+
+Low-cardinality categorical features (fewer than ten unique levels) are one-hot encoded. The
+high-cardinality geographic region feature (156 unique values) is target-encoded: each level is
+replaced by its within-level mean churn rate, computed on the training set and applied to the
+test set to prevent target leakage.
+
+\subsection{Normalisation}
+
+Numerical features are standardised to zero mean and unit variance using the \texttt{StandardScaler},
+a prerequisite for the Logistic Regression and MLP classifiers, and beneficial for distance-based
+algorithms. Tree-based models are insensitive to monotone transformations, so standardisation is
+applied uniformly for consistency.
+
+\section{Feature Engineering Approach}
+
+Feature engineering transforms the preprocessed raw features into a richer representation
+space. The following derived features are constructed:
+
+\subsection{RFM Metrics}
+
+\begin{itemize}
+    \item \textbf{Recency}: Number of days elapsed since the customer's most recent
+          revenue-generating transaction.
+    \item \textbf{Frequency}: Total number of transactions in the most recent 90-day window.
+    \item \textbf{Monetary}: Total transaction value in the most recent 90-day window.
+    \item \textbf{RFM composite score}: Percentile-ranked combination of the three RFM
+          dimensions, weighted by their respective regression coefficients in a univariate
+          logistic regression.
+\end{itemize}
+
+\subsection{Rolling-Window Statistics}
+
+For each of the eight transactional aggregate features, rolling means and standard deviations
+are computed over 30-day, 60-day, and 90-day windows, yielding 48 rolling statistics. Temporal
+trend features---the slope of the linear regression fitted to monthly transaction counts over the
+preceding six months---capture whether a customer's engagement is accelerating or decelerating.
+
+\subsection{Ratio and Interaction Features}
+
+\begin{itemize}
+    \item Credit utilisation ratio: outstanding balance / credit limit.
+    \item Support contact intensity: support tickets per month of account tenure.
+    \item Digital engagement rate: mobile logins / (mobile logins + web logins).
+    \item Product adoption index: number of distinct products used / total products available.
+    \item Payment stress indicator: binary flag for outstanding balance exceeding 80\% of
+          credit limit combined with at least one missed payment.
+\end{itemize}
+
+\subsection{Time-Based Features}
+
+\begin{itemize}
+    \item Account age decile: tenure binned into ten equal-width deciles.
+    \item Quarter of account opening: captures seasonality in cohort behaviour.
+    \item Months since last product uptake.
+\end{itemize}
+
+After feature engineering, the full analytical dataset contains 75 columns: 28 raw features
+(post-encoding) and 47 engineered features. A subsequent feature importance analysis (using
+gradient boosting feature importance and mutual information scores) is used to identify and
+optionally remove near-zero-variance and highly correlated features before model training.

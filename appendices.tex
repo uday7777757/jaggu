@@ -1,0 +1,191 @@
+\begin{appendices}
+
+\chapter{Project Timeline}
+\label{app:timeline}
+
+The following Gantt chart describes the planned and actual project timeline over the
+twenty-week development period. The project was completed within the planned schedule
+with a minor one-week delay in the hyperparameter tuning phase due to extended compute
+times.
+
+\begin{table}[H]
+\centering
+\caption{Project Gantt Chart (Weeks 1--20)}
+\label{tab:gantt}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{|p{3.8cm}|*{20}{c|}}
+\hline
+\textbf{Task} & \rotatebox{90}{\scriptsize W1} & \rotatebox{90}{\scriptsize W2} & \rotatebox{90}{\scriptsize W3} & \rotatebox{90}{\scriptsize W4} & \rotatebox{90}{\scriptsize W5} & \rotatebox{90}{\scriptsize W6} & \rotatebox{90}{\scriptsize W7} & \rotatebox{90}{\scriptsize W8} & \rotatebox{90}{\scriptsize W9} & \rotatebox{90}{\scriptsize W10} & \rotatebox{90}{\scriptsize W11} & \rotatebox{90}{\scriptsize W12} & \rotatebox{90}{\scriptsize W13} & \rotatebox{90}{\scriptsize W14} & \rotatebox{90}{\scriptsize W15} & \rotatebox{90}{\scriptsize W16} & \rotatebox{90}{\scriptsize W17} & \rotatebox{90}{\scriptsize W18} & \rotatebox{90}{\scriptsize W19} & \rotatebox{90}{\scriptsize W20} \\
+\hline
+Literature Survey & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & & & & & & & & & & & & \\
+\hline
+Data Collection & & & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & & & & & & & & & & & \\
+\hline
+EDA \& Preprocessing & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & & & & & & & & & \\
+\hline
+Feature Engineering & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & & & & & & & \\
+\hline
+Model Training & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & & & & \\
+\hline
+Hyperparameter Tuning & & & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & & & \\
+\hline
+Evaluation \& Testing & & & & & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & & & \\
+\hline
+API Development & & & & & & & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & & & \\
+\hline
+Deployment & & & & & & & & & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & & \\
+\hline
+Report Writing & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} & \cellcolor{blue!40} \\
+\hline
+Review \& Submission & & & & & & & & & & & & & & & & & & & \cellcolor{blue!40} & \cellcolor{blue!40} \\
+\hline
+\end{tabular}
+\end{table}
+
+\chapter{Sources Consulted}
+\label{app:sources}
+
+In addition to the peer-reviewed references cited in the main body of this report, the following
+supplementary resources were consulted during the course of the project:
+
+\begin{enumerate}
+    \item \textit{Kaggle -- Telco Customer Churn Dataset}. Available:
+          \url{https://www.kaggle.com/datasets/blastchar/telco-customer-churn}
+
+    \item \textit{XGBoost Documentation -- XGBoost Parameters}. Available:
+          \url{https://xgboost.readthedocs.io/en/stable/parameter.html}
+
+    \item \textit{LightGBM Documentation -- Parameters}. Available:
+          \url{https://lightgbm.readthedocs.io/en/latest/Parameters.html}
+
+    \item \textit{SHAP Documentation -- TreeExplainer}. Available:
+          \url{https://shap.readthedocs.io/en/latest/generated/shap.TreeExplainer.html}
+
+    \item \textit{Optuna Documentation -- Bayesian Optimisation}. Available:
+          \url{https://optuna.readthedocs.io/en/stable/}
+
+    \item \textit{FastAPI Documentation}. Available:
+          \url{https://fastapi.tiangolo.com/}
+
+    \item \textit{imbalanced-learn Documentation -- SMOTE}. Available:
+          \url{https://imbalanced-learn.org/stable/references/generated/imblearn.over\_sampling.SMOTE.html}
+
+    \item \textit{MLflow Documentation -- Model Registry}. Available:
+          \url{https://mlflow.org/docs/latest/model-registry.html}
+
+    \item \textit{scikit-learn User Guide -- Pipelines and Composite Estimators}. Available:
+          \url{https://scikit-learn.org/stable/modules/compose.html}
+
+    \item \textit{EU General Data Protection Regulation (GDPR), Article 22 -- Automated Individual
+          Decision-making}. Official Journal of the European Union, 2016/679, 4 May 2016.
+\end{enumerate}
+
+\chapter{Technical Implementation Details}
+\label{app:technical}
+
+\section{Environment Configuration}
+
+The development environment is specified in a \texttt{requirements.txt} file pinning all
+dependency versions for reproducibility:
+
+\begin{lstlisting}[caption={requirements.txt}]
+pandas==2.0.3
+numpy==1.24.4
+scikit-learn==1.3.2
+xgboost==1.7.6
+lightgbm==4.0.0
+imbalanced-learn==0.11.0
+shap==0.42.1
+optuna==3.0.6
+mlflow==2.5.0
+fastapi==0.100.1
+uvicorn==0.23.2
+category-encoders==2.6.3
+matplotlib==3.7.3
+seaborn==0.12.2
+pytest==7.4.3
+pytest-cov==4.1.0
+\end{lstlisting}
+
+\section{Docker Configuration}
+
+\begin{lstlisting}[caption={Dockerfile for inference service}]
+FROM python:3.10-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY src/ ./src/
+COPY models/ ./models/
+EXPOSE 8080
+CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8080"]
+\end{lstlisting}
+
+\section{API Request and Response Schemas}
+
+\begin{lstlisting}[language=Python, caption={FastAPI Pydantic schemas}]
+from pydantic import BaseModel
+from typing import List, Dict
+
+class CustomerFeatures(BaseModel):
+    customer_id: str
+    age: int
+    account_tenure_months: int
+    monthly_txn_count_30d: float
+    monthly_txn_value_30d: float
+    days_since_last_txn: int
+    login_frequency_30d: float
+    credit_utilisation_ratio: float
+    support_tickets_90d: int
+    product_count: int
+
+class ChurnScore(BaseModel):
+    customer_id: str
+    churn_probability: float
+    churn_flag: bool
+    top_shap_features: Dict[str, float]
+
+class BatchScoreResponse(BaseModel):
+    model_version: str
+    scores: List[ChurnScore]
+\end{lstlisting}
+
+\chapter{Submission Checklist}
+\label{app:checklist}
+
+The following checklist confirms that all required components of the project submission have
+been completed and verified:
+
+\begin{itemize}
+    \item[\checkmark] Title page with project title, student names, roll numbers, and supervisor details
+    \item[\checkmark] Certificate of authenticity signed by supervisor and HOD
+    \item[\checkmark] Acknowledgements page
+    \item[\checkmark] Abstract (approximately 600 words)
+    \item[\checkmark] Table of Contents with page numbers
+    \item[\checkmark] List of Tables (5 tables)
+    \item[\checkmark] List of Figures (7 TikZ-generated diagrams)
+    \item[\checkmark] List of Abbreviations (27 entries)
+    \item[\checkmark] Chapter 1: Introduction (Background, Problem Statement, Objectives, Scope)
+    \item[\checkmark] Chapter 2: Literature Survey (9 thematic sections, 25 references)
+    \item[\checkmark] Chapter 3: System Analysis (Existing systems, Proposed system, Dataset Table)
+    \item[\checkmark] Chapter 4: System Design (Architecture, DFD L0/L1, UML Class, Sequence, Activity, Deployment)
+    \item[\checkmark] Chapter 5: System Implementation (Tech stack, Code snippets, Tables 2 and 3)
+    \item[\checkmark] Chapter 6: Testing \& Evaluation (4 testing levels, Metrics Table, Test Cases Table)
+    \item[\checkmark] Chapter 7: Results \& Discussion (Full results table, Feature importance, Business ROI)
+    \item[\checkmark] Chapter 8: Conclusion \& Future Work (Key findings, Future directions)
+    \item[\checkmark] References section (25 IEEE-format citations)
+    \item[\checkmark] Appendix A: Project Timeline (Gantt chart)
+    \item[\checkmark] Appendix B: Sources Consulted
+    \item[\checkmark] Appendix C: Technical Implementation Details
+    \item[\checkmark] Appendix D: Submission Checklist (this page)
+    \item[\checkmark] Document compiles without errors using pdflatex
+    \item[\checkmark] All cross-references (\textbackslash ref) resolve correctly
+    \item[\checkmark] All citations (\textbackslash cite) have corresponding BibTeX entries
+    \item[\checkmark] All figures have captions and labels
+    \item[\checkmark] All tables have captions and labels
+    \item[\checkmark] Consistent 1.5-line spacing throughout main chapters
+    \item[\checkmark] Times New Roman (mathptmx) font applied
+    \item[\checkmark] 1-inch margins on all sides (1.5-inch left margin)
+    \item[\checkmark] Page numbers in Roman numerals (front matter) and Arabic numerals (chapters)
+\end{itemize}
+
+\end{appendices}

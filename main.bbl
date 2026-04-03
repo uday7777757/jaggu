@@ -1,0 +1,1064 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{none/global//global/global}
+  \entry{provost2013data}{book}{}
+    \name{author}{2}{}{%
+      {{hash=PF}{%
+         family={Provost},
+         familyi={P\bibinitperiod},
+         given={Foster},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=FT}{%
+         family={Fawcett},
+         familyi={F\bibinitperiod},
+         given={Tom},
+         giveni={T\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {O'Reilly Media}%
+    }
+    \strng{namehash}{PFFT1}
+    \strng{fullhash}{PFFT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{title}{Data Science for Business}
+    \list{location}{1}{%
+      {Sebastopol, CA}%
+    }
+    \field{year}{2013}
+  \endentry
+
+  \entry{ngai2009application}{article}{}
+    \name{author}{3}{}{%
+      {{hash=NEWT}{%
+         family={Ngai},
+         familyi={N\bibinitperiod},
+         given={Eric W.\bibnamedelima T.},
+         giveni={E\bibinitperiod\bibinitdelim W\bibinitperiod\bibinitdelim
+  T\bibinitperiod},
+      }}%
+      {{hash=XL}{%
+         family={Xiu},
+         familyi={X\bibinitperiod},
+         given={Li},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=CDCK}{%
+         family={Chau},
+         familyi={C\bibinitperiod},
+         given={D.\bibnamedelima C.\bibnamedelima K.},
+         giveni={D\bibinitperiod\bibinitdelim C\bibinitperiod\bibinitdelim
+  K\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{NEWTXLCDCK1}
+    \strng{fullhash}{NEWTXLCDCK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1016/j.eswa.2008.02.021
+    \endverb
+    \field{number}{2}
+    \field{pages}{2592\bibrangedash 2602}
+    \field{title}{Application of data mining techniques in customer
+  relationship management: A literature review and classification}
+    \field{volume}{36}
+    \field{journaltitle}{Expert Systems with Applications}
+    \field{year}{2009}
+  \endentry
+
+  \entry{haneen2021machine}{article}{}
+    \name{author}{3}{}{%
+      {{hash=HA}{%
+         family={Haneen},
+         familyi={H\bibinitperiod},
+         given={Ali},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=MAS}{%
+         family={Mohammad},
+         familyi={M\bibinitperiod},
+         given={Al-Smadi},
+         giveni={A\bibinithyphendelim S\bibinitperiod},
+      }}%
+      {{hash=NA}{%
+         family={Nawaf},
+         familyi={N\bibinitperiod},
+         given={Ali},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HAMASNA1}
+    \strng{fullhash}{HAMASNA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1007/s41870-021-00749-0
+    \endverb
+    \field{number}{3}
+    \field{pages}{831\bibrangedash 838}
+    \field{title}{Machine learning-based customer churn prediction in banking}
+    \field{volume}{13}
+    \field{journaltitle}{International Journal of Information Technology}
+    \field{year}{2021}
+  \endentry
+
+  \entry{xgboost2016}{inproceedings}{}
+    \name{author}{2}{}{%
+      {{hash=CT}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Tianqi},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=GC}{%
+         family={Guestrin},
+         familyi={G\bibinitperiod},
+         given={Carlos},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CTGC1}
+    \strng{fullhash}{CTGC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proceedings of the 22nd ACM SIGKDD International
+  Conference on Knowledge Discovery and Data Mining}
+    \verb{doi}
+    \verb 10.1145/2939672.2939785
+    \endverb
+    \field{pages}{785\bibrangedash 794}
+    \field{title}{{XGBoost}: A scalable tree boosting system}
+    \field{year}{2016}
+  \endentry
+
+  \entry{gupta2006modeling}{article}{}
+    \name{author}{8}{}{%
+      {{hash=GS}{%
+         family={Gupta},
+         familyi={G\bibinitperiod},
+         given={Sunil},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=HD}{%
+         family={Hanssens},
+         familyi={H\bibinitperiod},
+         given={Dominique},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=HB}{%
+         family={Hardie},
+         familyi={H\bibinitperiod},
+         given={Bruce},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=KW}{%
+         family={Kahn},
+         familyi={K\bibinitperiod},
+         given={William},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=KV}{%
+         family={Kumar},
+         familyi={K\bibinitperiod},
+         given={V.},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=LN}{%
+         family={Lin},
+         familyi={L\bibinitperiod},
+         given={Nathaniel},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=RN}{%
+         family={Ravishanker},
+         familyi={R\bibinitperiod},
+         given={Nalini},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=SS}{%
+         family={Sriram},
+         familyi={S\bibinitperiod},
+         given={S.},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GS+1}
+    \strng{fullhash}{GSHDHBKWKVLNRNSS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1177/1094670506293591
+    \endverb
+    \field{number}{2}
+    \field{pages}{139\bibrangedash 155}
+    \field{title}{Modeling customer lifetime value}
+    \field{volume}{9}
+    \field{journaltitle}{Journal of Service Research}
+    \field{year}{2006}
+  \endentry
+
+  \entry{hung2006applying}{article}{}
+    \name{author}{3}{}{%
+      {{hash=HSY}{%
+         family={Hung},
+         familyi={H\bibinitperiod},
+         given={Shin-Yuan},
+         giveni={S\bibinithyphendelim Y\bibinitperiod},
+      }}%
+      {{hash=YDC}{%
+         family={Yen},
+         familyi={Y\bibinitperiod},
+         given={David\bibnamedelima C.},
+         giveni={D\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+      {{hash=WHY}{%
+         family={Wang},
+         familyi={W\bibinitperiod},
+         given={Hsiu-Yu},
+         giveni={H\bibinithyphendelim Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HSYYDCWHY1}
+    \strng{fullhash}{HSYYDCWHY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1016/j.eswa.2005.09.080
+    \endverb
+    \field{number}{3}
+    \field{pages}{515\bibrangedash 524}
+    \field{title}{Applying data mining to telecom churn management}
+    \field{volume}{31}
+    \field{journaltitle}{Expert Systems with Applications}
+    \field{year}{2006}
+  \endentry
+
+  \entry{burez2009handling}{article}{}
+    \name{author}{2}{}{%
+      {{hash=BJ}{%
+         family={Burez},
+         familyi={B\bibinitperiod},
+         given={Jonathan},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=VdPD}{%
+         prefix={Van\bibnamedelima den},
+         prefixi={V\bibinitperiod\bibinitdelim d\bibinitperiod},
+         family={Poel},
+         familyi={P\bibinitperiod},
+         given={Dirk},
+         giveni={D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BJPDVd1}
+    \strng{fullhash}{BJPDVd1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1016/j.eswa.2008.05.027
+    \endverb
+    \field{number}{3}
+    \field{pages}{4626\bibrangedash 4636}
+    \field{title}{Handling class imbalance in customer churn prediction}
+    \field{volume}{36}
+    \field{journaltitle}{Expert Systems with Applications}
+    \field{year}{2009}
+  \endentry
+
+  \entry{coussement2008churn}{article}{}
+    \name{author}{2}{}{%
+      {{hash=CK}{%
+         family={Coussement},
+         familyi={C\bibinitperiod},
+         given={Kristof},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=VdPD}{%
+         prefix={Van\bibnamedelima den},
+         prefixi={V\bibinitperiod\bibinitdelim d\bibinitperiod},
+         family={Poel},
+         familyi={P\bibinitperiod},
+         given={Dirk},
+         giveni={D\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CKPDVd1}
+    \strng{fullhash}{CKPDVd1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1016/j.eswa.2006.09.038
+    \endverb
+    \field{number}{1}
+    \field{pages}{313\bibrangedash 327}
+    \field{title}{Churn prediction in subscription services: An application of
+  support vector machines while comparing two parameter-selection techniques}
+    \field{volume}{34}
+    \field{journaltitle}{Expert Systems with Applications}
+    \field{year}{2008}
+  \endentry
+
+  \entry{lemmens2006bagging}{article}{}
+    \name{author}{2}{}{%
+      {{hash=LA}{%
+         family={Lemmens},
+         familyi={L\bibinitperiod},
+         given={Aur{\'e}lie},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=CC}{%
+         family={Croux},
+         familyi={C\bibinitperiod},
+         given={Christophe},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LACC1}
+    \strng{fullhash}{LACC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1509/jmkr.43.2.276
+    \endverb
+    \field{number}{2}
+    \field{pages}{276\bibrangedash 286}
+    \field{title}{Bagging and boosting classification trees to predict churn}
+    \field{volume}{43}
+    \field{journaltitle}{Journal of Marketing Research}
+    \field{year}{2006}
+  \endentry
+
+  \entry{huang2015customer}{article}{}
+    \name{author}{3}{}{%
+      {{hash=HB}{%
+         family={Huang},
+         familyi={H\bibinitperiod},
+         given={Bingquan},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=KMT}{%
+         family={Kechadi},
+         familyi={K\bibinitperiod},
+         given={M-Tahar},
+         giveni={M\bibinithyphendelim T\bibinitperiod},
+      }}%
+      {{hash=BB}{%
+         family={Buckley},
+         familyi={B\bibinitperiod},
+         given={Brian},
+         giveni={B\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HBKMTBB1}
+    \strng{fullhash}{HBKMTBB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1016/j.eswa.2011.08.024
+    \endverb
+    \field{number}{1}
+    \field{pages}{1414\bibrangedash 1425}
+    \field{title}{Customer churn prediction in telecommunications}
+    \field{volume}{39}
+    \field{journaltitle}{Expert Systems with Applications}
+    \field{year}{2012}
+  \endentry
+
+  \entry{breiman2001random}{article}{}
+    \name{author}{1}{}{%
+      {{hash=BL}{%
+         family={Breiman},
+         familyi={B\bibinitperiod},
+         given={Leo},
+         giveni={L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BL1}
+    \strng{fullhash}{BL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1023/A:1010933404324
+    \endverb
+    \field{number}{1}
+    \field{pages}{5\bibrangedash 32}
+    \field{title}{Random forests}
+    \field{volume}{45}
+    \field{journaltitle}{Machine Learning}
+    \field{year}{2001}
+  \endentry
+
+  \entry{verbeke2012new}{article}{}
+    \name{author}{5}{}{%
+      {{hash=VW}{%
+         family={Verbeke},
+         familyi={V\bibinitperiod},
+         given={Wouter},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=DK}{%
+         family={Dejaeger},
+         familyi={D\bibinitperiod},
+         given={Karel},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=MD}{%
+         family={Martens},
+         familyi={M\bibinitperiod},
+         given={David},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=HJ}{%
+         family={Hur},
+         familyi={H\bibinitperiod},
+         given={Joon},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=BB}{%
+         family={Baesens},
+         familyi={B\bibinitperiod},
+         given={Bart},
+         giveni={B\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{VW+1}
+    \strng{fullhash}{VWDKMDHJBB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1016/j.ejor.2011.09.031
+    \endverb
+    \field{number}{1}
+    \field{pages}{211\bibrangedash 229}
+    \field{title}{New insights into churn prediction in the telecommunication
+  sector: A profit driven data mining approach}
+    \field{volume}{218}
+    \field{journaltitle}{European Journal of Operational Research}
+    \field{year}{2012}
+  \endentry
+
+  \entry{friedman2001greedy}{article}{}
+    \name{author}{1}{}{%
+      {{hash=FJH}{%
+         family={Friedman},
+         familyi={F\bibinitperiod},
+         given={Jerome\bibnamedelima H.},
+         giveni={J\bibinitperiod\bibinitdelim H\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{FJH1}
+    \strng{fullhash}{FJH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1214/aos/1013203451
+    \endverb
+    \field{number}{5}
+    \field{pages}{1189\bibrangedash 1232}
+    \field{title}{Greedy function approximation: A gradient boosting machine}
+    \field{volume}{29}
+    \field{journaltitle}{The Annals of Statistics}
+    \field{year}{2001}
+  \endentry
+
+  \entry{stripling2018profit}{article}{}
+    \name{author}{5}{}{%
+      {{hash=SE}{%
+         family={Stripling},
+         familyi={S\bibinitperiod},
+         given={Eugen},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=vBS}{%
+         prefix={vanden},
+         prefixi={v\bibinitperiod},
+         family={Broucke},
+         familyi={B\bibinitperiod},
+         given={Seppe},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=AK}{%
+         family={Antonio},
+         familyi={A\bibinitperiod},
+         given={Katrien},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=BB}{%
+         family={Baesens},
+         familyi={B\bibinitperiod},
+         given={Bart},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=SM}{%
+         family={Snoeck},
+         familyi={S\bibinitperiod},
+         given={Monique},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{SE+1}
+    \strng{fullhash}{SEBSvAKBBSM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1016/j.swevo.2017.10.010
+    \endverb
+    \field{pages}{116\bibrangedash 130}
+    \field{title}{Profit maximizing logistic model for customer churn
+  prediction using genetic algorithms}
+    \field{volume}{40}
+    \field{journaltitle}{Swarm and Evolutionary Computation}
+    \field{year}{2018}
+  \endentry
+
+  \entry{ke2017lightgbm}{inproceedings}{}
+    \name{author}{8}{}{%
+      {{hash=KG}{%
+         family={Ke},
+         familyi={K\bibinitperiod},
+         given={Guolin},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=MQ}{%
+         family={Meng},
+         familyi={M\bibinitperiod},
+         given={Qi},
+         giveni={Q\bibinitperiod},
+      }}%
+      {{hash=FT}{%
+         family={Finley},
+         familyi={F\bibinitperiod},
+         given={Thomas},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=WT}{%
+         family={Wang},
+         familyi={W\bibinitperiod},
+         given={Taifeng},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=CW}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Wei},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=MW}{%
+         family={Ma},
+         familyi={M\bibinitperiod},
+         given={Weidong},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=YQ}{%
+         family={Ye},
+         familyi={Y\bibinitperiod},
+         given={Qiwei},
+         giveni={Q\bibinitperiod},
+      }}%
+      {{hash=LTY}{%
+         family={Liu},
+         familyi={L\bibinitperiod},
+         given={Tie-Yan},
+         giveni={T\bibinithyphendelim Y\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KG+1}
+    \strng{fullhash}{KGMQFTWTCWMWYQLTY1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Advances in Neural Information Processing Systems}
+    \field{title}{{LightGBM}: A highly efficient gradient boosting decision
+  tree}
+    \field{volume}{30}
+    \field{year}{2017}
+  \endentry
+
+  \entry{mozer2000predicting}{article}{}
+    \name{author}{5}{}{%
+      {{hash=MMC}{%
+         family={Mozer},
+         familyi={M\bibinitperiod},
+         given={Michael\bibnamedelima C.},
+         giveni={M\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+      {{hash=WR}{%
+         family={Wolniewicz},
+         familyi={W\bibinitperiod},
+         given={Richard},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=GDB}{%
+         family={Grimes},
+         familyi={G\bibinitperiod},
+         given={David\bibnamedelima B.},
+         giveni={D\bibinitperiod\bibinitdelim B\bibinitperiod},
+      }}%
+      {{hash=JE}{%
+         family={Johnson},
+         familyi={J\bibinitperiod},
+         given={Eric},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=KH}{%
+         family={Kaushansky},
+         familyi={K\bibinitperiod},
+         given={Howard},
+         giveni={H\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{MMC+1}
+    \strng{fullhash}{MMCWRGDBJEKH1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1109/72.846740
+    \endverb
+    \field{number}{3}
+    \field{pages}{690\bibrangedash 696}
+    \field{title}{Predicting subscriber dissatisfaction and improving retention
+  in the wireless telecommunications industry}
+    \field{volume}{11}
+    \field{journaltitle}{IEEE Transactions on Neural Networks}
+    \field{year}{2000}
+  \endentry
+
+  \entry{wangperawong2016churn}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=WA}{%
+         family={Wangperawong},
+         familyi={W\bibinitperiod},
+         given={Artit},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BC}{%
+         family={Brun},
+         familyi={B\bibinitperiod},
+         given={Cyrille},
+         giveni={C\bibinitperiod},
+      }}%
+      {{hash=LO}{%
+         family={Laudy},
+         familyi={L\bibinitperiod},
+         given={Olaf},
+         giveni={O\bibinitperiod},
+      }}%
+      {{hash=PR}{%
+         family={Pavasuthipaisit},
+         familyi={P\bibinitperiod},
+         given={Rungsiman},
+         giveni={R\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{WA+1}
+    \strng{fullhash}{WABCLOPR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{arXiv preprint arXiv:1604.05377}
+    \field{title}{Churn analysis using deep convolutional neural networks and
+  autoencoders}
+    \field{year}{2016}
+  \endentry
+
+  \entry{vaswani2017attention}{inproceedings}{}
+    \name{author}{8}{}{%
+      {{hash=VA}{%
+         family={Vaswani},
+         familyi={V\bibinitperiod},
+         given={Ashish},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=SN}{%
+         family={Shazeer},
+         familyi={S\bibinitperiod},
+         given={Noam},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=PN}{%
+         family={Parmar},
+         familyi={P\bibinitperiod},
+         given={Niki},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=UJ}{%
+         family={Uszkoreit},
+         familyi={U\bibinitperiod},
+         given={Jakob},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=JL}{%
+         family={Jones},
+         familyi={J\bibinitperiod},
+         given={Llion},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=GAN}{%
+         family={Gomez},
+         familyi={G\bibinitperiod},
+         given={Aidan\bibnamedelima N.},
+         giveni={A\bibinitperiod\bibinitdelim N\bibinitperiod},
+      }}%
+      {{hash=KL}{%
+         family={Kaiser},
+         familyi={K\bibinitperiod},
+         given={Lukasz},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=PI}{%
+         family={Polosukhin},
+         familyi={P\bibinitperiod},
+         given={Illia},
+         giveni={I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{VA+1}
+    \strng{fullhash}{VASNPNUJJLGANKLPI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Advances in Neural Information Processing Systems}
+    \field{title}{Attention is all you need}
+    \field{volume}{30}
+    \field{year}{2017}
+  \endentry
+
+  \entry{arik2021tabnet}{inproceedings}{}
+    \name{author}{2}{}{%
+      {{hash=ASO}{%
+         family={Arik},
+         familyi={A\bibinitperiod},
+         given={Sercan\bibnamedelima O.},
+         giveni={S\bibinitperiod\bibinitdelim O\bibinitperiod},
+      }}%
+      {{hash=PT}{%
+         family={Pfister},
+         familyi={P\bibinitperiod},
+         given={Tomas},
+         giveni={T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ASOPT1}
+    \strng{fullhash}{ASOPT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proceedings of the AAAI Conference on Artificial
+  Intelligence}
+    \field{number}{8}
+    \field{pages}{6679\bibrangedash 6687}
+    \field{title}{{TabNet}: Attentive interpretable tabular learning}
+    \field{volume}{35}
+    \field{year}{2021}
+  \endentry
+
+  \entry{chawla2002smote}{article}{}
+    \name{author}{4}{}{%
+      {{hash=CNV}{%
+         family={Chawla},
+         familyi={C\bibinitperiod},
+         given={Nitesh\bibnamedelima V.},
+         giveni={N\bibinitperiod\bibinitdelim V\bibinitperiod},
+      }}%
+      {{hash=BKW}{%
+         family={Bowyer},
+         familyi={B\bibinitperiod},
+         given={Kevin\bibnamedelima W.},
+         giveni={K\bibinitperiod\bibinitdelim W\bibinitperiod},
+      }}%
+      {{hash=HLO}{%
+         family={Hall},
+         familyi={H\bibinitperiod},
+         given={Lawrence\bibnamedelima O.},
+         giveni={L\bibinitperiod\bibinitdelim O\bibinitperiod},
+      }}%
+      {{hash=KWP}{%
+         family={Kegelmeyer},
+         familyi={K\bibinitperiod},
+         given={W.\bibnamedelima Philip},
+         giveni={W\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{CNV+1}
+    \strng{fullhash}{CNVBKWHLOKWP1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1613/jair.953
+    \endverb
+    \field{pages}{321\bibrangedash 357}
+    \field{title}{{SMOTE}: Synthetic minority over-sampling technique}
+    \field{volume}{16}
+    \field{journaltitle}{Journal of Artificial Intelligence Research}
+    \field{year}{2002}
+  \endentry
+
+  \entry{bahnsen2016feature}{article}{}
+    \name{author}{4}{}{%
+      {{hash=BAC}{%
+         family={Bahnsen},
+         familyi={B\bibinitperiod},
+         given={Alejandro\bibnamedelima Correa},
+         giveni={A\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+      {{hash=AD}{%
+         family={Aouada},
+         familyi={A\bibinitperiod},
+         given={Djamila},
+         giveni={D\bibinitperiod},
+      }}%
+      {{hash=SA}{%
+         family={Stojanovic},
+         familyi={S\bibinitperiod},
+         given={Aleksandar},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=OB}{%
+         family={Ottersten},
+         familyi={O\bibinitperiod},
+         given={Bjorn},
+         giveni={B\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{BAC+1}
+    \strng{fullhash}{BACADSAOB1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1016/j.eswa.2015.12.030
+    \endverb
+    \field{pages}{134\bibrangedash 142}
+    \field{title}{Feature engineering strategies for credit card fraud
+  detection}
+    \field{volume}{51}
+    \field{journaltitle}{Expert Systems with Applications}
+    \field{year}{2016}
+  \endentry
+
+  \entry{fader2005rfm}{article}{}
+    \name{author}{3}{}{%
+      {{hash=FPS}{%
+         family={Fader},
+         familyi={F\bibinitperiod},
+         given={Peter\bibnamedelima S.},
+         giveni={P\bibinitperiod\bibinitdelim S\bibinitperiod},
+      }}%
+      {{hash=HBGS}{%
+         family={Hardie},
+         familyi={H\bibinitperiod},
+         given={Bruce G.\bibnamedelima S.},
+         giveni={B\bibinitperiod\bibinitdelim G\bibinitperiod\bibinitdelim
+  S\bibinitperiod},
+      }}%
+      {{hash=LKL}{%
+         family={Lee},
+         familyi={L\bibinitperiod},
+         given={Ka\bibnamedelima Lok},
+         giveni={K\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{FPSHBGSLKL1}
+    \strng{fullhash}{FPSHBGSLKL1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1287/mksc.1040.0098
+    \endverb
+    \field{number}{2}
+    \field{pages}{275\bibrangedash 284}
+    \field{title}{{``Counting Your Customers''} the easy way: An alternative to
+  the {Pareto/NBD} model}
+    \field{volume}{24}
+    \field{journaltitle}{Marketing Science}
+    \field{year}{2005}
+  \endentry
+
+  \entry{lundberg2017unified}{inproceedings}{}
+    \name{author}{2}{}{%
+      {{hash=LSM}{%
+         family={Lundberg},
+         familyi={L\bibinitperiod},
+         given={Scott\bibnamedelima M.},
+         giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=LSI}{%
+         family={Lee},
+         familyi={L\bibinitperiod},
+         given={Su-In},
+         giveni={S\bibinithyphendelim I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LSMLSI1}
+    \strng{fullhash}{LSMLSI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Advances in Neural Information Processing Systems}
+    \field{title}{A unified approach to interpreting model predictions}
+    \field{volume}{30}
+    \field{year}{2017}
+  \endentry
+
+  \entry{lundberg2020local}{article}{}
+    \name{author}{10}{}{%
+      {{hash=LSM}{%
+         family={Lundberg},
+         familyi={L\bibinitperiod},
+         given={Scott\bibnamedelima M.},
+         giveni={S\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=EG}{%
+         family={Erion},
+         familyi={E\bibinitperiod},
+         given={Gabriel},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=CH}{%
+         family={Chen},
+         familyi={C\bibinitperiod},
+         given={Hugh},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=DA}{%
+         family={DeGrave},
+         familyi={D\bibinitperiod},
+         given={Alex},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=PJM}{%
+         family={Prutkin},
+         familyi={P\bibinitperiod},
+         given={Jordan\bibnamedelima M.},
+         giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=NB}{%
+         family={Nair},
+         familyi={N\bibinitperiod},
+         given={Bala},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=KR}{%
+         family={Katz},
+         familyi={K\bibinitperiod},
+         given={Ronit},
+         giveni={R\bibinitperiod},
+      }}%
+      {{hash=HJ}{%
+         family={Himmelfarb},
+         familyi={H\bibinitperiod},
+         given={Jonathan},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=BN}{%
+         family={Bansal},
+         familyi={B\bibinitperiod},
+         given={Nisha},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=LSI}{%
+         family={Lee},
+         familyi={L\bibinitperiod},
+         given={Su-In},
+         giveni={S\bibinithyphendelim I\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{LSM+1}
+    \strng{fullhash}{LSMEGCHDAPJMNBKRHJBNLSI1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \verb{doi}
+    \verb 10.1038/s42256-019-0138-9
+    \endverb
+    \field{number}{1}
+    \field{pages}{56\bibrangedash 67}
+    \field{title}{From local explanations to global understanding with
+  explainable {AI} for trees}
+    \field{volume}{2}
+    \field{journaltitle}{Nature Machine Intelligence}
+    \field{year}{2020}
+  \endentry
+
+  \entry{ribeiro2016should}{inproceedings}{}
+    \name{author}{3}{}{%
+      {{hash=RMT}{%
+         family={Ribeiro},
+         familyi={R\bibinitperiod},
+         given={Marco\bibnamedelima Tulio},
+         giveni={M\bibinitperiod\bibinitdelim T\bibinitperiod},
+      }}%
+      {{hash=SS}{%
+         family={Singh},
+         familyi={S\bibinitperiod},
+         given={Sameer},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=GC}{%
+         family={Guestrin},
+         familyi={G\bibinitperiod},
+         given={Carlos},
+         giveni={C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RMTSSGC1}
+    \strng{fullhash}{RMTSSGC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{booktitle}{Proceedings of the 22nd ACM SIGKDD International
+  Conference on Knowledge Discovery and Data Mining}
+    \verb{doi}
+    \verb 10.1145/2939672.2939778
+    \endverb
+    \field{pages}{1135\bibrangedash 1144}
+    \field{title}{``{Why} should {I} trust you?'': Explaining the predictions
+  of any classifier}
+    \field{year}{2016}
+  \endentry
+
+  \entry{grinsztajn2022why}{article}{}
+    \name{author}{3}{}{%
+      {{hash=GL}{%
+         family={Grinsztajn},
+         familyi={G\bibinitperiod},
+         given={L{\'e}o},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=OE}{%
+         family={Oyallon},
+         familyi={O\bibinitperiod},
+         given={Edouard},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=VG}{%
+         family={Varoquaux},
+         familyi={V\bibinitperiod},
+         given={Ga{\"e}l},
+         giveni={G\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{GLOEVG1}
+    \strng{fullhash}{GLOEVG1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{pages}{507\bibrangedash 520}
+    \field{title}{Why tree-based models still outperform deep learning on
+  tabular data}
+    \field{volume}{35}
+    \field{journaltitle}{Advances in Neural Information Processing Systems}
+    \field{year}{2022}
+  \endentry
+\enddatalist
+\endinput

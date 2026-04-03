@@ -1,5 +1,6 @@
 \documentclass[a4paper,12pt,oneside]{book}
 \usepackage[utf8]{inputenc}
+\usepackage{mathptmx}
 \usepackage{amssymb}
 \usepackage{amsmath}
 \usepackage{graphicx}
@@ -18,7 +19,6 @@
 \usepackage{etoolbox}
 \usepackage[svgnames]{xcolor}
 \usepackage{comment}
-\usepackage{physics}
 \usepackage{float}
 \usepackage{titletoc}
 \usepackage{appendix}
@@ -35,25 +35,26 @@
 \usepackage{array}
 \usepackage{colortbl}
 \usepackage{xcolor}
+\usepackage{pifont}
 
 
 %-----------------------------------------
 % Editables of the document
 %-----------------------------------------
-\newcommand{\thesistitle}{TITLE OF THE PROJECT} % Title of the Thesis, change here
+\newcommand{\thesistitle}{Customer Churn Prediction for FinTech Platform Using Machine Learning} % Title of the Thesis, change here
 
 % -----------------------------------------
 % STUDENT INFORMATION 
 % ------------------------------------------
 \newcolumntype{C}[1]{>{\centering}m{#1}}
-\newcommand{\studentA}{Student 1 Name}
-\newcommand{\rollA}{Student 1  Roll Number}
-\newcommand{\studentB}{Student 2 Name}
-\newcommand{\rollB}{Student 2  Roll Number}
-\newcommand{\studentC}{Student 3 Name}
-\newcommand{\rollC}{Student 3  Roll Number}
-\newcommand{\guidename}{Name of the Supervisor}
-\newcommand{\guidedesignation}{Designation}
+\newcommand{\studentA}{Alice A.}
+\newcommand{\rollA}{20CS0001}
+\newcommand{\studentB}{Bob B.}
+\newcommand{\rollB}{20CS0002}
+\newcommand{\studentC}{Carol C.}
+\newcommand{\rollC}{20CS0003}
+\newcommand{\guidename}{Dr. Rajesh Kumar}
+\newcommand{\guidedesignation}{Assistant Professor, CSE}
 % ---------------------------------------------
 
 % If the number of people is different, change accordingly in titlepage and bonafide certificate
@@ -282,4 +283,9 @@ minus 1.5\fontdimen4\font
 \phantomsection
 \addcontentsline{toc}{chapter}{REFERENCES}
 \printbibliography
+
+% Appendices
+\clearpage
+\input{appendices}
+
 \end{document}
